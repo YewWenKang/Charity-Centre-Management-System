@@ -1,12 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 
-/**
- *
- * @author User
- */
+import ADT.LinkedList;
+
+
 public class Main {
-    
+    private static <T> void printList(LinkedList<T> list) {
+        for (int i = 1; i <= list.getNumberOfEntries(); i++) {
+            System.out.print(list.getEntry(i) + " ");
+        }
+        System.out.println();
+    }
 }
