@@ -14,8 +14,9 @@ public class LinkListExample {
         // Add elements to the list
         donorList.add(new Donor("Name1","email",01,"address")); 
         donorList.add(new Donor("Name2","email",01,"address")); 
+        System.out.println(donorList.getEntry(1));
         donorList.getEntry(1).setName("Name10");
-        System.out.println("Get Donor Name : " + donorList.getEntry(1).getName());
+        System.out.println("testGet Donor Name : " + donorList.getEntry(1).getName());
         System.out.println("Get Donor Name : " + donorList.getEntry(2).getName());
         
         //integerList.add("20"); // Adds 20 at the end

@@ -6,7 +6,7 @@ public class Donee {
     private String phoneNumber;
     private String email;
     private String doneeType;  // Individual / Organization
-    private String organizationName; // Optional
+    private String organizationName; // Optional , Only doneeType = Organization , will need to fill in
 
     public Donee(String name, String address, String phoneNumber, String email, String doneeType) {
         this.name = name;
