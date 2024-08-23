@@ -4,8 +4,8 @@
  */
 package boundary;
 
-import java.util.Scanner;
 import entity.Donee;
+import java.util.Scanner;
 
 public class DoneeMaintenanceUI {
 
