@@ -84,30 +84,74 @@ public class DonorMaintenanceUI {
         System.out.print("Enter Donor ID to update: ");
         String donorId = scanner.nextLine();
         Donor donor = donorMaintenance.findDonorById(donorId);
-
+    
         if (donor != null) {
-            System.out.print("Enter New Name (current: " + donor.getName() + "): ");
-            String name = scanner.nextLine();
-            System.out.print("Enter New Contact Number (current: " + donor.getContactNumber() + "): ");
-            String contactNumber = scanner.nextLine();
-            System.out.print("Enter New Email (current: " + donor.getEmail() + "): ");
-            String email = scanner.nextLine();
-            System.out.print("Enter New Address (current: " + donor.getAddress() + "): ");
-            String address = scanner.nextLine();
-            System.out.print("Enter New Donor Type (current: " + donor.getDonorType() + "): ");
-            String donorType = scanner.nextLine();
-            System.out.print("Enter New Donation Preference (current: " + donor.getDonationPreference() + "): ");
-            String donationPreference = scanner.nextLine();
-            System.out.print("Enter New Donotion Times (current: " + donor.getDonorTimes() + "): ");
-            String donorTimes = scanner.nextLine();
-
-            donorMaintenance.updateDonor(donorId, name, contactNumber, email, address, donorType, donationPreference, donorTimes);
-
-            System.out.println("Donor updated successfully!");
+            boolean updating = true;
+    
+            while (updating) {
+                System.out.println("\nSelect the field to update:");
+                System.out.println(String.format("1. %-20s : %s", "Name", donor.getName()));
+                System.out.println(String.format("2. %-20s : %s", "Contact Number", donor.getContactNumber()));
+                System.out.println(String.format("3. %-20s : %s", "Email", donor.getEmail()));
+                System.out.println(String.format("4. %-20s : %s", "Address", donor.getAddress()));
+                System.out.println(String.format("5. %-20s : %s", "Donor Type", donor.getDonorType()));
+                System.out.println(String.format("6. %-20s : %s", "Donation Preference", donor.getDonationPreference()));
+                System.out.println(String.format("7. %-20s : %s", "Donation Times", donor.getDonorTimes()));
+                System.out.println("8. Save and Exit");
+                System.out.print("Enter your choice (1-8): ");
+                
+                int choice = Integer.parseInt(scanner.nextLine());
+    
+                switch (choice) {
+                    case 1:
+                        System.out.print("Enter New Name: ");
+                        String name = scanner.nextLine();
+                        donor.setName(name);
+                        break;
+                    case 2:
+                        System.out.print("Enter New Contact Number: ");
+                        String contactNumber = scanner.nextLine();
+                        donor.setContactNumber(contactNumber);
+                        break;
+                    case 3:
+                        System.out.print("Enter New Email: ");
+                        String email = scanner.nextLine();
+                        donor.setEmail(email);
+                        break;
+                    case 4:
+                        System.out.print("Enter New Address: ");
+                        String address = scanner.nextLine();
+                        donor.setAddress(address);
+                        break;
+                    case 5:
+                        System.out.print("Enter New Donor Type: ");
+                        String donorType = scanner.nextLine();
+                        donor.setDonorType(donorType);
+                        break;
+                    case 6:
+                        System.out.print("Enter New Donation Preference: ");
+                        String donationPreference = scanner.nextLine();
+                        donor.setDonationPreference(donationPreference);
+                        break;
+                    case 7:
+                        System.out.print("Enter New Donation Times: ");
+                        String donorTimes = scanner.nextLine();
+                        donor.setDonorTimes(donorTimes);
+                        break;
+                    case 8:
+                        donorMaintenance.updateDonor(donorId, donor.getName(), donor.getContactNumber(), donor.getEmail(), donor.getAddress(), donor.getDonorType(), donor.getDonationPreference(), donor.getDonorTimes());
+                        updating = false;
+                        System.out.println("Donor updated successfully!");
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            }
         } else {
             System.out.println("Donor not found.");
         }
     }
+    
 
     private void deleteDonor() {
         System.out.println("\n--- Delete Donor ---");
