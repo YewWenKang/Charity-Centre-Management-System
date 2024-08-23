@@ -1,6 +1,7 @@
 package entity;
 
 public class Donee {
+    private String id;
     private String name;
     private String address;
     private String phoneNumber;
@@ -8,15 +9,18 @@ public class Donee {
     private String doneeType;  // Individual / Organization
     private String organizationName; // Optional , Only doneeType = Organization , will need to fill in
 
-    public Donee(String name, String address, String phoneNumber, String email, String doneeType) {
-        this.name = name;
-        this.address = address;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.doneeType = doneeType;
-        this.organizationName = "";
-    }
-    public Donee(String name, String address, String phoneNumber, String email, String doneeType,String organizationName) {
+//    public Donee(String id,String name, String address, String phoneNumber, String email, String doneeType) {
+//        this.id = id;
+//        this.name = name;
+//        this.address = address;
+//        this.phoneNumber = phoneNumber;
+//        this.email = email;
+//        this.doneeType = doneeType;
+//        this.organizationName = "";
+//    }
+    //with Organization Name
+    public Donee(String id,String name, String address, String phoneNumber, String email, String doneeType,String organizationName) {
+        this.id = id;
         this.name = name;
         this.address = address;
         this.phoneNumber = phoneNumber;
@@ -26,6 +30,14 @@ public class Donee {
     }
 
     // Getters and Setters
+
+    public String getId(){
+        return id;
+    }
+    
+    public void setId(String id){
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -75,15 +87,29 @@ public class Donee {
         this.organizationName = organizationName;
     }
 
+//    @Override
+//    public String toString() {
+//        return "Donee{" +
+//                "id='" + id + '\'' +
+//                ", name='" + name + '\'' +
+//                ", address='" + address + '\'' +
+//                ", phoneNumber='" + phoneNumber + '\'' +
+//                ", email='" + email + '\'' +
+//                ", doneeType='" + doneeType + '\'' +
+//                ", Organization Name='" + organizationName + '\'' +
+//                '}';
+//    }
+    
     @Override
     public String toString() {
-        return "Donee{" +
-                ", name='" + name + '\'' +
-                ", address='" + address + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", email='" + email + '\'' +
-                ", doneeType='" + doneeType + '\'' +
-                ", Organization Name='" + organizationName + '\'' +
-                '}';
+        return String.format("%s,%s,%s,%s,%s,%s,%s",
+            id == null ? "" : id,                // Handle null ID
+            name == null ? "" : name,            // Handle null name
+            address == null ? "" : address,      // Handle null address
+            phoneNumber == null ? "" : phoneNumber, // Handle null phone number
+            email == null ? "" : email,          // Handle null email
+            doneeType == null ? "" : doneeType,  // Handle null doneeType
+            organizationName == null ? "" : organizationName // Handle null organizationName
+        );
     }
 }

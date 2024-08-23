@@ -16,6 +16,10 @@ public class DoneeMaintenanceUI {
         System.out.println("1.Register as new Donee");
         System.out.println("2.Remove Donee");
         System.out.println("3.Update Current Donee Details");
+        System.out.println("4.Search Donee");
+        System.out.println("5.List Donations Receiver");
+        System.out.println("6.Filter Donee");
+        System.out.println("7.Report");
         System.out.println("0.Quit");
         int choice = scanner.nextInt();
         scanner.nextLine();
@@ -29,7 +33,7 @@ public class DoneeMaintenanceUI {
     System.out.println("Address: " + donee.getAddress());
     System.out.println("Phone Number: " + donee.getPhoneNumber());
     System.out.println("Email: " + donee.getEmail());
-    System.out.println("Donee Type:: " + donee.getDoneeType());
+    System.out.println("Donee Type: " + donee.getDoneeType());
     System.out.println("Organization Name: " + donee.getOrganizationName());
   }
 
@@ -67,6 +71,12 @@ public class DoneeMaintenanceUI {
         System.out.print("Enter your organization name: ");
         String organizationName = scanner.nextLine();
         return organizationName;
+    }
+    
+    public String inputRemovedDoneeName(){
+        System.out.print("Enter the name of the Donee to remove: ");
+        String nameToRemove = scanner.nextLine();
+        return nameToRemove;
     }
 
     
