@@ -9,9 +9,10 @@ public class Donor {
     private String donorType; // e.g., government, private, public
     private String donationPreference; 
     private String donorTimes; 
+    private String totalAmount;
     // Constructor
     public Donor(String donorId, String name, String contactNumber, String email, String address,
-                 String donorType, String donationPreference, String donorTimes) {
+                 String donorType, String donationPreference, String donorTimes, String totalAmount) {
         this.donorId = donorId;
         this.name = name;
         this.contactNumber = contactNumber;
@@ -20,6 +21,7 @@ public class Donor {
         this.donorType = donorType;
         this.donationPreference = donationPreference;
         this.donorTimes = donorTimes;
+        this.totalAmount = totalAmount;
     }
 
     // Getters and Setters
@@ -88,19 +90,31 @@ public class Donor {
         this.donorTimes = donorTimes;
     }
 
+    public String getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(String totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
     // Additional methods for managing the donor entity can be added here
 
     @Override
     public String toString() {
-        return "Donor{" +
-                "donorId='" + donorId + '\'' +
-                ", name='" + name + '\'' +
-                ", contactNumber='" + contactNumber + '\'' +
-                ", email='" + email + '\'' +
-                ", address='" + address + '\'' +
-                ", donorType='" + donorType + '\'' +
-                ", donationPreference='" + donationPreference + '\'' +
-                ", donorTimes='" + donorTimes + '\'' +
-                '}';
+        return String.format(
+            "Donor Information:\n" +
+            "-------------------\n" +
+            "ID: %s\n" +
+            "Name: %s\n" +
+            "Contact Number: %s\n" +
+            "Email: %s\n" +
+            "Address: %s\n" +
+            "Donor Type: %s\n" +
+            "Donation Preference: %s\n" +
+            "Donation Times: %s\n" +
+            "Total Amount: %s\n",
+            donorId, name, contactNumber, email, address, donorType, donationPreference, donorTimes, totalAmount
+        );
     }
 }

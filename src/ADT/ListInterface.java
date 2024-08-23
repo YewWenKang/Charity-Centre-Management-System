@@ -1,26 +1,31 @@
 package ADT;
 
-
 public interface ListInterface<T> {
 
-  public boolean add(T newEntry);
+  boolean add(T newEntry);
 
-  public boolean add(int newPosition, T newEntry);
+  boolean add(int newPosition, T newEntry);
 
-  public T remove(int givenPosition);
+  boolean remove(T element);
 
-  public void clear();
+  void clear();
 
-  public boolean replace(int givenPosition, T newEntry);
+  boolean replace(int givenPosition, T newEntry);
 
-  public T getEntry(int givenPosition);
+  T getEntry(int givenPosition);
 
-  public boolean contains(T anEntry);
+  boolean contains(T anEntry);
 
-  public int getNumberOfEntries();
+  int getNumberOfEntries();
 
-  public boolean isEmpty();
+  boolean isEmpty();
 
-  public boolean isFull();
+  boolean isFull();
+  
+  T get(int index);
+
+  int size();
+
+  void remove(int i);
 }
 

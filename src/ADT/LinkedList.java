@@ -1,6 +1,4 @@
-
 package ADT;
-
 
 public class LinkedList<T> implements ListInterface<T> {
     private Node<T> head;
@@ -11,11 +9,9 @@ public class LinkedList<T> implements ListInterface<T> {
         size = 0;
     }
 
-    // Inner class Node
     private class Node<T> {
         T data;
         Node<T> next;
-        
 
         Node(T data) {
             this.data = data;
@@ -61,23 +57,27 @@ public class LinkedList<T> implements ListInterface<T> {
     }
 
     @Override
-    public T remove(int givenPosition) {
-        if (givenPosition < 1 || givenPosition > size) {
-            return null;
-        }
-        Node<T> current = head;
-        if (givenPosition == 1) {
+    public boolean remove(T element) {
+        if (head == null) return false;
+
+        if (head.data.equals(element)) {
             head = head.next;
-        } else {
-            Node<T> prev = null;
-            for (int i = 1; i < givenPosition; i++) {
-                prev = current;
-                current = current.next;
-            }
-            prev.next = current.next;
+            size--;
+            return true;
         }
-        size--;
-        return current.data;
+
+        Node<T> current = head;
+        while (current.next != null && !current.next.data.equals(element)) {
+            current = current.next;
+        }
+
+        if (current.next != null) {
+            current.next = current.next.next;
+            size--;
+            return true;
+        }
+
+        return false;
     }
 
     @Override
@@ -136,5 +136,32 @@ public class LinkedList<T> implements ListInterface<T> {
     @Override
     public boolean isFull() {
         return false;
+    }
+
+    @Override
+    public T get(int index) {
+        return getEntry(index + 1); // Adjust for zero-based indexing
+    }
+
+    @Override
+    public int size() {
+        return size;
+    }
+
+    @Override
+    public void remove(int i) {
+        if (i < 1 || i > size) {
+            return;
+        }
+        if (i == 1) {
+            head = head.next;
+        } else {
+            Node<T> current = head;
+            for (int j = 1; j < i - 1; j++) {
+                current = current.next;
+            }
+            current.next = current.next.next;
+        }
+        size--;
     }
 }

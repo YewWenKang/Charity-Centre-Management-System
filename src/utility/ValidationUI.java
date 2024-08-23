@@ -1,8 +1,11 @@
 package utility;
 
 import java.util.regex.Pattern;
+import java.util.Scanner;
 
 public class ValidationUI {
+
+    private static final Scanner scanner = new Scanner(System.in);
 
     // Regular expression patterns for validation
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
@@ -30,13 +33,15 @@ public class ValidationUI {
         return isNotEmpty(phoneNumber) && PHONE_PATTERN.matcher(phoneNumber).matches();
     }
 
-    // Validate if an ID is in the correct format
-    public static boolean isValidId(String id) {
-        return isNotEmpty(id) && ID_PATTERN.matcher(id).matches();
-    }
-
     // Validate if a string matches a specific pattern
     public static boolean matchesPattern(String value, String pattern) {
         return isNotEmpty(value) && Pattern.compile(pattern).matcher(value).matches();
     }
+
+    public static boolean retryOrExit() {
+        System.out.print("Do you want to try again? (y/n): ");
+        String choice = scanner.nextLine().trim().toLowerCase();
+        return choice.equals("y");
+    }
+    
 }

@@ -1,95 +1,68 @@
 package DAO;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
+import ADT.LinkedList;
+import ADT.ListInterface;
+import java.io.*;
 import java.util.List;
 import java.util.function.Function;
 
 public class FileDao<T> {
-    private static final String FILE_NAME = System.getProperty("DAO") + "/donorData.csv";
 
-
-    // Method to save data to a CSV file
-    public void writeDataToCSV(String fileName, List<String> headers, List<T> data, Function<T, List<String>> rowMapper) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            // Write the headers
-            writeLine(writer, headers);
-
-            // Write the data
-            for (T item : data) {
-                writeLine(writer, rowMapper.apply(item));
-            }
-
-            System.out.println("Data saved to " + fileName + " successfully.");
-
-        } catch (IOException e) {
-            System.err.println("An error occurred while writing to the file: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    // Helper method to write a single line to the file
-    private void writeLine(BufferedWriter writer, List<String> values) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < values.size(); i++) {
-            sb.append(escapeSpecialCharacters(values.get(i)));
-            if (i < values.size() - 1) {
-                sb.append(",");
-            }
-        }
-        sb.append("\n");
-        writer.write(sb.toString());
-    }
-
-    // Helper method to escape special characters in CSV values
-    private String escapeSpecialCharacters(String value) {
-        if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
-            value = "\"" + value.replace("\"", "\"\"") + "\"";
-        }
-        return value;
-    }
-
-    // General method to load data from a CSV file
-    public List<T> loadDataFromCSV(String fileName, Function<String[], T> rowMapper) {
-        List<T> dataList = new ArrayList<>();
-        File file = new File(fileName);
-
-        // Create file if it doesn't exist
-        if (!file.exists()) {
-            try {
-                if (file.createNewFile()) {
-                    System.out.println("File " + fileName + " created as it did not exist.");
-                }
-            } catch (IOException e) {
-                System.err.println("An error occurred while creating the file: " + e.getMessage());
-                e.printStackTrace();
-                return dataList;
-            }
-        }
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+    public ListInterface<T> loadDataFromCSV(String fileName, Function<String[], T> mapper) {
+        ListInterface<T> list = new LinkedList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
-            boolean isFirstLine = true; // Track header line
-            while ((line = reader.readLine()) != null) {
-                if (isFirstLine) {
-                    isFirstLine = false; // Skip header line
+            boolean firstLine = true;
+            while ((line = br.readLine()) != null) {
+                if (firstLine) {
+                    firstLine = false; // Skip the header line
                     continue;
                 }
-                String[] values = line.split(",");
-                T data = rowMapper.apply(values);
-                if (data != null) {
-                    dataList.add(data);
+                String[] values = parseCSVLine(line);
+                T item = mapper.apply(values);
+                if (item != null) {
+                    list.add(item);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public void writeDataToCSV(String fileName, List<String> headers, ListInterface<T> data, Function<T, List<String>> mapper) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
+            writer.println(String.join(",", headers));
+            for (int i = 0; i < data.size(); i++) {
+                T item = data.get(i);
+                if (item != null) {
+                    List<String> row = mapper.apply(item);
+                    writer.println(escapeCSV(row));
                 }
             }
         } catch (IOException e) {
-            System.err.println("An error occurred while reading the file: " + e.getMessage());
             e.printStackTrace();
         }
-        return dataList;
+    }
+
+    private String[] parseCSVLine(String line) {
+        return line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Splits on commas, but not within quotes
+    }
+
+    private String escapeCSV(List<String> fields) {
+        StringBuilder escaped = new StringBuilder();
+        for (int i = 0; i < fields.size(); i++) {
+            String field = fields.get(i);
+            if (field.contains(",") || field.contains("\"")) {
+                field = "\"" + field.replace("\"", "\"\"") + "\"";
+            }
+            escaped.append(field);
+            if (i < fields.size() - 1) {
+                escaped.append(",");
+            }
+        }
+        return escaped.toString();
     }
 }

@@ -1,18 +1,16 @@
 package boundary;
 
+import ADT.ListInterface;
 import control.DonorMaintenance;
 import entity.Donor;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
+import utility.ValidationUI;
 
 public class DonorMaintenanceUI {
-    private List<Donor> donorList;
     private Scanner scanner;
     private DonorMaintenance donorMaintenance;
 
     public DonorMaintenanceUI() {
-        donorList = new ArrayList<>();
         scanner = new Scanner(System.in);
         donorMaintenance = new DonorMaintenance();
     }
@@ -56,26 +54,81 @@ public class DonorMaintenanceUI {
     }
 
     private void addDonor() {
-        System.out.println("\n--- Add Donor ---");
-        System.out.print("Enter Donor ID: ");
-        String donorId = scanner.nextLine();
-        System.out.print("Enter Name: ");
-        String name = scanner.nextLine();
-        System.out.print("Enter Contact Number: ");
-        String contactNumber = scanner.nextLine();
-        System.out.print("Enter Email: ");
-        String email = scanner.nextLine();
-        System.out.print("Enter Address: ");
-        String address = scanner.nextLine();
-        System.out.print("Enter Donor Type (Government, Private, Public): ");
-        String donorType = scanner.nextLine();
-        System.out.print("Enter Donation Preference (Cash, Bank In, Tng): ");
-        String donationPreference = scanner.nextLine();
-        System.out.print("Enter Donotian Times: ");
-        String donorTimes = scanner.nextLine();
+        String donorId, name, contactNumber, email, address, donorType, donationPreference, donorTimes, totalAmount;
 
-        donorMaintenance.addDonor(donorId, name, contactNumber, email, address, donorType, donationPreference, donorTimes);
+        while (true) {
+            System.out.print("Enter Donor ID (format DAxxx where xxx is digits): ");
+            donorId = scanner.nextLine();
+            if (ValidationUI.isNotEmpty(donorId) && donorId.matches("^DA\\d{3}$")) break;
+            System.out.println("Invalid Donor ID format. It should start with 'DA' followed by three digits.");
+            if (!retryOrExit()) return;
+        }
 
+        while (true) {
+            System.out.print("Enter Name: ");
+            name = scanner.nextLine();
+            if (ValidationUI.isNotEmpty(name)) break;
+            System.out.println("Name cannot be empty.");
+            if (!retryOrExit()) return;
+        }
+
+        while (true) {
+            System.out.print("Enter Contact Number (format 01xxxxxxxxx): ");
+            contactNumber = scanner.nextLine();
+            if (ValidationUI.isValidPhoneNumber(contactNumber)) break;
+            System.out.println("Invalid contact number format. It should start with '01' and be 10 or 11 digits long.");
+            if (!retryOrExit()) return;
+        }
+
+        while (true) {
+            System.out.print("Enter Email: ");
+            email = scanner.nextLine();
+            if (ValidationUI.isValidEmail(email)) break;
+            System.out.println("Invalid email format.");
+            if (!retryOrExit()) return;
+        }
+
+        while (true) {
+            System.out.print("Enter Address: ");
+            address = scanner.nextLine();
+            if (ValidationUI.isNotEmpty(address)) break;
+            System.out.println("Address cannot be empty.");
+            if (!retryOrExit()) return;
+        }
+
+        while (true) {
+            System.out.print("Enter Donor Type (Government, Private, Public): ");
+            donorType = scanner.nextLine();
+            if (ValidationUI.isNotEmpty(donorType)) break;
+            System.out.println("Donor Type cannot be empty.");
+            if (!retryOrExit()) return;
+        }
+
+        while (true) {
+            System.out.print("Enter Donation Preference (Cash, Bank In, Tng): ");
+            donationPreference = scanner.nextLine();
+            if (ValidationUI.isNotEmpty(donationPreference)) break;
+            System.out.println("Donation Preference cannot be empty.");
+            if (!retryOrExit()) return;
+        }
+
+        while (true) {
+            System.out.print("Enter Donation Times: ");
+            donorTimes = scanner.nextLine();
+            if (ValidationUI.isNotEmpty(donorTimes)) break;
+            System.out.println("Donation Times cannot be empty.");
+            if (!retryOrExit()) return;
+        }
+
+        while (true) {
+            System.out.print("Enter Total Amount: ");
+            totalAmount = scanner.nextLine();
+            if (ValidationUI.isNotEmpty(totalAmount)) break;
+            System.out.println("Total Amount cannot be empty.");
+            if (!retryOrExit()) return;
+        }
+
+        donorMaintenance.addDonor(donorId, name, contactNumber, email, address, donorType, donationPreference, donorTimes, totalAmount);
         System.out.println("Donor added successfully!");
     }
 
@@ -97,78 +150,86 @@ public class DonorMaintenanceUI {
                 System.out.println(String.format("5. %-20s : %s", "Donor Type", donor.getDonorType()));
                 System.out.println(String.format("6. %-20s : %s", "Donation Preference", donor.getDonationPreference()));
                 System.out.println(String.format("7. %-20s : %s", "Donation Times", donor.getDonorTimes()));
-                System.out.println("8. Save and Exit");
-                System.out.print("Enter your choice (1-8): ");
-                
-                int choice = Integer.parseInt(scanner.nextLine());
+                System.out.println(String.format("8. %-20s : %s", "Total Amount", donor.getTotalAmount()));
+                System.out.println("9. Save changes and return");
+                System.out.print("Enter your choice: ");
+                int choice = scanner.nextInt();
+                scanner.nextLine(); // Consume newline
     
                 switch (choice) {
                     case 1:
-                        System.out.print("Enter New Name: ");
-                        String name = scanner.nextLine();
-                        donor.setName(name);
+                        System.out.print("Enter new Name: ");
+                        donor.setName(scanner.nextLine());
                         break;
                     case 2:
-                        System.out.print("Enter New Contact Number: ");
-                        String contactNumber = scanner.nextLine();
-                        donor.setContactNumber(contactNumber);
+                        System.out.print("Enter new Contact Number: ");
+                        donor.setContactNumber(scanner.nextLine());
                         break;
                     case 3:
-                        System.out.print("Enter New Email: ");
-                        String email = scanner.nextLine();
-                        donor.setEmail(email);
+                        System.out.print("Enter new Email: ");
+                        donor.setEmail(scanner.nextLine());
                         break;
                     case 4:
-                        System.out.print("Enter New Address: ");
-                        String address = scanner.nextLine();
-                        donor.setAddress(address);
+                        System.out.print("Enter new Address: ");
+                        donor.setAddress(scanner.nextLine());
                         break;
                     case 5:
-                        System.out.print("Enter New Donor Type: ");
-                        String donorType = scanner.nextLine();
-                        donor.setDonorType(donorType);
+                        System.out.print("Enter new Donor Type: ");
+                        donor.setDonorType(scanner.nextLine());
                         break;
                     case 6:
-                        System.out.print("Enter New Donation Preference: ");
-                        String donationPreference = scanner.nextLine();
-                        donor.setDonationPreference(donationPreference);
+                        System.out.print("Enter new Donation Preference: ");
+                        donor.setDonationPreference(scanner.nextLine());
                         break;
                     case 7:
-                        System.out.print("Enter New Donation Times: ");
-                        String donorTimes = scanner.nextLine();
-                        donor.setDonorTimes(donorTimes);
+                        System.out.print("Enter new Donation Times: ");
+                        donor.setDonorTimes(scanner.nextLine());
                         break;
                     case 8:
-                        donorMaintenance.updateDonor(donorId, donor.getName(), donor.getContactNumber(), donor.getEmail(), donor.getAddress(), donor.getDonorType(), donor.getDonationPreference(), donor.getDonorTimes());
+                        System.out.print("Enter new Total Amount: ");
+                        donor.setTotalAmount(scanner.nextLine());
+                        break;
+                    case 9:
                         updating = false;
-                        System.out.println("Donor updated successfully!");
                         break;
                     default:
-                        System.out.println("Invalid choice. Please try again.");
+                        System.out.println("Invalid choice, please try again.");
                 }
             }
+    
+            donorMaintenance.updateDonor(donor.getDonorId(), donor.getName(), donor.getContactNumber(), donor.getEmail(), donor.getAddress(),
+                    donor.getDonorType(), donor.getDonationPreference(), donor.getDonorTimes(), donor.getTotalAmount());
+            System.out.println("Donor updated successfully.");
         } else {
             System.out.println("Donor not found.");
         }
     }
-    
 
     private void deleteDonor() {
-        System.out.println("\n--- Delete Donor ---");
         System.out.print("Enter Donor ID to delete: ");
         String donorId = scanner.nextLine();
-        donorMaintenance.deleteDonor(donorId);
+        if (donorMaintenance.deleteDonor(donorId)) {
+            System.out.println("Donor deleted successfully.");
+        } else {
+            System.out.println("Donor not found.");
+        }
     }
 
     private void viewAllDonors() {
-        System.out.println("\n--- View All Donors ---");
-        donorList = donorMaintenance.getAllDonors();
-        if (donorList.isEmpty()) {
-            System.out.println("No donors found.");
-        } else {
-            for (Donor donor : donorList) {
-                System.out.println(donor);
+        System.out.println("\n--- All Donors ---");
+        ListInterface<Donor> donors = donorMaintenance.getAllDonors();
+        if (donors.size() > 0) {
+            for (int i = 0; i < donors.size(); i++) {
+                System.out.println(donors.get(i).toString());
             }
+        } else {
+            System.out.println("No donors found.");
         }
+    }
+
+    private boolean retryOrExit() {
+        System.out.print("Would you like to try again? (yes/no): ");
+        String choice = scanner.nextLine().trim().toLowerCase();
+        return choice.equals("yes");
     }
 }
