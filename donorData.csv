@@ -1,5 +1,5 @@
-ID,Name,Contact Number,Email,Address,Donor Type,Donation Preference,Donation Times,Total Amount
-DA984,choo,01111111111,opp@gmail.com,dsadsa,dsa,dsaas,dsa,ds
-DA297,choo,01000000000,opp@gmail.com,dsa,dsa,ds,ds,ds
-DA598,choo,0132323232,o@gmail.com,dsa,public,tng,3,321312
-DA430,dsa,0100000000,opp@gmail.com,dasd,public,tng,3,322.32
+ID,Name,Contact Number,Email,Address,Donor Type,Donation Preference,Donation Times,Total Amount(RM)
+DA984,choo,01332342342,opp@gmail.com,100a100a,100a,100aas,100a,100
+DA297,choo,01000000000,opp@gmail.com,100a,100a,100,100,100
+DA598,choo,0132323232,o@gmail.com,100a,public,tng,3,321312
+DA430,100a,0100000000,opp@gmail.com,dasd,public,tng,3,322.32

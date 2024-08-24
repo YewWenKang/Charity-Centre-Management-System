@@ -1,6 +1,5 @@
 package boundary;
 
-import ADT.ListInterface;
 import control.DonorMaintenance;
 import entity.Donor;
 import java.io.BufferedReader;
@@ -233,10 +232,10 @@ public class DonorMaintenanceUI {
         System.out.print("Enter Donor ID to update: ");
         String donorId = scanner.nextLine();
         Donor donor = donorMaintenance.findDonorById(donorId);
-    
+
         if (donor != null) {
             boolean updating = true;
-    
+
             while (updating) {
                 System.out.println("\nSelect the field to update:");
                 System.out.println(String.format("1. %-20s : %s", "Name", donor.getName()));
@@ -244,12 +243,13 @@ public class DonorMaintenanceUI {
                 System.out.println(String.format("3. %-20s : %s", "Email", donor.getEmail()));
                 System.out.println(String.format("4. %-20s : %s", "Address", donor.getAddress()));
                 System.out.println(String.format("5. %-20s : %s", "Donor Type", donor.getDonorType()));
-                System.out.println(String.format("6. %-20s : %s", "Donation Preference", donor.getDonationPreference()));
+                System.out
+                        .println(String.format("6. %-20s : %s", "Donation Preference", donor.getDonationPreference()));
                 System.out.println(String.format("7. %-20s : %s", "Donation Times", donor.getDonorTimes()));
                 System.out.println(String.format("8. %-20s : %s", "Total Amount(RM)", donor.getTotalAmount()));
                 System.out.println("9. Save changes and return");
                 System.out.print("Enter your choice: ");
-    
+
                 int choice = -1;
                 try {
                     choice = Integer.parseInt(scanner.nextLine());
@@ -257,7 +257,7 @@ public class DonorMaintenanceUI {
                     System.out.println("Invalid input, please enter a number.");
                     continue;
                 }
-    
+
                 switch (choice) {
                     case 1:
                         String name;
@@ -269,7 +269,8 @@ public class DonorMaintenanceUI {
                                 break;
                             } else {
                                 System.out.println("Name cannot be empty.");
-                                if (!ValidationUI.retryOrExit()) return;
+                                if (!ValidationUI.retryOrExit())
+                                    return;
                             }
                         }
                         break;
@@ -282,8 +283,10 @@ public class DonorMaintenanceUI {
                                 donor.setContactNumber(contactNumber);
                                 break;
                             } else {
-                                System.out.println("Invalid contact number format. It should start with '01' and be 10 or 11 digits long.");
-                                if (!ValidationUI.retryOrExit()) return;
+                                System.out.println(
+                                        "Invalid contact number format. It should start with '01' and be 10 or 11 digits long.");
+                                if (!ValidationUI.retryOrExit())
+                                    return;
                             }
                         }
                         break;
@@ -297,7 +300,8 @@ public class DonorMaintenanceUI {
                                 break;
                             } else {
                                 System.out.println("Invalid email format.");
-                                if (!ValidationUI.retryOrExit()) return;
+                                if (!ValidationUI.retryOrExit())
+                                    return;
                             }
                         }
                         break;
@@ -311,7 +315,8 @@ public class DonorMaintenanceUI {
                                 break;
                             } else {
                                 System.out.println("Address cannot be empty.");
-                                if (!ValidationUI.retryOrExit()) return;
+                                if (!ValidationUI.retryOrExit())
+                                    return;
                             }
                         }
                         break;
@@ -320,12 +325,15 @@ public class DonorMaintenanceUI {
                         while (true) {
                             System.out.print("Enter new Donor Type (Government, Private, Public): ");
                             donorType = scanner.nextLine();
-                            if (ValidationUI.isNotEmpty(donorType) && donorType.matches("(?i)^(Government|Private|Public)$")) {
+                            if (ValidationUI.isNotEmpty(donorType)
+                                    && donorType.matches("(?i)^(Government|Private|Public)$")) {
                                 donor.setDonorType(donorType);
                                 break;
                             } else {
-                                System.err.println("Donor Type is invalid! It must be one of: Government, Private, Public.");
-                                if (!ValidationUI.retryOrExit()) return;
+                                System.err.println(
+                                        "Donor Type is invalid! It must be one of: Government, Private, Public.");
+                                if (!ValidationUI.retryOrExit())
+                                    return;
                             }
                         }
                         break;
@@ -339,8 +347,10 @@ public class DonorMaintenanceUI {
                                 donor.setDonationPreference(donationPreference);
                                 break;
                             } else {
-                                System.out.println("Donation Preference is invalid! It must be one of: Cash, Bank In, Tng.");
-                                if (!ValidationUI.retryOrExit()) return;
+                                System.out.println(
+                                        "Donation Preference is invalid! It must be one of: Cash, Bank In, Tng.");
+                                if (!ValidationUI.retryOrExit())
+                                    return;
                             }
                         }
                         break;
@@ -354,7 +364,8 @@ public class DonorMaintenanceUI {
                                 break;
                             } else {
                                 System.out.println("Donation Times cannot be empty and must be a valid number.");
-                                if (!ValidationUI.retryOrExit()) return;
+                                if (!ValidationUI.retryOrExit())
+                                    return;
                             }
                         }
                         break;
@@ -368,7 +379,8 @@ public class DonorMaintenanceUI {
                                 break;
                             } else {
                                 System.out.println("Total Amount cannot be empty and must be a valid number.");
-                                if (!ValidationUI.retryOrExit()) return;
+                                if (!ValidationUI.retryOrExit())
+                                    return;
                             }
                         }
                         break;
@@ -379,7 +391,7 @@ public class DonorMaintenanceUI {
                         System.out.println("Invalid choice, please try again.");
                 }
             }
-    
+
             if (donorMaintenance.updateDonor(donor.getDonorId(), donor.getName(), donor.getContactNumber(),
                     donor.getEmail(), donor.getAddress(),
                     donor.getDonorType(), donor.getDonationPreference(), donor.getDonorTimes(),
@@ -392,7 +404,7 @@ public class DonorMaintenanceUI {
             System.out.println("Donor not found.");
         }
     }
-    
+
     private void deleteDonor() {
         System.out.print("Enter Donor ID to delete: ");
         String donorId = scanner.nextLine();
@@ -404,14 +416,82 @@ public class DonorMaintenanceUI {
     }
 
     private void viewAllDonors() {
-        ListInterface<Donor> donorList = donorMaintenance.getAllDonors();
-        if (donorList.size() == 0) {
-            System.out.println("No donors found.");
-        } else {
-            System.out.println("\n--- Donor List ---");
-            for (int i = 0; i < donorList.size(); i++) {
-                System.out.println(donorList.get(i));
-            }
+        donorMaintenance.viewAllDonors();
+        System.out.println("1. Sort by Donor ID");
+        System.out.println("2. Sort by Donor Name");
+        System.out.println("3. Sort by Total Amount");
+        System.out.print("Enter your choice: ");
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+        switch (choice) {
+            case 1:
+                sortById();
+                break;
+            case 2:
+                sortByName();
+                break;
+            case 3:
+                sortByAmount();
+                break;
+            default:
+                System.out.println("Invalid choice. Please try again.");
+        }
+    }
+
+    // Sort by ID
+    private void sortById() {
+        System.out.println("Sort by Donor ID");
+        System.out.println("1. Sort by Descending Order");
+        System.out.println("2. Sort by Ascending Order");
+        System.out.print("Enter your choice: ");
+        int choice = scanner.nextInt();
+        switch (choice) {
+            case 1:
+                donorMaintenance.sortByIdDescending();
+                break;
+            case 2:
+                donorMaintenance.sortByIdAscending();
+                break;
+            default:
+                System.out.println("Invalid choice. Please try again.");
+        }
+    }
+
+    // Sort by Name
+    private void sortByName() {
+        System.out.println("Sort by Donor Name");
+        System.out.println("1. Sort by Descending Order");
+        System.out.println("2. Sort by Ascending Order");
+        System.out.print("Enter your choice: ");
+        int choice = scanner.nextInt();
+        switch (choice) {
+            case 1:
+                donorMaintenance.sortByNameDescending();
+                break;
+            case 2:
+                donorMaintenance.sortByNameAscending();
+                break;
+            default:
+                System.out.println("Invalid choice. Please try again.");
+        }
+    }
+
+    // Sort by Amount
+    private void sortByAmount() {
+        System.out.println("Sort by Total Amount");
+        System.out.println("1. Sort by Descending Order");
+        System.out.println("2. Sort by Ascending Order");
+        System.out.print("Enter your choice: ");
+        int choice = scanner.nextInt();
+        switch (choice) {
+            case 1:
+                donorMaintenance.sortByAmountDescending();
+                break;
+            case 2:
+                donorMaintenance.sortByAmountAscending();
+                break;
+            default:
+                System.out.println("Invalid choice. Please try again.");
         }
     }
 

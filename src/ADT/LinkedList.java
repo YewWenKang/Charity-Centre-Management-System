@@ -5,7 +5,6 @@ import java.util.stream.StreamSupport;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class LinkedList<T> implements ListInterface<T> {
     private Node<T> head;
@@ -88,6 +87,28 @@ public class LinkedList<T> implements ListInterface<T> {
     }
 
     @Override
+    public T remove(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException("Index out of bounds");
+        }
+
+        Node<T> current = head;
+        Node<T> previous = null;
+        for (int i = 0; i < index; i++) {
+            previous = current;
+            current = current.next;
+        }
+
+        if (previous == null) { // Removing head
+            head = current.next;
+        } else {
+            previous.next = current.next;
+        }
+        size--;
+        return current.data;
+    }
+
+    @Override
     public void clear() {
         head = null;
         size = 0;
@@ -155,24 +176,6 @@ public class LinkedList<T> implements ListInterface<T> {
         return size;
     }
 
-    @Override
-    public void remove(int i) {
-        if (i < 1 || i > size) {
-            return;
-        }
-        if (i == 1) {
-            head = head.next;
-        } else {
-            Node<T> current = head;
-            for (int j = 1; j < i - 1; j++) {
-                current = current.next;
-            }
-            current.next = current.next.next;
-        }
-        size--;
-    }
-    
-    // Implement the stream method
     @Override
     public Stream<T> stream() {
         return StreamSupport.stream(new Spliterator<T>() {

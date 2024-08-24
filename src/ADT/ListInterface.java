@@ -4,32 +4,31 @@ import java.util.stream.Stream;
 
 public interface ListInterface<T> {
 
-  boolean add(T newEntry);
+    boolean add(T newEntry);
 
-  boolean add(int newPosition, T newEntry);
+    boolean add(int newPosition, T newEntry);
 
-  boolean remove(T element);
+    boolean remove(T element);
 
-  void clear();
+    T remove(int index);
 
-  boolean replace(int givenPosition, T newEntry);
+    void clear();
 
-  T getEntry(int givenPosition);
+    boolean replace(int givenPosition, T newEntry);
 
-  boolean contains(T anEntry);
+    T getEntry(int givenPosition);
 
-  int getNumberOfEntries();
+    boolean contains(T anEntry);
 
-  boolean isEmpty();
+    int getNumberOfEntries();
 
-  boolean isFull();
-  
-  T get(int index);
+    boolean isEmpty();
 
-  int size();
+    boolean isFull();
 
-  void remove(int i);
+    T get(int index);
 
-  Stream<T> stream();
+    int size();
+
+    Stream<T> stream();
 }
-
