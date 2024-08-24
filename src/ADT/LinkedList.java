@@ -1,5 +1,12 @@
 package ADT;
 
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 public class LinkedList<T> implements ListInterface<T> {
     private Node<T> head;
     private int size;
@@ -163,5 +170,38 @@ public class LinkedList<T> implements ListInterface<T> {
             current.next = current.next.next;
         }
         size--;
+    }
+    
+    // Implement the stream method
+    @Override
+    public Stream<T> stream() {
+        return StreamSupport.stream(new Spliterator<T>() {
+            private Node<T> current = head;
+
+            @Override
+            public boolean tryAdvance(Consumer<? super T> action) {
+                if (current == null) {
+                    return false;
+                }
+                action.accept(current.data);
+                current = current.next;
+                return true;
+            }
+
+            @Override
+            public Spliterator<T> trySplit() {
+                return null; // Not supported
+            }
+
+            @Override
+            public long estimateSize() {
+                return size;
+            }
+
+            @Override
+            public int characteristics() {
+                return ORDERED | SIZED | NONNULL | IMMUTABLE;
+            }
+        }, false);
     }
 }

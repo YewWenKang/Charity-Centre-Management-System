@@ -1,5 +1,7 @@
 package ADT;
 
+import java.util.stream.Stream;
+
 public interface ListInterface<T> {
 
   boolean add(T newEntry);
@@ -27,5 +29,7 @@ public interface ListInterface<T> {
   int size();
 
   void remove(int i);
+
+  Stream<T> stream();
 }
 

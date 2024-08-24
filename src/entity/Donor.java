@@ -113,7 +113,7 @@ public class Donor {
             "Donor Type: %s\n" +
             "Donation Preference: %s\n" +
             "Donation Times: %s\n" +
-            "Total Amount: %s\n",
+            "Total Amount(RM): %s\n",
             donorId, name, contactNumber, email, address, donorType, donationPreference, donorTimes, totalAmount
         );
     }
