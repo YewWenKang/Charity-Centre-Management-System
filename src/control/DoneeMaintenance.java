@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package control;
 
 import ADT.LinkedList;
@@ -11,10 +7,6 @@ import entity.Donee;
 import utility.MessageUI;
 import utility.SaveFile;
 
-/**
- *
- * @author User
- */
 public class DoneeMaintenance {
 
     private ListInterface<Donee> doneeList = new LinkedList<>();
@@ -30,15 +22,14 @@ public class DoneeMaintenance {
     private void loadDoneeData() {
         SaveFile.loadFromFile(FILE_NAME, doneeList, line -> {
             String[] parts = line.split(","); // Delimiter is comma
-            
-            String id = parts[0]; 
+
+            String id = parts[0];
             String name = parts[1];
             String address = parts[2];
             String phoneNumber = parts[3];
-            String email =parts[4];
+            String email = parts[4];
             String doneeType = parts[5];
             String organizationName = parts.length > 6 ? parts[6] : "";
-            
 
             return new Donee(id, name, address, phoneNumber, email, doneeType, organizationName);
         });
@@ -49,7 +40,7 @@ public class DoneeMaintenance {
     }
 
     public Donee inputDoneeDetails() {
-
+        String doneeId = generateDoneeId();
         String doneeName = doneeUI.inputDoneeName();
         String doneeAddress = doneeUI.inputDoneeAddress();
         String doneePhoneNumber = doneeUI.inputDoneePhoneNumber();
@@ -65,7 +56,16 @@ public class DoneeMaintenance {
             doneeOrganizationName = "";
         }
 
-        return new Donee(String.valueOf(doneeList.getNumberOfEntries() + 1), doneeName, doneeAddress, doneePhoneNumber, doneeEmail, doneeType, doneeOrganizationName);
+        return new Donee(doneeId, doneeName, doneeAddress, doneePhoneNumber, doneeEmail, doneeType, doneeOrganizationName);
+    }
+
+    private String generateDoneeId() {
+        int size = doneeList.getNumberOfEntries();
+        // ID prefix
+        String prefix = "DE";
+        // Numeric part, zero-padded to 3 digits
+        String numericPart = String.format("%03d", size + 1);
+        return prefix + numericPart;
     }
 
     //Choice 1
@@ -96,37 +96,95 @@ public class DoneeMaintenance {
 
     //Choice 3
     public void updateDoneeDetails() {
-        System.out.print("Enter the name of the Donee to update: ");
-        String nameToUpdate = doneeUI.inputDoneeName();
-
+        // Display all donees
+        System.out.println("List of Donees:");
         for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
             Donee donee = doneeList.getEntry(i);
-            if (donee.getName().equalsIgnoreCase(nameToUpdate)) {
-                System.out.println("Updating details for Donee " + nameToUpdate);
-                Donee updatedDonee = inputDoneeDetails();
-                doneeList.replace(i, updatedDonee);
-                System.out.println("Donee " + nameToUpdate + " has been updated.");
+            System.out.println(donee.getId() + ": " + donee.getName());
+        }
+
+
+        String idToUpdate = doneeUI.inputDoneeIdUpdate();
+
+        // Search for the donee with the specified ID
+        for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
+            Donee donee = doneeList.getEntry(i);
+            if (donee.getId().equalsIgnoreCase(idToUpdate)) {
+                boolean keepUpdating = true;
+                while (keepUpdating) {
+                    int choice = doneeUI.getUpdateDoneeChoice();
+
+                    switch (choice) {
+                        case 1:
+                            String updatedName = doneeUI.inputDoneeName();
+                            donee.setName(updatedName);
+                            System.out.println("Name updated successfully.");
+                            break;
+                        case 2:
+                            String updatedAddress = doneeUI.inputDoneeAddress();
+                            donee.setAddress(updatedAddress);
+                            System.out.println("Address updated successfully.");
+                            break;
+                        case 3:
+                            String updatedPhoneNumber = doneeUI.inputDoneePhoneNumber();
+                            donee.setPhoneNumber(updatedPhoneNumber);
+                            System.out.println("Phone number updated successfully.");
+                            break;
+                        case 4:
+                            String updatedEmail = doneeUI.inputDoneeEmail();
+                            donee.setEmail(updatedEmail);
+                            System.out.println("Email updated successfully.");
+                            break;
+                        case 5:
+                            String updatedDoneeType = doneeUI.inputDoneeType();
+                            if (updatedDoneeType.equalsIgnoreCase("Y")) {
+                                donee.setDoneeType("Organization");
+                                System.out.println("Donee type updated to Organization.");
+                            } else {
+                                donee.setDoneeType("Individual");
+                                donee.setOrganizationName(""); // Clear organization name if changing to Individual
+                                System.out.println("Donee type updated to Individual.");
+                            }
+                            break;
+                        case 6:
+                            if (donee.getDoneeType().equalsIgnoreCase("Organization")) {
+                                String updatedOrganizationName = doneeUI.inputDoneeOrganizationName();
+                                donee.setOrganizationName(updatedOrganizationName);
+                                System.out.println("Organization name updated successfully.");
+                            } else {
+                                System.out.println("This donee is not an organization. Cannot update Organization Name.");
+                            }
+                            break;
+                        case 0:
+                            keepUpdating = false;
+                            System.out.println("Finished updating donee.");
+                            break;
+                        default:
+                            System.out.println("Invalid choice. Please try again.");
+                            break;
+                    }
+                }
+                doneeList.replace(i, donee);
                 return;
             }
         }
 
-        System.out.println("Donee " + nameToUpdate + " not found.");
+        System.out.println("Donee with ID " + idToUpdate + " not found.");
     }
 
     //choice 4
     public void searchDoneeDetails() {
-        System.out.print("Enter the name of the Donee to search: ");
-        String nameToSearch = doneeUI.inputDoneeName();
+        String idToSearch = doneeUI.inputDoneeIdToSearch();
 
         for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
             Donee donee = doneeList.getEntry(i);
-            if (donee.getName().equalsIgnoreCase(nameToSearch)) {
+            if (donee.getId().equalsIgnoreCase(idToSearch)) {
                 doneeUI.printDoneeDetails(donee);
                 return;
             }
         }
 
-        System.out.println("Donee " + nameToSearch + " not found.");
+        System.out.println("Donee with ID " + idToSearch + " not found.");
     }
 
     //choice 5
@@ -140,12 +198,15 @@ public class DoneeMaintenance {
 //    }
     //choice 6
     public void filterDonees() {
-        System.out.print("Enter the type of donee to filter (Organization/Individual): ");
-        String type = doneeUI.inputDoneeType();
+        String type = doneeUI.inputDoneeTypeFilter();
+        String location = doneeUI.inputDoneeAddressFilter();
 
         for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
             Donee donee = doneeList.getEntry(i);
-            if (donee.getDoneeType().equalsIgnoreCase(type)) {
+            boolean matchesType = type.isEmpty() || donee.getDoneeType().equalsIgnoreCase(type);
+            boolean matchesLocation = location.isEmpty() || donee.getAddress().toLowerCase().contains(location.toLowerCase());
+
+            if (matchesType && matchesLocation) {
                 doneeUI.printDoneeDetails(donee);
             }
         }
@@ -197,15 +258,19 @@ public class DoneeMaintenance {
                     removeDonee();
                     break;
                 case 3:
+                    updateDoneeDetails();
                     System.out.println(getAllDonees());
                     break;
                 case 4:
+                    searchDoneeDetails();
                     break;
                 case 5:
                     break;
                 case 6:
+                    filterDonees();
                     break;
                 case 7:
+                    generateSummaryReport();
                     break;
                 default:
                     MessageUI.displayInvalidChoiceMessage();
