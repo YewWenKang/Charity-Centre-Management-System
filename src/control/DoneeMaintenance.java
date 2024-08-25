@@ -10,7 +10,6 @@ import utility.SaveFile;
 import utility.ValidationUI;
 import ADT.StackInterface;
 
-
 public class DoneeMaintenance {
 
     private ListInterface<Donee> doneeList = new LinkedList<>();
@@ -43,40 +42,6 @@ public class DoneeMaintenance {
 
     public void saveDoneeData() {
         SaveFile.saveToFile(FILE_NAME, doneeList, headers);
-    }
-
-    // Undo and Redo stacks
-    private StackInterface<ListInterface<Donee>> undoStack = new LinkedStack<>();
-    private StackInterface<ListInterface<Donee>> redoStack = new LinkedStack<>();
-
-// Push current state to the undo stack before modifying
-    private void saveStateForUndo() {
-        // Clone the current list and push it onto the undo stack
-        ListInterface<Donee> currentState = doneeList.clone();
-        undoStack.push(currentState);
-        redoStack.clear(); // Clear redo stack after a new action
-    }
-
-// Undo the last operation
-    public void undo() {
-        if (!undoStack.isEmpty()) {
-            redoStack.push(doneeList.clone());
-            doneeList = undoStack.pop();
-            System.out.println("Undo successful.");
-        } else {
-            System.out.println("No operations to undo.");
-        }
-    }
-
-// Redo the last undone operation
-    public void redo() {
-        if (!redoStack.isEmpty()) {
-            undoStack.push(doneeList.clone());
-            doneeList = redoStack.pop();
-            System.out.println("Redo successful.");
-        } else {
-            System.out.println("No operations to redo.");
-        }
     }
 
     public Donee inputDoneeDetails() {
