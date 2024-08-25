@@ -1,1 +1,5 @@
 ID,Name,Address,Phone Number,Email,Donee Type,Organization Name
+DE001,abc1234,jalan abc,0121231234,abc@abc.com,Individual,
+DE003,abc223,abc233,0192342233,abc@a.com,Individual,
+DE004,ab12,ab12,0121231234,ab12@ab.com,Individual,
+DE005,anew,anew,0122323245,anew@a.com,Individual,

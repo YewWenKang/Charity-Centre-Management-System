@@ -16,6 +16,8 @@ public class DoneeMaintenanceUI {
         System.out.println("5.List Donations Receiver(Wait Donation done)");
         System.out.println("6.Filter Donee");
         System.out.println("7.Report");
+        System.out.println("8.Undo last action");
+        System.out.println("9.Redo last action");
         System.out.println("0.Quit");
         String choice = scanner.nextLine();
         System.out.println();

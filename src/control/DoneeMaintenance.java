@@ -136,8 +136,7 @@ public class DoneeMaintenance {
     //Choice 1
     public void registerNewDonee() {
         Donee newDonee = inputDoneeDetails();
-        doneeList.add(newDonee);
-        //undo
+
         Command addCommand = new AddDoneeCommand(doneeList, newDonee);
         addCommand.execute();
         undoStack.push(addCommand);
@@ -152,14 +151,15 @@ public class DoneeMaintenance {
         for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
             Donee donee = doneeList.getEntry(i);
             if (donee.getName().equalsIgnoreCase(nameToRemove)) {
-                doneeList.remove(i);
-                removed = true;
-                System.out.println("Donee " + nameToRemove + " has been removed.");
                 //undo
                 Command removeCommand = new RemoveDoneeCommand(doneeList, donee);
                 removeCommand.execute();
                 undoStack.push(removeCommand);
                 redoStack.clear(); // Clear redo stack after new action
+                
+                removed = true;
+                System.out.println("Donee " + nameToRemove + " has been removed.");
+
                 break;
             }
         }
@@ -451,6 +451,12 @@ public class DoneeMaintenance {
                 case "7":
                     generateSummaryReport();
                     break;
+                case "8":
+                    undo();
+                    break;
+                case "9":
+                    redo();
+                    break;
                 default:
                     MessageUI.displayInvalidChoiceMessage();
                     if (!ValidationUI.isDigit(choice)) {
@@ -491,10 +497,12 @@ public class DoneeMaintenance {
         @Override
         public void undo() {
             doneeList.remove(donee);
+            System.out.println("Add command have been undo.");
         }
 
         @Override
         public void redo() {
+            System.out.println("Add command have been redo.");
             doneeList.add(donee);
         }
     }
@@ -518,11 +526,13 @@ public class DoneeMaintenance {
         @Override
         public void undo() {
             doneeList.add(donee);
+            System.out.println("Remove command have been undo.");
         }
 
         @Override
         public void redo() {
             doneeList.remove(donee);
+            System.out.println("Remove command have been undo.");
         }
     }
 
@@ -542,12 +552,14 @@ public class DoneeMaintenance {
         public void execute() {
             // Apply the update
             updateDonee(updatedDonee);
+            System.out.println("Update command have been undo.");
         }
 
         @Override
         public void undo() {
             // Revert to the original state
             updateDonee(originalDonee);
+            System.out.println("Update command have been undo.");
         }
 
         @Override
@@ -563,6 +575,26 @@ public class DoneeMaintenance {
                     break;
                 }
             }
+        }
+    }
+
+    public void undo() {
+        if (!undoStack.isEmpty()) {
+            Command command = undoStack.pop();
+            command.undo();
+            redoStack.push(command);
+        } else {
+            System.out.println("No actions to undo.");
+        }
+    }
+
+    public void redo() {
+        if (!redoStack.isEmpty()) {
+            Command command = redoStack.pop();
+            command.redo();
+            undoStack.push(command);
+        } else {
+            System.out.println("No actions to redo.");
         }
     }
 
