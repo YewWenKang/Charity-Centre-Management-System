@@ -1,14 +1,15 @@
-package utility;
+package DAO;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import ADT.ListInterface;
+import entity.Donee;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-public class SaveFile {
+public class DoneeDAO {
 
     public static <T> void saveToFile(String fileName, ListInterface<T> list, String header) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
@@ -18,8 +19,14 @@ public class SaveFile {
 
             // Write the data
             for (int i = 1; i <= list.getNumberOfEntries(); i++) {
-                writer.write(list.getEntry(i).toString());
-                writer.newLine();
+                T entry = list.getEntry(i);
+                if (entry instanceof Donee) {
+                    writer.write(convertToCSVLine((Donee) entry));
+                    writer.newLine();
+                } else {
+                    writer.write(entry.toString());
+                    writer.newLine();
+                }
             }
             System.out.println("Data saved successfully to " + fileName);
         } catch (IOException e) {
@@ -44,7 +51,7 @@ public class SaveFile {
                 return;
             }
         }
-        
+
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             // Read and discard the header line
             String header = reader.readLine();
@@ -75,6 +82,41 @@ public class SaveFile {
         } catch (IOException e) {
             System.err.println("Error loading data from file: " + e.getMessage());
         }
+    }
+
+    private static String escapeForCSV(String data) {
+        if (data == null || data.isEmpty()) {
+            return "";
+        }
+        // Check if the data needs to be quoted
+        boolean needsQuotes = data.contains(",") || data.contains("\"") || data.contains("\n");
+
+        if (needsQuotes) {
+            StringBuilder sb = new StringBuilder("\"");
+            for (char c : data.toCharArray()) {
+                if (c == '\"') {
+                    sb.append("\"\""); // Escape double quotes
+                } else {
+                    sb.append(c);
+                }
+            }
+            sb.append("\"");
+            return sb.toString();
+        } else {
+            return data;
+        }
+    }
+
+    private static String convertToCSVLine(Donee donee) {
+        return String.join(",",
+                escapeForCSV(donee.getId()),
+                escapeForCSV(donee.getName()),
+                escapeForCSV(donee.getAddress()),
+                escapeForCSV(donee.getPhoneNumber()),
+                escapeForCSV(donee.getEmail()),
+                escapeForCSV(donee.getDoneeType()),
+                escapeForCSV(donee.getOrganizationName())
+        );
     }
 
     // Functional interface for parsing each line of the CSV

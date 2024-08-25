@@ -25,13 +25,13 @@ public class DoneeMaintenanceUI {
     }
 
     public void printDoneeDetails(Donee donee) {
-        System.out.println("Donee Details");
-        System.out.println("Name:" + donee.getName());
-        System.out.println("Address: " + donee.getAddress());
-        System.out.println("Phone Number: " + donee.getPhoneNumber());
-        System.out.println("Email: " + donee.getEmail());
-        System.out.println("Donee Type: " + donee.getDoneeType());
-        System.out.println("Organization Name: " + donee.getOrganizationName());
+        System.out.println("\nDonee Details:");
+        System.out.printf("%-20s: %s%n", "Name", donee.getName());
+        System.out.printf("%-20s: %s%n", "Address", donee.getAddress());
+        System.out.printf("%-20s: %s%n", "Phone Number", donee.getPhoneNumber());
+        System.out.printf("%-20s: %s%n", "Email", donee.getEmail());
+        System.out.printf("%-20s: %s%n", "Donee Type", donee.getDoneeType());
+        System.out.printf("%-20s: %s%n", "Organization Name",(donee.getOrganizationName() == null || donee.getOrganizationName().trim().isEmpty()) ? "N/A" : donee.getOrganizationName());
     }
 
     public String inputDoneeName() {
@@ -117,12 +117,11 @@ public class DoneeMaintenanceUI {
         System.out.println();
         return choice;
     }
-    
-    public String askUpdateDonee(){
+
+    public String askUpdateDonee() {
         System.out.print("Do you want to update donee details?(Y/N) :");
         String updateDonee = scanner.nextLine();
         return updateDonee;
-}
-    
+    }
 
 }

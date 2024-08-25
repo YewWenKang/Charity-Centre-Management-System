@@ -6,9 +6,10 @@ import ADT.ListInterface;
 import boundary.DoneeMaintenanceUI;
 import entity.Donee;
 import utility.MessageUI;
-import utility.SaveFile;
+import DAO.DoneeDAO;
 import utility.ValidationUI;
 import ADT.StackInterface;
+import java.util.Arrays;
 
 public class DoneeMaintenance {
 
@@ -27,8 +28,13 @@ public class DoneeMaintenance {
 
     // Method to load donee data from file
     private void loadDoneeData() {
-        SaveFile.loadFromFile(FILE_NAME, doneeList, line -> {
-            String[] parts = line.split(","); // Delimiter is comma
+        DoneeDAO.loadFromFile(FILE_NAME, doneeList, line -> {
+            // Split on commas not inside quotes
+            String[] parts = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+            // Remove extra quotes around fields if necessary
+            for (int i = 0; i < parts.length; i++) {
+                parts[i] = parts[i].replaceAll("^\"|\"$", "").trim();
+            }
 
             String id = parts[0];
             String name = parts[1];
@@ -43,7 +49,7 @@ public class DoneeMaintenance {
     }
 
     public void saveDoneeData() {
-        SaveFile.saveToFile(FILE_NAME, doneeList, headers);
+        DoneeDAO.saveToFile(FILE_NAME, doneeList, headers);
     }
 
     public Donee inputDoneeDetails() {
@@ -156,7 +162,7 @@ public class DoneeMaintenance {
                 removeCommand.execute();
                 undoStack.push(removeCommand);
                 redoStack.clear(); // Clear redo stack after new action
-                
+
                 removed = true;
                 System.out.println("Donee " + nameToRemove + " has been removed.");
 
