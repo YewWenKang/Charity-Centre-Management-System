@@ -17,6 +17,8 @@ public class DoneeMaintenance {
     private static final String FILE_NAME = "doneeData.csv";
     private final String headers = "ID,Name,Address,Phone Number,Email,Donee Type,Organization Name";
     private int nextId;
+    private StackInterface<Command> undoStack = new LinkedStack<>();
+    private StackInterface<Command> redoStack = new LinkedStack<>();
 
     public DoneeMaintenance() {
         loadDoneeData();
@@ -134,7 +136,11 @@ public class DoneeMaintenance {
     //Choice 1
     public void registerNewDonee() {
         Donee newDonee = inputDoneeDetails();
-        doneeList.add(newDonee);
+
+        Command addCommand = new AddDoneeCommand(doneeList, newDonee);
+        addCommand.execute();
+        undoStack.push(addCommand);
+        redoStack.clear(); // Clear redo stack after new action
     }
 
     //Choice 2
@@ -145,9 +151,15 @@ public class DoneeMaintenance {
         for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
             Donee donee = doneeList.getEntry(i);
             if (donee.getName().equalsIgnoreCase(nameToRemove)) {
-                doneeList.remove(i);
+                //undo
+                Command removeCommand = new RemoveDoneeCommand(doneeList, donee);
+                removeCommand.execute();
+                undoStack.push(removeCommand);
+                redoStack.clear(); // Clear redo stack after new action
+                
                 removed = true;
                 System.out.println("Donee " + nameToRemove + " has been removed.");
+
                 break;
             }
         }
@@ -172,6 +184,9 @@ public class DoneeMaintenance {
         for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
             Donee donee = doneeList.getEntry(i);
             if (donee.getId().equalsIgnoreCase(idToUpdate)) {
+                // Capture the original state of the donee
+                Donee originalDonee = new Donee(donee.getId(), donee.getName(), donee.getAddress(), donee.getPhoneNumber(), donee.getEmail(), donee.getDoneeType(), donee.getOrganizationName());
+
                 boolean keepUpdating = true;
                 while (keepUpdating) {
                     int choice = doneeUI.getUpdateDoneeChoice();
@@ -227,6 +242,9 @@ public class DoneeMaintenance {
                     }
                 }
                 doneeList.replace(i, donee);
+                Command updateCommand = new UpdateDoneeCommand(doneeList, originalDonee, donee);
+                undoStack.push(updateCommand);
+                redoStack.clear(); // Clear redo stack after new action
                 return;
             }
         }
@@ -433,6 +451,12 @@ public class DoneeMaintenance {
                 case "7":
                     generateSummaryReport();
                     break;
+                case "8":
+                    undo();
+                    break;
+                case "9":
+                    redo();
+                    break;
                 default:
                     MessageUI.displayInvalidChoiceMessage();
                     if (!ValidationUI.isDigit(choice)) {
@@ -442,6 +466,136 @@ public class DoneeMaintenance {
                     }
             }
         } while (!choice.equals("0"));
+    }
+
+    // Command interface for undo/redo operations
+    public interface Command {
+
+        void execute();
+
+        void undo();
+
+        void redo();
+    }
+
+// Example command implementation for adding a Donee
+    public class AddDoneeCommand implements Command {
+
+        private ListInterface<Donee> doneeList;
+        private Donee donee;
+
+        public AddDoneeCommand(ListInterface<Donee> doneeList, Donee donee) {
+            this.doneeList = doneeList;
+            this.donee = donee;
+        }
+
+        @Override
+        public void execute() {
+            doneeList.add(donee);
+        }
+
+        @Override
+        public void undo() {
+            doneeList.remove(donee);
+            System.out.println("Add command have been undo.");
+        }
+
+        @Override
+        public void redo() {
+            System.out.println("Add command have been redo.");
+            doneeList.add(donee);
+        }
+    }
+
+// Example command implementation for removing a Donee
+    public class RemoveDoneeCommand implements Command {
+
+        private ListInterface<Donee> doneeList;
+        private Donee donee;
+
+        public RemoveDoneeCommand(ListInterface<Donee> doneeList, Donee donee) {
+            this.doneeList = doneeList;
+            this.donee = donee;
+        }
+
+        @Override
+        public void execute() {
+            doneeList.remove(donee);
+        }
+
+        @Override
+        public void undo() {
+            doneeList.add(donee);
+            System.out.println("Remove command have been undo.");
+        }
+
+        @Override
+        public void redo() {
+            doneeList.remove(donee);
+            System.out.println("Remove command have been undo.");
+        }
+    }
+
+    public class UpdateDoneeCommand implements Command {
+
+        private ListInterface<Donee> doneeList;
+        private Donee originalDonee;
+        private Donee updatedDonee;
+
+        public UpdateDoneeCommand(ListInterface<Donee> doneeList, Donee originalDonee, Donee updatedDonee) {
+            this.doneeList = doneeList;
+            this.originalDonee = originalDonee;
+            this.updatedDonee = updatedDonee;
+        }
+
+        @Override
+        public void execute() {
+            // Apply the update
+            updateDonee(updatedDonee);
+            System.out.println("Update command have been undo.");
+        }
+
+        @Override
+        public void undo() {
+            // Revert to the original state
+            updateDonee(originalDonee);
+            System.out.println("Update command have been undo.");
+        }
+
+        @Override
+        public void redo() {
+            // Reapply the update
+            updateDonee(updatedDonee);
+        }
+
+        private void updateDonee(Donee donee) {
+            for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
+                if (doneeList.getEntry(i).getId().equals(donee.getId())) {
+                    doneeList.replace(i, donee);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void undo() {
+        if (!undoStack.isEmpty()) {
+            Command command = undoStack.pop();
+            command.undo();
+            redoStack.push(command);
+        } else {
+            System.out.println("No actions to undo.");
+        }
+    }
+
+    public void redo() {
+        if (!redoStack.isEmpty()) {
+            Command command = redoStack.pop();
+            command.redo();
+            undoStack.push(command);
+        } else {
+            System.out.println("No actions to redo.");
+        }
     }
 
     public static void main(String[] args) {
