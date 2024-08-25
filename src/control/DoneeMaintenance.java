@@ -1,5 +1,6 @@
 package control;
 
+import ADT.LinkedStack;
 import ADT.LinkedList;
 import ADT.ListInterface;
 import boundary.DoneeMaintenanceUI;
@@ -7,6 +8,7 @@ import entity.Donee;
 import utility.MessageUI;
 import utility.SaveFile;
 import utility.ValidationUI;
+import ADT.StackInterface;
 
 public class DoneeMaintenance {
 
