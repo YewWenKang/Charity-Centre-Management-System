@@ -20,17 +20,25 @@ public class DonationMaintenanceUI {
 
     // Method to display the main menu
     public void displayMenu() {
+        Scanner scanner = new Scanner(System.in);
+    
         while (true) {
-            System.out.println("Donation Maintenance Menu");
-            System.out.println("1. Create Donation");
-            System.out.println("2. View Donation");
-            System.out.println("3. Update Donation");
-            System.out.println("4. Delete Donation");
-            System.out.println("0. Exit");
-            System.out.print("Enter your choice: ");
+            System.out.println("\n=============================");
+            System.out.println("  Donation Maintenance Menu");
+            System.out.println("=============================");
+            System.out.println(" 1. Create Donation");
+            System.out.println(" 2. View Donation");
+            System.out.println(" 3. Update Donation");
+            System.out.println(" 4. Delete Donation");
+            System.out.println(" 0. Exit");
+            System.out.println("=============================");
+            System.out.print(" Enter your choice: ");
+            
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
-
+    
+            System.out.println(); // Add an empty line for spacing
+    
             switch (choice) {
                 case 1:
                     createDonation();
@@ -44,12 +52,16 @@ public class DonationMaintenanceUI {
                 case 4:
                     deleteDonation();
                     return;
+                case 0:
+                    System.out.println("Exiting menu...");
+                    return;
                 default:
-                    System.out.println("Invalid choice. Please try again.");
+                    System.out.println("❌ Invalid choice. Please try again.");
                     break;
             }
         }
     }
+    
 
     // Method to create a new donation with validation
     private void createDonation() {
@@ -143,19 +155,46 @@ public class DonationMaintenanceUI {
 
     // Method to view a donation
     private void viewDonation() {
+        // Create a Scanner instance for user input
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter Donation ID to view: ");
-        String donationId = scanner.nextLine();
 
-        // Retrieve the list of donations for the given ID
-        ListInterface<Donation> donations = donationMaintenance.getDonationsById(donationId);
+        // Prompt the user to enter a donor ID
+        System.out.print("Enter Donor ID to view: ");
+        String donorId = scanner.nextLine().trim(); // Retrieve donor ID and trim any leading/trailing spaces
+
+        // Validate the donor ID
+        if (donorId.isEmpty()) {
+            System.out.println("Donor ID cannot be empty.");
+            return;
+        }
+
+        // Retrieve the list of donations associated with the provided donor ID from CSV
+        ListInterface<Donation> donations = donationMaintenance.getDonationsByDonorIdFromCSV(donorId);
+
+        // Check if donations were found and display them
         if (donations != null && !donations.isEmpty()) {
             System.out.println("Donation Details:");
+            System.out.printf("%-12s %-10s %-10s %-20s %-15s %-15s %-10s %-30s%n",
+                    "Donation ID", "Donor ID", "Amount", "Date", "Payment Method",
+                    "Receipt No.", "Donation Type", "Notes");
+            System.out.println(
+                    "------------------------------------------------------------------------------------------------" +
+                            "-------------------------------");
+
             for (Donation donation : donations) {
-                System.out.println(donation);
+                System.out.printf("%-12s %-10s %-10.2f %-20s %-15s %-15s %-10s %-30s%n",
+                        donation.getDonationId(),
+                        donation.getDonorId(),
+                        donation.getAmount(),
+                        donation.getDate(),
+                        donation.getPaymentMethod(),
+                        donation.getReceiptNumber(),
+                        donation.getDonationType(),
+                        donation.getNotes());
             }
         } else {
-            System.out.println("No donations found with the given ID.");
+            // Inform the user if no donations were found
+            System.out.println("No donations found with the given Donor ID.");
         }
     }
 
@@ -211,7 +250,7 @@ public class DonationMaintenanceUI {
         }
     }
 
-    //delete donation
+    // delete donation
     private void deleteDonation() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("1. Remove a single donation");
@@ -220,7 +259,7 @@ public class DonationMaintenanceUI {
         System.out.print("Enter your choice: ");
         int choice = scanner.nextInt();
         scanner.nextLine(); // Consume newline
-    
+
         switch (choice) {
             case 1:
                 // Remove a single donation
@@ -242,7 +281,6 @@ public class DonationMaintenanceUI {
                 break;
         }
     }
-    
 
     // Helper method to parse date
     private Date parseDate(String dateString) {

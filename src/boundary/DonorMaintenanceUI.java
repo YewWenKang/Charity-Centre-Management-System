@@ -228,7 +228,6 @@ public class DonorMaintenanceUI {
 
         donorMaintenance.addDonor(donorId, name, contactNumber, email, address, donorType, donationPreference,
                 donorTimes, totalAmount);
-        System.out.println("Donor added successfully!");
 
     }
 
@@ -250,9 +249,7 @@ public class DonorMaintenanceUI {
                 System.out.println(String.format("5. %-20s : %s", "Donor Type", donor.getDonorType()));
                 System.out
                         .println(String.format("6. %-20s : %s", "Donation Preference", donor.getDonationPreference()));
-                System.out.println(String.format("7. %-20s : %s", "Donation Times", donor.getDonorTimes()));
-                System.out.println(String.format("8. %-20s : %s", "Total Amount(RM)", donor.getTotalAmount()));
-                System.out.println("9. Save changes and return");
+                System.out.println("7. Save changes and return");
                 System.out.print("Enter your choice: ");
 
                 int choice = -1;
@@ -360,21 +357,6 @@ public class DonorMaintenanceUI {
                         }
                         break;
                     case 7:
-                        String donorTimes;
-                        while (true) {
-                            System.out.print("Enter new Donation Times: ");
-                            donorTimes = scanner.nextLine();
-                            if (ValidationUI.isNotEmpty(donorTimes) && ValidationUI.isDigit(donorTimes)) {
-                                donor.setDonorTimes(donorTimes);
-                                break;
-                            } else {
-                                System.out.println("Donation Times cannot be empty and must be a valid number.");
-                                if (!ValidationUI.retryOrExit())
-                                    return;
-                            }
-                        }
-                        break;
-                    case 8:
                         updating = false;
                         break;
                     default:
@@ -384,7 +366,7 @@ public class DonorMaintenanceUI {
 
             if (donorMaintenance.updateDonor(donor.getDonorId(), donor.getName(), donor.getContactNumber(),
                     donor.getEmail(), donor.getAddress(),
-                    donor.getDonorType(), donor.getDonationPreference(), donor.getDonorTimes())) {
+                    donor.getDonorType(), donor.getDonationPreference())) {
                 System.out.println("Donor updated successfully.");
             } else {
                 System.out.println("Failed to update donor details.");
@@ -406,47 +388,63 @@ public class DonorMaintenanceUI {
 
     private void viewAllDonors() {
         while (true) {
-            // Display all donors
+            // Display the list of all donors
             donorMaintenance.viewAllDonors();
-
-            // Display sorting options
-            System.out.println("\n--- Sort Donors ---");
-            System.out.println("1. Sort by Donor ID");
-            System.out.println("2. Sort by Donor Name");
-            System.out.println("3. Sort by Total Amount");
-            System.out.println("4. Exit");
-
-            // Read and validate user choice
-            System.out.print("Enter your choice: ");
-            String input = scanner.nextLine(); // Read input as String for validation
-
+    
+            // Present sorting options to the user
+            displaySortingOptions();
+    
+            // Read and validate the user's choice
+            String input = getUserChoice();
+    
+            // Process the user's choice
             if (ValidationUI.isDigit(input)) {
                 int choice = Integer.parseInt(input);
-
-                // Handle sorting options based on user choice
-                switch (choice) {
-                    case 1:
-                        sortById();
-                        break;
-                    case 2:
-                        sortByName();
-                        break;
-                    case 3:
-                        sortByAmount();
-                        break;
-                    case 4:
-                        System.out.println("Exiting to the main menu...");
-                        start(); // Assumes this method returns to the main menu
-                        return; // Exit the method to avoid re-prompting
-                    default:
-                        System.out.println("Invalid choice. Please enter a number between 1 and 4.");
-                        break;
-                }
+                handleSortingChoice(choice);
             } else {
                 System.out.println("Invalid input. Please enter a valid number.");
             }
         }
     }
+    
+    private void displaySortingOptions() {
+        System.out.println("\n--- Sort Donors ---");
+        System.out.println("1. Sort by Donor ID");
+        System.out.println("2. Sort by Donor Name");
+        System.out.println("3. Sort by Total Amount");
+        System.out.println("4. Exit");
+    }
+    
+    private String getUserChoice() {
+        System.out.print("Enter your choice: ");
+        return scanner.nextLine(); // Read input as String for validation
+    }
+    
+    private void handleSortingChoice(int choice) {
+        switch (choice) {
+            case 1:
+                sortById();
+                break;
+            case 2:
+                sortByName();
+                break;
+            case 3:
+                sortByAmount();
+                break;
+            case 4:
+                exitToMainMenu();
+                return; // Exit the method to avoid re-prompting
+            default:
+                System.out.println("Invalid choice. Please enter a number between 1 and 4.");
+                break;
+        }
+    }
+    
+    private void exitToMainMenu() {
+        System.out.println("Exiting to the main menu...");
+        start(); // Assumes this method returns to the main menu
+    }
+    
 
     // Sort by ID
     private void sortById() {

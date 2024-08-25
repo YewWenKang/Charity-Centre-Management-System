@@ -8,8 +8,9 @@ import DAO.FileDao;
 import boundary.DonorMaintenanceUI;
 import entity.Donor;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Scanner;
-import java.util.function.Predicate;
+import java.util.Set;
 import utility.ValidationUI;
 
 public class DonorMaintenance {
@@ -18,6 +19,10 @@ public class DonorMaintenance {
     private final ListInterface<String> headers;
     private final FileDao<Donor> fileDao;
     private final Scanner scanner = new Scanner(System.in);
+
+    // Declare sets for unique contact numbers and emails
+    private final Set<String> contactNumbers = new HashSet<>();
+    private final Set<String> emails = new HashSet<>();
 
     public DonorMaintenance() {
         headers = new LinkedList<>();
@@ -33,6 +38,10 @@ public class DonorMaintenance {
 
         fileDao = new FileDao<>();
         donorList = fileDao.loadDataFromCSV(FILE_NAME, this::mapRowToDonor);
+
+
+               // Initialize the sets with existing donor data
+               initializeContactAndEmailSets();
     }
 
     private Donor mapRowToDonor(String[] row) {
@@ -44,17 +53,43 @@ public class DonorMaintenance {
         return null;
     }
 
-    public void addDonor(String donorId, String name, String contactNumber, String email, String address,
-                         String donorType, String donationPreference, String donorTimes, String totalAmount) {
+    private void initializeContactAndEmailSets() {
+        for (Donor donor : donorList) {
+            if (donor != null) {
+                contactNumbers.add(donor.getContactNumber());
+                emails.add(donor.getEmail());
+            }
+        }
+    }
+
+    public boolean addDonor(String donorId, String name, String contactNumber, String email, String address,
+                            String donorType, String donationPreference, String donorTimes, String totalAmount) {
+        if (contactNumbers.contains(contactNumber)) {
+            System.out.println("\nError: Contact number already exists.");
+            return false;
+        }else{
+            System.out.println("\nDonor added successfully!");
+        }
+
+        if (emails.contains(email)) {
+            System.out.println("\nError: Email already exists.");
+            return false;
+        }else {
+            System.out.println("\nDonor added successfully!");
+        }
+
         Donor donor = new Donor(donorId, name, contactNumber, email, address, donorType, donationPreference, donorTimes, totalAmount);
         donorList.add(donor);
+        contactNumbers.add(contactNumber); // Update the set with the new contact number
+        emails.add(email); // Update the set with the new email
         saveDonorsToCSV();
         System.out.println("Donor added: " + donor);
+        System.out.println("\nDonor added successfully!");
+        return true;
     }
 
     public boolean updateDonor(String donorId, String name, String contactNumber, String email,
-                               String address, String donorType, String donationPreference,
-                               String donorTimes) {
+                               String address, String donorType, String donationPreference) {
         Donor donor = findDonorById(donorId);
         if (donor == null) {
             return false; // Donor not found
@@ -66,25 +101,7 @@ public class DonorMaintenance {
         donor.setAddress(address);
         donor.setDonorType(donorType);
         donor.setDonationPreference(donationPreference);
-        donor.setDonorTimes(donorTimes);
-
         return saveDonorsToCSV();
-    }
-
-    private String getValidatedInput(String prompt, Predicate<String> validator, String errorMessage) {
-        while (true) {
-            System.out.print(prompt);
-            String input = scanner.nextLine();
-
-            if (ValidationUI.isNotEmpty(input) && validator.test(input)) {
-                return input;
-            }
-
-            System.out.println(errorMessage);
-            if (!ValidationUI.retryOrExit()) {
-                return null; // Indicate cancellation
-            }
-        }
     }
 
     public boolean deleteDonor(String donorId) {
