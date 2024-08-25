@@ -8,6 +8,10 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 import ADT.ListInterface;
 import entity.Volunteer;
+import entity.Event; // Add this import statement
+import entity.Volunteer;
+import entity.Event;
+
 
 public class VolunteerMaintenanceUI {
 
@@ -244,6 +248,7 @@ public class VolunteerMaintenanceUI {
         Scanner scanner = new Scanner(System.in);
         return scanner.nextInt();
     }
+
 
 
     public int inputUpdatedVolunteerDetails() {

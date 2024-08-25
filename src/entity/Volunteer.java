@@ -14,7 +14,7 @@ public class Volunteer {
     private Event assignedEvent;
 
 
-    public Volunteer(String VolunteerId, String Volunteertype, String name, String phoneNumber, String email, String address) {
+    public Volunteer(String VolunteerId, String Volunteertype, String name, String phoneNumber ,String email ,String address ) {
         this.VolunteerId = VolunteerId;
         this.Volunteertype = Volunteertype;
         this.name = name;
@@ -92,17 +92,17 @@ public class Volunteer {
     public void setAssignedEvent(Event assignedEvent) {
         this.assignedEvent = assignedEvent;
     }
-    // @Override
-    // public String toString() {
-    //     return "Volunteer{" +
-    //             "ID = '" + VolunteerId + '\'' +
-    //             "Type = '"+ Volunteertype +'\'' +
-    //             " name='" + name + '\'' +
-    //             ", address='" + address + '\'' +
-    //             ", phoneNumber='" + phoneNumber + '\'' +
-    //             ", email='" + email + '\'' +
-    //             '}';
-    // }
+    @Override
+    public String toString() {
+        return "Volunteer{" +
+                "ID = '" + VolunteerId + '\'' +
+                "Type = '"+ Volunteertype +'\'' +
+                " name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", Email='" + email + '\'' +
+                '}';
+    }
 
     // @Override
     // public String toString() {
@@ -115,16 +115,16 @@ public class Volunteer {
     //     );
     // }
 
-    @Override
-public String toString() {
-    return String.format("%s,%s,%s,%s,%s",
-        Objects.toString(VolunteerId, ""), 
-        Objects.toString(Volunteertype, ""),
-        Objects.toString(name, ""), 
-        Objects.toString(address, ""), 
-        Objects.toString(phoneNumber, ""), 
-        Objects.toString(email, "")
-    );
+//     @Override
+// public String toString() {
+//     return String.format("%s,%s,%s,%s,%s,%s",
+//         Objects.toString(VolunteerId, ""), 
+//         Objects.toString(Volunteertype, ""),
+//         Objects.toString(name, ""), 
+//         Objects.toString(address, ""), 
+//         Objects.toString(phoneNumber, ""), 
+//         Objects.toString(email, "")
+//     );
 }
-}
+
 

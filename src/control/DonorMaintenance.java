@@ -54,7 +54,7 @@ public class DonorMaintenance {
 
     public boolean updateDonor(String donorId, String name, String contactNumber, String email,
                                String address, String donorType, String donationPreference,
-                               String donorTimes, String totalAmount) {
+                               String donorTimes) {
         Donor donor = findDonorById(donorId);
         if (donor == null) {
             return false; // Donor not found
@@ -67,7 +67,6 @@ public class DonorMaintenance {
         donor.setDonorType(donorType);
         donor.setDonationPreference(donationPreference);
         donor.setDonorTimes(donorTimes);
-        donor.setTotalAmount(totalAmount);
 
         return saveDonorsToCSV();
     }
@@ -90,15 +89,49 @@ public class DonorMaintenance {
 
     public boolean deleteDonor(String donorId) {
         Donor donor = findDonorById(donorId);
+    
+        // Check if donor exists
         if (donor != null) {
-            donorList.remove(donor);
-            saveDonorsToCSV();
-            return true;
+            while (true) {
+                System.out.println("Are you sure you want to delete the donor with ID: " + donorId + "?");
+                System.out.println("1. Yes");
+                System.out.println("2. No");
+                System.out.print("Enter your choice: ");
+                
+                String input = scanner.nextLine();
+                
+                if (ValidationUI.isDigit(input)) {
+                    int choice = Integer.parseInt(input);
+                    
+                    switch (choice) {
+                        case 1:
+                            // User confirmed deletion
+                            donorList.remove(donor);
+                            saveDonorsToCSV();
+                            System.out.println("Donor deleted successfully.");
+                            return true;
+                            
+                        case 2:
+                            // User canceled deletion
+                            System.out.println("Deletion canceled.");
+                            return false;
+                            
+                        default:
+                            // Invalid choice
+                            System.out.println("Invalid choice. Please enter 1 for Yes or 2 for No.");
+                            break;
+                    }
+                } else {
+                    // Invalid input
+                    System.out.println("Invalid input. Please enter a valid number.");
+                }
+            }
         } else {
             System.out.println("Donor not found.");
             return false;
         }
     }
+    
 
     public ListInterface<Donor> getAllDonors() {
         return donorList;
@@ -289,7 +322,7 @@ public class DonorMaintenance {
         return result;
     }
 
-    private boolean saveDonorsToCSV() {
+    public boolean saveDonorsToCSV() {
         try {
             ListInterface<Donor> validDonors = new LinkedList<>();
             for (int i = 0; i < donorList.size(); i++) {
@@ -322,6 +355,98 @@ public class DonorMaintenance {
         row.add(donor.getTotalAmount());
         return row;
     }
+
+
+    //Donor Report
+    public void generateDetailedDonorReport() {
+        System.out.println("\n--- Detailed Donor Report ---");
+        System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
+                "Donor ID", "Name", "Contact No.", "Email", "Address",
+                "Donor Type", "Donor Times", "Total Amount (RM)");
+        System.out.println(
+                "---------------------------------------------------------------------------------------------"
+                + "-------------------------------------------------------------");
+    
+        for (Donor donor : donorList) {
+            System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
+                    donor.getDonorId(),
+                    donor.getName(),
+                    donor.getContactNumber(),
+                    donor.getEmail(),
+                    donor.getAddress(),
+                    donor.getDonorType(),
+                    donor.getDonorTimes(),
+                    donor.getTotalAmount());
+        }
+    }
+
+    public void generateDonorSummaryReport() {
+        // Calculate summary statistics
+        int totalDonors = donorList.size();
+        int totalDonorTypes = (int) donorList.stream().map(Donor::getDonorType).distinct().count();
+        
+        // Convert String to double and handle potential NumberFormatException
+        double totalAmountDonated = donorList.stream()
+                .mapToDouble(donor -> {
+                    try {
+                        return Double.parseDouble(donor.getTotalAmount());
+                    } catch (NumberFormatException e) {
+                        return 0.0; // In case of an invalid amount format, return 0.0
+                    }
+                })
+                .sum();
+        
+        // Get highest donation times
+        int highestDonationTimes = donorList.stream()
+                .mapToInt(donor -> {
+                    try {
+                        return Integer.parseInt(donor.getDonorTimes());
+                    } catch (NumberFormatException e) {
+                        return 0; // In case of an invalid times format, return 0
+                    }
+                })
+                .max()
+                .orElse(0);
+        
+        // Get top donor
+        Donor topDonor = donorList.stream()
+                .max(Comparator.comparing(donor -> {
+                    try {
+                        return Double.parseDouble(donor.getTotalAmount());
+                    } catch (NumberFormatException e) {
+                        return 0.0; // In case of an invalid amount format, return 0.0
+                    }
+                }))
+                .orElse(null);
+        
+        // Print summary with creative formatting
+        System.out.println("\n" + "-".repeat(50));
+        System.out.println("              Donor Summary Report");
+        System.out.println("-".repeat(50));
+        System.out.println();
+        
+        System.out.printf("Total Number of Donors     : %d%n", totalDonors);
+        System.out.printf("Number of Unique Donor Types: %d%n", totalDonorTypes);
+        System.out.printf("Total Amount Donated (RM)  : %.2f%n", totalAmountDonated);
+        System.out.printf("Highest Number of Donations : %d%n", highestDonationTimes);
+        
+        System.out.println();
+        
+        if (topDonor != null) {
+            System.out.println("Top Donor:");
+            System.out.println("  Name                : " + topDonor.getName());
+            System.out.printf("  Total Amount (RM)   : %.2f%n", Double.parseDouble(topDonor.getTotalAmount()));
+        } else {
+            System.out.println("No donors found.");
+        }
+        
+        System.out.println();
+        System.out.println("-".repeat(50));
+    }
+    
+    
+    
+
 
     public static void main(String[] args) {
         DonorMaintenanceUI ui = new DonorMaintenanceUI();

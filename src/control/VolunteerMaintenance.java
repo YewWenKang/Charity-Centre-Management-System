@@ -25,14 +25,14 @@ import DAO.DoneeDAO;
         private VolunteerMaintenanceUI VolunteerUI = new VolunteerMaintenanceUI();
     
         public VolunteerMaintenance() {
-            headers = new LinkedList<>();
-            headers.add("ID");
-            headers.add("Volunteer Type");
-            headers.add("Name");
-            headers.add("Contact Number");
-            headers.add("Email");
-            headers.add("Address");
-            headers.add("EventName");
+                headers = new LinkedList<>();
+                headers.add("ID");
+                headers.add("Volunteer Type");
+                headers.add("Name");
+                headers.add("Email");
+                headers.add("Address");
+                headers.add("Contact Number");
+                headers.add("EventCode");
 
  
     
@@ -42,21 +42,6 @@ import DAO.DoneeDAO;
         }
         
 
-        // private Volunteer mapRowToVolunteer(String[] row) {
-        //     if (row.length == 6) {
-        //         return new Volunteer(row[0], row[1], row[2], row[3], row[4], row[5]);
-        //     } else {
-        //         System.out.println("Warning: Incomplete or malformed row detected, skipping: " + String.join(",", row));
-        //     }
-        //     return null;
-        // }
-
-        // String volunteerId = row[0];
-        //     String volunteerType = row[1];
-        //     String name = row[2];
-        //     String address = row[3];
-        //     String phoneNumber = row[4];
-        //     String email = row[5];
 
         private Volunteer mapRowToVolunteer(String[] row) {
 
@@ -259,6 +244,29 @@ public void registerNewVolunteer() {
             return;
         }
 
+
+        public void removeVolunteerById(String volunteerId) {
+            boolean found = false;
+    
+            // Iterate through the list to find and remove the volunteer
+            for (int i = 0; i < VolunteerList.getNumberOfEntries(); i++) {
+                Volunteer volunteer = VolunteerList.getEntry(i);
+                if (volunteer != null && volunteer.getVolunteerId().equals(volunteerId)) {
+                    VolunteerList.remove(i);
+                    found = true;
+                    System.out.println("Volunteer with ID " + volunteerId + " has been removed.");
+                    break;
+                }
+            }
+    
+            if (!found) {
+                System.out.println("Volunteer with ID " + volunteerId + " not found.");
+            }
+    
+            // Save the updated list to the CSV file
+            saveVolunteersToCSV();
+        }
+
         private void removeVolunteer() {
             VolunteerUI.listAllProducts(getAllVolunteers());
             System.out.print("Do you want to remove a volunteer by (1) Index or (2) Name? ");
@@ -294,7 +302,7 @@ public void registerNewVolunteer() {
         }
     
         public void searchVolunteerById() {
-            String volunteerId = VolunteerUI.inputVolunteerId(VolunteerList);
+            String volunteerId = VolunteerUI.inputVolunteerId();
             Volunteer volunteer = findVolunteerById(volunteerId);
             if (volunteer != null) {
                 VolunteerUI.printVolunteerDetails(volunteer);
@@ -422,10 +430,11 @@ public void registerNewVolunteer() {
                         break;
                     case 1:
                         registerNewVolunteer();
-                        VolunteerUI.printVolunteerDetails(VolunteerList.getEntry(VolunteerList.getNumberOfEntries()));
+                        // VolunteerUI.printVolunteerDetails(VolunteerList.getEntry(VolunteerList.getNumberOfEntries()));
                         break;
                     case 2:
-                        volunteerMaintenance.removeVolunteer();
+                        volunteerId = VolunteerUI.inputVolunteerId(); // Prompt user for volunteerId
+                        volunteerMaintenance.removeVolunteerById(volunteerId);
                         break;
                     case 3:
                         volunteerMaintenance.searchVolunteerById();
