@@ -90,7 +90,7 @@ public class DonorMaintenanceUI {
                     filterDonors();
                     break;
                 case 7:
-                    donorReport();
+                    showReportMenu();
                     break;
                 case 8:
                     System.out.println("Exiting Donor Maintenance System.");
@@ -102,15 +102,18 @@ public class DonorMaintenanceUI {
     }
 
     private void showMenu() {
-        System.out.println("\n--- Donor Maintenance System ---");
-        System.out.println("1. Add Donor");
-        System.out.println("2. Update Donor");
-        System.out.println("3. Delete Donor");
-        System.out.println("4. View All Donors");
-        System.out.println("5. Search Donors");
-        System.out.println("6. Filter Donors");
-        System.out.println("7. Donor Report");
-        System.out.println("8. Exit");
+        System.out.println("\n====================================");
+        System.out.println("       Donor Maintenance System");
+        System.out.println("====================================");
+        System.out.println(" 1. Add Donor");
+        System.out.println(" 2. Update Donor");
+        System.out.println(" 3. Delete Donor");
+        System.out.println(" 4. View All Donors");
+        System.out.println(" 5. Search Donors");
+        System.out.println(" 6. Filter Donors");
+        System.out.println(" 7. Donor Report");
+        System.out.println(" 8. Exit");
+        System.out.println("------------------------------------");
         System.out.print("Enter your choice: ");
     }
 
@@ -372,21 +375,6 @@ public class DonorMaintenanceUI {
                         }
                         break;
                     case 8:
-                        String totalAmount;
-                        while (true) {
-                            System.out.print("Enter new Total Amount (RM): ");
-                            totalAmount = scanner.nextLine();
-                            if (ValidationUI.isNotEmpty(totalAmount) && ValidationUI.isValidAmount(totalAmount)) {
-                                donor.setTotalAmount(totalAmount);
-                                break;
-                            } else {
-                                System.out.println("Total Amount cannot be empty and must be a valid number.");
-                                if (!ValidationUI.retryOrExit())
-                                    return;
-                            }
-                        }
-                        break;
-                    case 9:
                         updating = false;
                         break;
                     default:
@@ -396,8 +384,7 @@ public class DonorMaintenanceUI {
 
             if (donorMaintenance.updateDonor(donor.getDonorId(), donor.getName(), donor.getContactNumber(),
                     donor.getEmail(), donor.getAddress(),
-                    donor.getDonorType(), donor.getDonationPreference(), donor.getDonorTimes(),
-                    donor.getTotalAmount())) {
+                    donor.getDonorType(), donor.getDonationPreference(), donor.getDonorTimes())) {
                 System.out.println("Donor updated successfully.");
             } else {
                 System.out.println("Failed to update donor details.");
@@ -417,208 +404,218 @@ public class DonorMaintenanceUI {
         }
     }
 
- private void viewAllDonors() {
-    while (true) {
-        donorMaintenance.viewAllDonors();
-        System.out.println("\n--- Sort Donors ---");
-        System.out.println("1. Sort by Donor ID");
-        System.out.println("2. Sort by Donor Name");
-        System.out.println("3. Sort by Total Amount");
-        System.out.println("4. Exit");
-        System.out.print("Enter your choice: ");
-        String input = scanner.nextLine(); // Read input as String for validation
-        
-        if (ValidationUI.isDigit(input)) {
-            int choice = Integer.parseInt(input);
-            switch (choice) {
-                case 1:
-                    sortById();
-                    break;
-                case 2:
-                    sortByName();
-                    break;
-                case 3:
-                    sortByAmount();
-                    break;
-                case 4:
-                    start(); // Assumes this method returns to the main menu
-                    return; // Exit the method to avoid re-prompting
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-                    break;
-            }
-        } else {
-            System.out.println("Invalid input. Please enter a valid number.");
-        }
-    }
-}
+    private void viewAllDonors() {
+        while (true) {
+            // Display all donors
+            donorMaintenance.viewAllDonors();
 
-// Sort by ID
-private void sortById() {
-    while (true) {
-        System.out.println("Sort by Donor ID");
-        System.out.println("1. Sort by Descending Order");
-        System.out.println("2. Sort by Ascending Order");
-        System.out.println("3. Exit");
-        System.out.print("Enter your choice: ");
-        String input = scanner.nextLine(); // Read input as String for validation
-        
-        if (ValidationUI.isDigit(input)) {
-            int choice = Integer.parseInt(input);
-            switch (choice) {
-                case 1:
-                    donorMaintenance.sortByIdDescending();
-                    break;
-                case 2:
-                    donorMaintenance.sortByIdAscending();
-                    break;
-                case 3:
-                    return; // Return to the previous menu (viewAllDonors)
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-                    continue; // Re-display the sorting menu
-            }
-            // Re-display the donors list after sorting
-            viewAllDonors();
-            return;
-        } else {
-            System.out.println("Invalid input. Please enter a valid number.");
-        }
-    }
-}
+            // Display sorting options
+            System.out.println("\n--- Sort Donors ---");
+            System.out.println("1. Sort by Donor ID");
+            System.out.println("2. Sort by Donor Name");
+            System.out.println("3. Sort by Total Amount");
+            System.out.println("4. Exit");
 
-// Sort by Name
-private void sortByName() {
-    while (true) {
-        System.out.println("Sort by Donor Name");
-        System.out.println("1. Sort by Descending Order");
-        System.out.println("2. Sort by Ascending Order");
-        System.out.println("3. Exit");
-        System.out.print("Enter your choice: ");
-        String input = scanner.nextLine(); // Read input as String for validation
-        
-        if (ValidationUI.isDigit(input)) {
-            int choice = Integer.parseInt(input);
-            switch (choice) {
-                case 1:
-                    donorMaintenance.sortByNameDescending();
-                    break;
-                case 2:
-                    donorMaintenance.sortByNameAscending();
-                    break;
-                case 3:
-                    return; // Return to the previous menu (viewAllDonors)
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-                    continue; // Re-display the sorting menu
-            }
-            // Re-display the donors list after sorting
-            viewAllDonors();
-            return;
-        } else {
-            System.out.println("Invalid input. Please enter a valid number.");
-        }
-    }
-}
+            // Read and validate user choice
+            System.out.print("Enter your choice: ");
+            String input = scanner.nextLine(); // Read input as String for validation
 
-// Sort by Amount
-private void sortByAmount() {
-    while (true) {
-        System.out.println("Sort by Total Amount");
-        System.out.println("1. Sort by Descending Order");
-        System.out.println("2. Sort by Ascending Order");
-        System.out.println("3. Exit");
-        System.out.print("Enter your choice: ");
-        String input = scanner.nextLine(); // Read input as String for validation
-        
-        if (ValidationUI.isDigit(input)) {
-            int choice = Integer.parseInt(input);
-            switch (choice) {
-                case 1:
-                    donorMaintenance.sortByAmountDescending();
-                    break;
-                case 2:
-                    donorMaintenance.sortByAmountAscending();
-                    break;
-                case 3:
-                    return; // Return to the previous menu (viewAllDonors)
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-                    continue; // Re-display the sorting menu
-            }
-            // Re-display the donors list after sorting
-            viewAllDonors();
-            return;
-        } else {
-            System.out.println("Invalid input. Please enter a valid number.");
-        }
-    }
-}
+            if (ValidationUI.isDigit(input)) {
+                int choice = Integer.parseInt(input);
 
-
-private void searchDonors() {
-    while (true) {
-        System.out.println("\n--- Search Donors ---");
-        // Display the menu
-        System.out.println("1. Search by Donor ID");
-        System.out.println("2. Search by Donor Name");
-        System.out.println("3. Search by Contact Number");
-        System.out.println("4. Search by Email");
-        System.out.println("5. Exit");
-        System.out.print("Enter your choice: ");
-        
-        String input = scanner.nextLine(); // Read input as String for validation
-        
-        if (ValidationUI.isDigit(input)) {
-            int choice = Integer.parseInt(input);
-            Donor foundDonor = null; // Variable to store the found donor
-            String searchValue;
-
-            switch (choice) {
-                case 1:
-                    System.out.print("Enter Donor ID to search: ");
-                    searchValue = scanner.nextLine();
-                    foundDonor = donorMaintenance.findDonorById(searchValue);
-                    break;
-                case 2:
-                    System.out.print("Enter Donor Name to search: ");
-                    searchValue = scanner.nextLine();
-                    foundDonor = donorMaintenance.findDonorByName(searchValue);
-                    break;
-                case 3:
-                    System.out.print("Enter Contact Number to search: ");
-                    searchValue = scanner.nextLine();
-                    foundDonor = donorMaintenance.findDonorByContactNumber(searchValue);
-                    break;
-                case 4:
-                    System.out.print("Enter Email to search: ");
-                    searchValue = scanner.nextLine();
-                    foundDonor = donorMaintenance.findDonorByEmail(searchValue);
-                    break;
-                case 5:
-                    return; // Exit the method
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-                    continue; // Continue to re-prompt the menu
-            }
-
-            // Display the result
-            if (foundDonor != null) {
-                System.out.println("Donor Found: " + foundDonor);
+                // Handle sorting options based on user choice
+                switch (choice) {
+                    case 1:
+                        sortById();
+                        break;
+                    case 2:
+                        sortByName();
+                        break;
+                    case 3:
+                        sortByAmount();
+                        break;
+                    case 4:
+                        System.out.println("Exiting to the main menu...");
+                        start(); // Assumes this method returns to the main menu
+                        return; // Exit the method to avoid re-prompting
+                    default:
+                        System.out.println("Invalid choice. Please enter a number between 1 and 4.");
+                        break;
+                }
             } else {
-                System.out.println("Donor not found.");
+                System.out.println("Invalid input. Please enter a valid number.");
             }
-        } else {
-            System.out.println("Invalid input. Please enter a valid number.");
         }
     }
-}
 
-    //filter donors
+    // Sort by ID
+    private void sortById() {
+        while (true) {
+            System.out.println("Sort by Donor ID");
+            System.out.println("1. Sort by Descending Order");
+            System.out.println("2. Sort by Ascending Order");
+            System.out.println("3. Exit");
+            System.out.print("Enter your choice: ");
+            String input = scanner.nextLine(); // Read input as String for validation
+
+            if (ValidationUI.isDigit(input)) {
+                int choice = Integer.parseInt(input);
+                switch (choice) {
+                    case 1:
+                        donorMaintenance.sortByIdDescending();
+                        break;
+                    case 2:
+                        donorMaintenance.sortByIdAscending();
+                        break;
+                    case 3:
+                        return; // Return to the previous menu (viewAllDonors)
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                        continue; // Re-display the sorting menu
+                }
+                // Re-display the donors list after sorting
+                viewAllDonors();
+                return;
+            } else {
+                System.out.println("Invalid input. Please enter a valid number.");
+            }
+        }
+    }
+
+    // Sort by Name
+    private void sortByName() {
+        while (true) {
+            System.out.println("Sort by Donor Name");
+            System.out.println("1. Sort by Descending Order");
+            System.out.println("2. Sort by Ascending Order");
+            System.out.println("3. Exit");
+            System.out.print("Enter your choice: ");
+            String input = scanner.nextLine(); // Read input as String for validation
+
+            if (ValidationUI.isDigit(input)) {
+                int choice = Integer.parseInt(input);
+                switch (choice) {
+                    case 1:
+                        donorMaintenance.sortByNameDescending();
+                        break;
+                    case 2:
+                        donorMaintenance.sortByNameAscending();
+                        break;
+                    case 3:
+                        return; // Return to the previous menu (viewAllDonors)
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                        continue; // Re-display the sorting menu
+                }
+                // Re-display the donors list after sorting
+                viewAllDonors();
+                return;
+            } else {
+                System.out.println("Invalid input. Please enter a valid number.");
+            }
+        }
+    }
+
+    // Sort by Amount
+    private void sortByAmount() {
+        while (true) {
+            System.out.println("Sort by Total Amount");
+            System.out.println("1. Sort by Descending Order");
+            System.out.println("2. Sort by Ascending Order");
+            System.out.println("3. Exit");
+            System.out.print("Enter your choice: ");
+            String input = scanner.nextLine(); // Read input as String for validation
+
+            if (ValidationUI.isDigit(input)) {
+                int choice = Integer.parseInt(input);
+                switch (choice) {
+                    case 1:
+                        donorMaintenance.sortByAmountDescending();
+                        break;
+                    case 2:
+                        donorMaintenance.sortByAmountAscending();
+                        break;
+                    case 3:
+                        return; // Return to the previous menu (viewAllDonors)
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                        continue; // Re-display the sorting menu
+                }
+                // Re-display the donors list after sorting
+                viewAllDonors();
+                return;
+            } else {
+                System.out.println("Invalid input. Please enter a valid number.");
+            }
+        }
+    }
+
+    private void searchDonors() {
+        while (true) {
+            // Display search menu
+            System.out.println("\n--- Search Donors ---");
+            System.out.println("1. Search by Donor ID");
+            System.out.println("2. Search by Donor Name");
+            System.out.println("3. Search by Contact Number");
+            System.out.println("4. Search by Email");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+    
+            String input = scanner.nextLine(); // Read input as String for validation
+    
+            if (ValidationUI.isDigit(input)) {
+                int choice = Integer.parseInt(input);
+                Donor foundDonor = null; // Variable to store the found donor
+                String searchValue;
+    
+                // Handle search options based on user choice
+                switch (choice) {
+                    case 1:
+                        System.out.print("Enter Donor ID to search: ");
+                        searchValue = scanner.nextLine();
+                        foundDonor = donorMaintenance.findDonorById(searchValue);
+                        break;
+                    case 2:
+                        System.out.print("Enter Donor Name to search: ");
+                        searchValue = scanner.nextLine();
+                        foundDonor = donorMaintenance.findDonorByName(searchValue);
+                        break;
+                    case 3:
+                        System.out.print("Enter Contact Number to search: ");
+                        searchValue = scanner.nextLine();
+                        foundDonor = donorMaintenance.findDonorByContactNumber(searchValue);
+                        break;
+                    case 4:
+                        System.out.print("Enter Email to search: ");
+                        searchValue = scanner.nextLine();
+                        foundDonor = donorMaintenance.findDonorByEmail(searchValue);
+                        break;
+                    case 5:
+                        System.out.println("Exiting to the main menu...");
+                        return; // Exit the method
+                    default:
+                        System.out.println("Invalid choice. Please enter a number between 1 and 5.");
+                        continue; // Re-prompt the menu
+                }
+    
+                // Display the search result
+                if (foundDonor != null) {
+                    System.out.println("Donor Found: " + foundDonor);
+                } else {
+                    System.out.println("Donor not found.");
+                }
+            } else {
+                System.out.println("Invalid input. Please enter a valid number.");
+            }
+        }
+    }
+    
+
+    // filter donors
     private void filterDonors() {
         // Initialize TreeMap to store filtered donors
         TreeMapInterface<String, Donor> filteredDonors = new TreeMapImplementation<>();
-        
+
         while (true) {
             System.out.println("\n--- Filter Donors ---");
             // Show the categories to filter in the menu
@@ -628,13 +625,13 @@ private void searchDonors() {
             System.out.println("4. Filter by Total Amount (RM)");
             System.out.println("5. Exit");
             System.out.print("Enter your choice: ");
-            
+
             String input = scanner.nextLine(); // Read input as String for validation
-            
+
             if (ValidationUI.isDigit(input)) {
                 int choice = Integer.parseInt(input);
                 String filterValue;
-    
+
                 switch (choice) {
                     case 1:
                         System.out.print("Enter Donor Type to filter: ");
@@ -656,7 +653,7 @@ private void searchDonors() {
                         String minAmountStr = scanner.nextLine();
                         System.out.print("Enter maximum Total Amount (RM) to filter: ");
                         String maxAmountStr = scanner.nextLine();
-                        
+
                         double minAmount;
                         double maxAmount;
                         try {
@@ -666,7 +663,7 @@ private void searchDonors() {
                             System.out.println("Invalid amount entered. Please enter valid numbers.");
                             continue; // Re-prompt the menu
                         }
-                        
+
                         filteredDonors = donorMaintenance.filterByTotalAmount(minAmount, maxAmount);
                         break;
                     case 5:
@@ -675,17 +672,16 @@ private void searchDonors() {
                         System.out.println("Invalid choice. Please try again.");
                         continue; // Continue to re-prompt the menu
                 }
-    
+
                 // Display the filtered donors
                 displayFilteredDonors(filteredDonors);
-    
+
             } else {
                 System.out.println("Invalid input. Please enter a valid number.");
             }
         }
     }
-    
-    
+
     // Method to display the filtered donors
     private void displayFilteredDonors(TreeMapInterface<String, Donor> filteredDonors) {
         if (filteredDonors.isEmpty()) {
@@ -706,12 +702,37 @@ private void searchDonors() {
             }
         }
     }
+
+    private void showReportMenu() {
+        while (true) {
+            System.out.println("\n--- Donor Report Menu ---");
+            System.out.println("1. Detailed Donor Report");
+            System.out.println("2. Summary Donor Report");
+            System.out.println("3. Exit to Main Menu");
+            System.out.print("Enter your choice: ");
     
-
-    private void donorReport() {
-        System.out.println("\n--- Donor Report ---");
-        System.out.println("Total number of donors: " + donorMaintenance.getAllDonors().size());
-
+            String input = scanner.nextLine(); // Read input as String for validation
+    
+            if (ValidationUI.isDigit(input)) {
+                int choice = Integer.parseInt(input);
+                switch (choice) {
+                    case 1:
+                        donorMaintenance.generateDetailedDonorReport();
+                        break;
+                    case 2:
+                        donorMaintenance.generateDonorSummaryReport();
+                        break;
+                    case 3:
+                        return; // Exit to main menu
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                        break;
+                }
+            } else {
+                System.out.println("Invalid input. Please enter a valid number.");
+            }
+        }
     }
+    
 
 }

@@ -1,5 +1,6 @@
 package entity;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Donation {
@@ -7,7 +8,6 @@ public class Donation {
     private String donorId;
     private double amount;
     private Date date;
-    private String eventId;
     private String paymentMethod;
     private String receiptNumber;
     private DonationType donationType;
@@ -22,14 +22,13 @@ public class Donation {
     // Constructors
     public Donation() {}
 
-    public Donation(String donationId, String donorId, double amount, Date date, String eventId, 
+    public Donation(String donationId, String donorId, double amount, Date date,
                     String paymentMethod, String receiptNumber, DonationType donationType, 
                     String notes) {
         this.donationId = donationId;
         this.donorId = donorId;
         this.amount = amount;
         this.date = date;
-        this.eventId = eventId;
         this.paymentMethod = paymentMethod;
         this.receiptNumber = receiptNumber;
         this.donationType = donationType;
@@ -69,14 +68,6 @@ public class Donation {
         this.date = date;
     }
 
-    public String getEventId() {
-        return eventId;
-    }
-
-    public void setEventId(String eventId) {
-        this.eventId = eventId;
-    }
-
     public String getPaymentMethod() {
         return paymentMethod;
     }
@@ -108,19 +99,28 @@ public class Donation {
     public void setNotes(String notes) {
         this.notes = notes;
     }
-
     @Override
     public String toString() {
-        return "Donation{" +
-                "donationId='" + donationId + '\'' +
-                ", donorId='" + donorId + '\'' +
-                ", amount=" + amount +
-                ", date=" + date +
-                ", eventId='" + eventId + '\'' +
-                ", paymentMethod='" + paymentMethod + '\'' +
-                ", receiptNumber='" + receiptNumber + '\'' +
-                ", donationType=" + donationType +
-                ", notes='" + notes + '\'' +
-                '}';
+        return String.format(
+            "Donation {%n" +
+            "    donationId='%s'%n" +
+            "    donorId='%s'%n" +
+            "    amount=%.2f%n" +
+            "    date=%s%n" +
+            "    paymentMethod='%s'%n" +
+            "    receiptNumber='%s'%n" +
+            "    donationType=%s%n" +
+            "    notes='%s'%n" +
+            "}", 
+            donationId, 
+            donorId, 
+            amount, 
+            new SimpleDateFormat("yyyy-MM-dd").format(date), // Format the date as needed
+            paymentMethod, 
+            receiptNumber, 
+            donationType, 
+            notes
+        );
     }
 }
+    
