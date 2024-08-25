@@ -31,4 +31,6 @@ public interface ListInterface<T> {
     int size();
 
     Stream<T> stream();
+    
+    T linearSearch(T target);
 }

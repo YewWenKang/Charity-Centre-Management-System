@@ -3,10 +3,12 @@ package ADT;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
 public class LinkedList<T> implements ListInterface<T> {
+
     private Node<T> head;
     private int size;
 
@@ -16,6 +18,7 @@ public class LinkedList<T> implements ListInterface<T> {
     }
 
     private class Node<T> {
+
         T data;
         Node<T> next;
 
@@ -64,7 +67,9 @@ public class LinkedList<T> implements ListInterface<T> {
 
     @Override
     public boolean remove(T element) {
-        if (head == null) return false;
+        if (head == null) {
+            return false;
+        }
 
         if (head.data.equals(element)) {
             head = head.next;
@@ -207,4 +212,46 @@ public class LinkedList<T> implements ListInterface<T> {
             }
         }, false);
     }
+
+    @Override
+    public T linearSearch(T target) {
+        Node<T> current = head;
+        while (current != null) {
+            if (current.data.equals(target)) {
+                return current.data; // Return the data instead of the node
+            }
+            current = current.next;
+        }
+        return null; // Return null if the target value is not found
+    }
+
+    // Inner class for Iterator
+    private class LinkedListIterator implements Iterator<T> {
+
+        private Node<T> current;
+
+        public LinkedListIterator() {
+            this.current = head;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            T data = current.data;
+            current = current.next;
+            return data;
+        }
+    }
+
+    public Iterator<T> getIterator() {
+        return new LinkedListIterator();
+    }
+
 }

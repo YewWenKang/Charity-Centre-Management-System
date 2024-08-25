@@ -1,6 +1,7 @@
 package entity;
 
 public class Donee {
+
     private String id;
     private String name;
     private String address;
@@ -19,7 +20,7 @@ public class Donee {
 //        this.organizationName = "";
 //    }
     //with Organization Name
-    public Donee(String id,String name, String address, String phoneNumber, String email, String doneeType,String organizationName) {
+    public Donee(String id, String name, String address, String phoneNumber, String email, String doneeType, String organizationName) {
         this.id = id;
         this.name = name;
         this.address = address;
@@ -30,12 +31,11 @@ public class Donee {
     }
 
     // Getters and Setters
-
-    public String getId(){
+    public String getId() {
         return id;
     }
-    
-    public void setId(String id){
+
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -78,7 +78,7 @@ public class Donee {
     public void setDoneeType(String doneeType) {
         this.doneeType = doneeType;
     }
-    
+
     public String getOrganizationName() {
         return organizationName;
     }
@@ -99,17 +99,29 @@ public class Donee {
 //                ", Organization Name='" + organizationName + '\'' +
 //                '}';
 //    }
-    
     @Override
     public String toString() {
         return String.format("%s,%s,%s,%s,%s,%s,%s",
-            id == null ? "" : id,                // Handle null ID
-            name == null ? "" : name,            // Handle null name
-            address == null ? "" : address,      // Handle null address
-            phoneNumber == null ? "" : phoneNumber, // Handle null phone number
-            email == null ? "" : email,          // Handle null email
-            doneeType == null ? "" : doneeType,  // Handle null doneeType
-            organizationName == null ? "" : organizationName // Handle null organizationName
+                id == null ? "" : id, // Handle null ID
+                name == null ? "" : name, // Handle null name
+                address == null ? "" : address, // Handle null address
+                phoneNumber == null ? "" : phoneNumber, // Handle null phone number
+                email == null ? "" : email, // Handle null email
+                doneeType == null ? "" : doneeType, // Handle null doneeType
+                organizationName == null ? "" : organizationName // Handle null organizationName
         );
+    }
+
+    // Override equals to compare Donee objects by ID or other attributes
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Donee donee = (Donee) obj;
+        return id.equals(donee.id); // Compare based on ID or other criteria
     }
 }
