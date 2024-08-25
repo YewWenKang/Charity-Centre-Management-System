@@ -2,6 +2,8 @@ package control;
 
 import ADT.LinkedList;
 import ADT.ListInterface;
+import ADT.TreeMapImplementation;
+import ADT.TreeMapInterface;
 import DAO.FileDao;
 import boundary.DonorMaintenanceUI;
 import entity.Donor;
@@ -33,7 +35,6 @@ public class DonorMaintenance {
         donorList = fileDao.loadDataFromCSV(FILE_NAME, this::mapRowToDonor);
     }
 
-    // Map CSV row to Donor entity
     private Donor mapRowToDonor(String[] row) {
         if (row.length == 9) {
             return new Donor(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]);
@@ -43,26 +44,22 @@ public class DonorMaintenance {
         return null;
     }
 
-    // Add a new donor and save to CSV
     public void addDonor(String donorId, String name, String contactNumber, String email, String address,
-            String donorType, String donationPreference, String donorTimes, String totalAmount) {
-        Donor donor = new Donor(donorId, name, contactNumber, email, address, donorType, donationPreference, donorTimes,
-                totalAmount);
+                         String donorType, String donationPreference, String donorTimes, String totalAmount) {
+        Donor donor = new Donor(donorId, name, contactNumber, email, address, donorType, donationPreference, donorTimes, totalAmount);
         donorList.add(donor);
         saveDonorsToCSV();
         System.out.println("Donor added: " + donor);
     }
 
-    // update donor
     public boolean updateDonor(String donorId, String name, String contactNumber, String email,
-            String address, String donorType, String donationPreference,
-            String donorTimes, String totalAmount) {
+                               String address, String donorType, String donationPreference,
+                               String donorTimes, String totalAmount) {
         Donor donor = findDonorById(donorId);
         if (donor == null) {
             return false; // Donor not found
         }
 
-        // Update donor details
         donor.setName(name);
         donor.setContactNumber(contactNumber);
         donor.setEmail(email);
@@ -72,11 +69,9 @@ public class DonorMaintenance {
         donor.setDonorTimes(donorTimes);
         donor.setTotalAmount(totalAmount);
 
-        // Save changes
         return saveDonorsToCSV();
     }
 
-    // Helper method for validated input
     private String getValidatedInput(String prompt, Predicate<String> validator, String errorMessage) {
         while (true) {
             System.out.print(prompt);
@@ -93,7 +88,6 @@ public class DonorMaintenance {
         }
     }
 
-    // Delete a donor by ID and save changes to CSV
     public boolean deleteDonor(String donorId) {
         Donor donor = findDonorById(donorId);
         if (donor != null) {
@@ -106,7 +100,6 @@ public class DonorMaintenance {
         }
     }
 
-    // Get all donors
     public ListInterface<Donor> getAllDonors() {
         return donorList;
     }
@@ -117,8 +110,6 @@ public class DonorMaintenance {
             System.out.println("No donors found.");
         } else {
             System.out.println("\n--- Donor List ---");
-
-            // Print the header
             System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
                     "Donor ID", "Name", "Contact No.", "Email", "Address",
                     "Donor Type", "Donor Times", "Total Amount (RM)");
@@ -126,7 +117,6 @@ public class DonorMaintenance {
                     "---------------------------------------------------------------------------------------------"
                             + "-------------------------------------------------------------");
 
-            // Print the details for each donor
             for (int i = 0; i < donorList.size(); i++) {
                 Donor donor = donorList.get(i);
                 System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
@@ -142,7 +132,6 @@ public class DonorMaintenance {
         }
     }
 
-    // Merge sort for decreasing order and ascending order
     private ListInterface<Donor> mergeSort(ListInterface<Donor> list, Comparator<Donor> comparator) {
         if (list.size() <= 1) {
             return list;
@@ -166,7 +155,7 @@ public class DonorMaintenance {
     }
 
     private ListInterface<Donor> merge(ListInterface<Donor> left, ListInterface<Donor> right,
-            Comparator<Donor> comparator) {
+                                       Comparator<Donor> comparator) {
         ListInterface<Donor> result = new LinkedList<>();
 
         while (!left.isEmpty() && !right.isEmpty()) {
@@ -188,7 +177,6 @@ public class DonorMaintenance {
         return result;
     }
 
-    // Sorting by ID (Ascending and Descending)
     public void sortByIdAscending() {
         ListInterface<Donor> sortedList = mergeSort(getAllDonors(), Comparator.comparing(Donor::getDonorId));
         updateDonorList(sortedList);
@@ -199,7 +187,6 @@ public class DonorMaintenance {
         updateDonorList(sortedList);
     }
 
-    // Sorting by Name (Ascending and Descending)
     public void sortByNameAscending() {
         ListInterface<Donor> sortedList = mergeSort(getAllDonors(), Comparator.comparing(Donor::getName));
         updateDonorList(sortedList);
@@ -210,28 +197,23 @@ public class DonorMaintenance {
         updateDonorList(sortedList);
     }
 
-    // Sorting by Total Amount (Ascending and Descending)
     public void sortByAmountAscending() {
         ListInterface<Donor> sortedList = mergeSort(getAllDonors(), Comparator.comparing(Donor::getTotalAmount));
         updateDonorList(sortedList);
     }
 
     public void sortByAmountDescending() {
-        ListInterface<Donor> sortedList = mergeSort(getAllDonors(),
-                Comparator.comparing(Donor::getTotalAmount).reversed());
+        ListInterface<Donor> sortedList = mergeSort(getAllDonors(), Comparator.comparing(Donor::getTotalAmount).reversed());
         updateDonorList(sortedList);
     }
 
-    // Method to update the donor list after sorting
     private void updateDonorList(ListInterface<Donor> sortedList) {
-        // Assuming donorList is the field storing all donors
         donorList.clear();
         for (int i = 0; i < sortedList.size(); i++) {
             donorList.add(sortedList.get(i));
         }
     }
 
-    // Find a donor by ID
     public Donor findDonorById(String donorId) {
         return donorList.stream()
                 .filter(donor -> donor != null && donor.getDonorId().equals(donorId))
@@ -246,7 +228,67 @@ public class DonorMaintenance {
                 .orElse(null);
     }
 
-    // Save all donors to CSV
+    public Donor findDonorByEmail(String email) {
+        return donorList.stream()
+                .filter(donor -> donor != null && donor.getEmail().equals(email))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Donor findDonorByContactNumber(String contactNumber) {
+        return donorList.stream()
+                .filter(donor -> donor != null && donor.getContactNumber().equals(contactNumber))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public TreeMapInterface<String, Donor> filterByDonorType(String donorType) {
+        TreeMapInterface<String, Donor> result = new TreeMapImplementation<>();
+        for (Donor donor : donorList) {
+            if (donor.getDonorType().equalsIgnoreCase(donorType)) {
+                result.put(donor.getDonorId(), donor);
+            }
+        }
+        return result;
+    }
+
+    public TreeMapInterface<String, Donor> filterByDonationPreference(String donationPreference) {
+        TreeMapInterface<String, Donor> result = new TreeMapImplementation<>();
+        for (Donor donor : donorList) {
+            if (donor.getDonationPreference().equalsIgnoreCase(donationPreference)) {
+                result.put(donor.getDonorId(), donor);
+            }
+        }
+        return result;
+    }
+
+    public TreeMapInterface<String, Donor> filterByDonationTimes(String donationTimes) {
+        TreeMapInterface<String, Donor> result = new TreeMapImplementation<>();
+        for (Donor donor : donorList) {
+            if (donor.getDonorTimes().equalsIgnoreCase(donationTimes)) {
+                result.put(donor.getDonorId(), donor);
+            }
+        }
+        return result;
+    }
+
+    public TreeMapInterface<String, Donor> filterByTotalAmount(double minAmount, double maxAmount) {
+        TreeMapInterface<String, Donor> result = new TreeMapImplementation<>();
+        for (Donor donor : donorList) {
+            double totalAmount;
+            try {
+                totalAmount = Double.parseDouble(donor.getTotalAmount());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid total amount for donor " + donor.getDonorId());
+                continue;
+            }
+            if (totalAmount >= minAmount && totalAmount <= maxAmount) {
+                result.put(donor.getDonorId(), donor);
+            }
+        }
+        return result;
+    }
+
     private boolean saveDonorsToCSV() {
         try {
             ListInterface<Donor> validDonors = new LinkedList<>();
@@ -261,13 +303,12 @@ public class DonorMaintenance {
             fileDao.writeDataToCSV(FILE_NAME, headers, validDonors, this::mapDonorToRow);
             return true;
         } catch (Exception e) {
-            e.printStackTrace(); // Log the error stack trace for debugging
+            e.printStackTrace();
             System.out.println("Error saving donors to CSV: " + e.getMessage());
             return false;
         }
     }
 
-    // Map Donor entity to CSV row
     private ListInterface<String> mapDonorToRow(Donor donor) {
         ListInterface<String> row = new LinkedList<>();
         row.add(donor.getDonorId());
@@ -282,7 +323,6 @@ public class DonorMaintenance {
         return row;
     }
 
-    // Main method to start the UI
     public static void main(String[] args) {
         DonorMaintenanceUI ui = new DonorMaintenanceUI();
         ui.start();

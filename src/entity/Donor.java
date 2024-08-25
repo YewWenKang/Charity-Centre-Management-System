@@ -10,6 +10,7 @@ public class Donor {
     private String donationPreference; 
     private String donorTimes; 
     private String totalAmount;
+    
     // Constructor
     public Donor(String donorId, String name, String contactNumber, String email, String address,
                  String donorType, String donationPreference, String donorTimes, String totalAmount) {

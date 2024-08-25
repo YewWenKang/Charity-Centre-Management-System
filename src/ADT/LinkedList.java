@@ -63,8 +63,17 @@ public class LinkedList<T> implements ListInterface<T> {
     }
 
     @Override
+    public boolean addAll(ListInterface<? extends T> items) {
+        for (T item : items) {
+            this.add(item);
+        }
+        return true;
+    }
+
+    @Override
     public boolean remove(T element) {
-        if (head == null) return false;
+        if (head == null)
+            return false;
 
         if (head.data.equals(element)) {
             head = head.next;
@@ -206,5 +215,24 @@ public class LinkedList<T> implements ListInterface<T> {
                 return ORDERED | SIZED | NONNULL | IMMUTABLE;
             }
         }, false);
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            private Node<T> current = head; // Assuming 'head' is the start of your linked list
+
+            @Override
+            public boolean hasNext() {
+                return current != null;
+            }
+
+            @Override
+            public T next() {
+                T data = current.data;
+                current = current.next; // Assuming 'next' is the link to the next node
+                return data;
+            }
+        };
     }
 }

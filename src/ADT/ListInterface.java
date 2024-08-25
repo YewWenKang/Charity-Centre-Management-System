@@ -2,11 +2,13 @@ package ADT;
 
 import java.util.stream.Stream;
 
-public interface ListInterface<T> {
+public interface ListInterface<T> extends Iterable<T> {
 
     boolean add(T newEntry);
 
     boolean add(int newPosition, T newEntry);
+
+    boolean addAll(ListInterface<? extends T> items);
 
     boolean remove(T element);
 
