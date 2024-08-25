@@ -4,8 +4,6 @@ package ADT;
 import java.util.EmptyStackException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import ADT.StackInterface;
-import ADT.StackInterface;
 
 public class LinkedStack<T> implements StackInterface<T>, Iterable<T> {
 
