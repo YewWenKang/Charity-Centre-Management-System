@@ -7,7 +7,7 @@ public class DoneeMaintenanceUI {
 
     Scanner scanner = new Scanner(System.in);
 
-    public int getMenuChoice() {
+    public String getMenuChoice() {
         System.out.println("\nDonee Menu");
         System.out.println("1.Register as new Donee");
         System.out.println("2.Remove Donee");
@@ -17,8 +17,7 @@ public class DoneeMaintenanceUI {
         System.out.println("6.Filter Donee");
         System.out.println("7.Report");
         System.out.println("0.Quit");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+        String choice = scanner.nextLine();
         System.out.println();
         return choice;
     }
@@ -110,12 +109,18 @@ public class DoneeMaintenanceUI {
         System.out.println("5. Donee Type");
         System.out.println("6. Organization Name (if applicable)");
         System.out.println("0. Finish Updating");
-         System.out.print("Enter your choice: ");
+        System.out.print("Enter your choice: ");
         int choice = scanner.nextInt();
         scanner.nextLine();
         System.out.println();
         return choice;
     }
+    
+    public String askUpdateDonee(){
+        System.out.print("Do you want to update donee details?(Y/N) :");
+        String updateDonee = scanner.nextLine();
+        return updateDonee;
+}
     
 
 }

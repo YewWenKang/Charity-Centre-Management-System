@@ -33,4 +33,6 @@ public interface ListInterface<T> extends Iterable<T> {
     int size();
 
     Stream<T> stream();
+    
+    T linearSearch(T target);
 }

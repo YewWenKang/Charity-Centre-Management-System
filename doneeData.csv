@@ -1,5 +1,3 @@
 ID,Name,Address,Phone Number,Email,Donee Type,Organization Name
-DE001,abc1,abc2,123,abc4,Organization,abc1111
-DE002,abc11,abc22,1234,abc44,Individual,
-DE004,4,4,01234,ab4,Individual,
-DE005,test5,jalan test5,0151231234,test5@gmail.com,Individual,
+DE006,abc021,jalan abc123,0129321232,abc023@gmail.com,Individual,
+DE007,Donee7,jalan donee7,0171231234,donee7@gmail.com,Individual,

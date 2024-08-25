@@ -16,4 +16,8 @@ public class MessageUI {
     public static void displayExitMessage() {
         System.out.println("\nExiting System.");
     }
+    
+    public static void displayDigitOnlyMessage(){
+        System.out.println("Please enter digit only.");
+    }
 }
