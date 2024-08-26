@@ -9,15 +9,15 @@ public class ValidationUI {
 
     // Updated email pattern for the format xxx@xxxx.com
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
-        "^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.com$");
-    
+            "^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.com$");
+
     // Phone number should start with "01" and be 10 or 11 characters long
     private static final Pattern PHONE_PATTERN = Pattern.compile(
             "^01[0-9]{8,9}$");
-    
+
     private static final Pattern ID_PATTERN = Pattern.compile(
             "^[A-Za-z0-9_-]{5,20}$");
-    
+
     //is only digit
     private static final Pattern DIGIT_PATTERN = Pattern.compile(
             "^[0-9]*$");
@@ -55,13 +55,12 @@ public class ValidationUI {
     public static boolean isValidAmount(String totalAmount) {
         return isNotEmpty(totalAmount) && TOTAL_AMOUNT_PATTERN.matcher(totalAmount).matches();
     }
-    
 
     public static boolean retryOrExit() {
         while (true) {
             System.out.print("Do you want to try again? (y/n): ");
             String choice = scanner.nextLine().trim().toLowerCase();
-            
+
             if (choice.equals("y")) {
                 return true;
             } else if (choice.equals("n")) {
@@ -71,5 +70,5 @@ public class ValidationUI {
             }
         }
     }
-    
+
 }
