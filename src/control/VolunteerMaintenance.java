@@ -11,11 +11,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 import java.util.function.Function;
-
+import java.awt.Desktop;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import ADT.LinkedList;
 import ADT.ListInterface;
 import DAO.FileDao;
 import boundary.VolunteerMaintenanceUI;
+import entity.Donee;
 import entity.Event;
 import entity.Volunteer;
 import utility.MessageUI;
@@ -31,6 +34,7 @@ public class VolunteerMaintenance {
     private final ListInterface<String> headers;
     private ListInterface<Volunteer> VolunteerList = new LinkedList<>();
     private VolunteerMaintenanceUI VolunteerUI = new VolunteerMaintenanceUI();
+    private int nextId;
 
     public VolunteerMaintenance() {
         headers = new LinkedList<>();
@@ -43,7 +47,20 @@ public class VolunteerMaintenance {
 
         fileDao = new FileDao<>();
         VolunteerList = fileDao.loadDataFromCSV(FILE_NAME, this::mapRowToVolunteer);
+        this.nextId = calculateNextId(); // Initialize nextId based on existing IDs
 
+    }
+
+        private int calculateNextId() {
+        int maxId = 0;
+        for (int i = 1; i <= VolunteerList.getNumberOfEntries(); i++) {
+            Volunteer donee = VolunteerList.getEntry(i);
+            int currentId = Integer.parseInt(donee.getVolunteerId().substring(2)); // Extract numeric part
+            if (currentId > maxId) {
+                maxId = currentId;
+            }
+        }
+        return maxId + 1; // Next available ID
     }
 
     // file code
@@ -155,13 +172,20 @@ public class VolunteerMaintenance {
         boolean isExperienced = VolunteerMaintenanceUI.inputVolunteerExperience();
         String volunteerType = isExperienced ? "Experienced" : "Non-Experienced";
 
-        String volunteerId = VolunteerUI.inputVolunteerId(VolunteerList);
+        String volunteerId = generateVolunteerId();
         String name = VolunteerUI.inputVolunteerName();
         String phoneNumber = VolunteerUI.inputVolunteerPhoneNumber(VolunteerList);
         String email = VolunteerUI.inputVolunteerEmail(VolunteerList);
         String address = VolunteerUI.inputVolunteerAddress();
 
         return new Volunteer(volunteerId, volunteerType, name, phoneNumber, email, address);
+    }
+
+    private String generateVolunteerId() {
+        String prefix = "V";
+        String numericPart = String.format("%03d", nextId);
+        nextId++; // Increment for the next volunteer
+        return prefix + numericPart;
     }
 
     public void registerNewVolunteer() {
@@ -412,6 +436,17 @@ public class VolunteerMaintenance {
         return volunteers;
     }
 
+    
+    public void generateSummaryReport() {
+        try {
+            Desktop.getDesktop().open(new File("VolunteerData.csv"));
+            System.out.println(" ");
+    
+        } catch (IOException ex) {
+            Logger.getLogger(VolunteerMaintenance.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     public void runVolunteerMaintenance() {
         int choice;
         VolunteerMaintenance volunteerMaintenance = new VolunteerMaintenance(); // Declare and initialize the
@@ -448,6 +483,10 @@ public class VolunteerMaintenance {
                     String eventName = VolunteerUI.inputEventName(); // Assume this method prompts the user for input
                     printVolunteersByEventName(eventName);
                     break;
+                case 8:
+                    generateSummaryReport();
+                    break;  
+
                 default:
                     MessageUI.displayInvalidChoiceMessage();
             }

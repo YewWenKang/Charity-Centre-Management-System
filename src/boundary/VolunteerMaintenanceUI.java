@@ -19,7 +19,7 @@ public class VolunteerMaintenanceUI {
     public int getMenuChoice() {
         int choice = -1; // Initialize to an invalid choice
 
-        while (choice < 0 || choice > 7) {
+        while (choice < 0 || choice > 8) {
             System.out.println("=====================================");
             System.out.println("       Volunteer Registration Menu   ");
             System.out.println("=====================================");
@@ -30,6 +30,7 @@ public class VolunteerMaintenanceUI {
             System.out.println("| 5. List All Volunteers             |");
             System.out.println("| 6. Add Volunteer to Event          |");
             System.out.println("| 7. Search Volunteer from Event     |");
+            System.out.println("| 8. Generate report                 |");
             System.out.println("| 0. Quit                            |");
             System.out.println("=====================================");
             System.out.print("Please enter your choice: ");
