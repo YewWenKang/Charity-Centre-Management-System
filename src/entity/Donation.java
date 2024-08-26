@@ -102,16 +102,18 @@ public class Donation {
     @Override
     public String toString() {
         return String.format(
-            "Donation {%n" +
-            "    donationId='%s'%n" +
-            "    donorId='%s'%n" +
-            "    amount=%.2f%n" +
-            "    date=%s%n" +
-            "    paymentMethod='%s'%n" +
-            "    receiptNumber='%s'%n" +
-            "    donationType=%s%n" +
-            "    notes='%s'%n" +
-            "}", 
+            "╔══════════════════════════════════════════╗%n" +
+            "║               Donation Details           ║%n" +
+            "╠══════════════════════════════════════════╣%n" +
+            "║ Donation ID     : %-23s ║%n" +
+            "║ Donor ID        : %-23s ║%n" +
+            "║ Amount (RM)     : %-23.2f ║%n" +
+            "║ Date            : %-23s ║%n" +
+            "║ Payment Method  : %-23s ║%n" +
+            "║ Receipt Number  : %-23s ║%n" +
+            "║ Donation Type   : %-23s ║%n" +
+            "║ Notes           : %-23s ║%n" +
+            "╚══════════════════════════════════════════╝", 
             donationId, 
             donorId, 
             amount, 
@@ -122,5 +124,6 @@ public class Donation {
             notes
         );
     }
+    
 }
     

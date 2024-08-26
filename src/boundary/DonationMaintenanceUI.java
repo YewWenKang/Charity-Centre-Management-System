@@ -1,17 +1,17 @@
 package boundary;
 
+import ADT.LinkedList;
 import ADT.ListInterface;
 import control.DonationMaintenance;
 import entity.Donation;
 import entity.Donation.DonationType;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 import utility.ValidationUI;
 
 public class DonationMaintenanceUI {
-    private Scanner scanner;
-    private DonationMaintenance donationMaintenance;
+    private final Scanner scanner ;
+    private final DonationMaintenance donationMaintenance;
 
     public DonationMaintenanceUI(DonationMaintenance donationMaintenance) {
         this.scanner = new Scanner(System.in);
@@ -20,25 +20,25 @@ public class DonationMaintenanceUI {
 
     // Method to display the main menu
     public void displayMenu() {
-        Scanner scanner = new Scanner(System.in);
-    
+
         while (true) {
             System.out.println("\n=============================");
             System.out.println("  Donation Maintenance Menu");
             System.out.println("=============================");
             System.out.println(" 1. Create Donation");
             System.out.println(" 2. View Donation");
-            System.out.println(" 3. Update Donation");
+            System.out.println(" 3. Filter Donation");
             System.out.println(" 4. Delete Donation");
+            System.out.println(" 5. Report");
             System.out.println(" 0. Exit");
             System.out.println("=============================");
             System.out.print(" Enter your choice: ");
-            
+
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
-    
+
             System.out.println(); // Add an empty line for spacing
-    
+
             switch (choice) {
                 case 1:
                     createDonation();
@@ -47,11 +47,14 @@ public class DonationMaintenanceUI {
                     viewDonation();
                     break;
                 case 3:
-                    updateDonation();
+                    filterDonation();
                     break;
                 case 4:
                     deleteDonation();
                     return;
+                case 5:
+                    donationReport();
+                    break;
                 case 0:
                     System.out.println("Exiting menu...");
                     return;
@@ -61,7 +64,6 @@ public class DonationMaintenanceUI {
             }
         }
     }
-    
 
     // Method to create a new donation with validation
     private void createDonation() {
@@ -99,7 +101,7 @@ public class DonationMaintenanceUI {
         while (true) {
             System.out.print("Enter Date (yyyy-MM-dd): ");
             dateString = scanner.nextLine();
-            date = parseDate(dateString);
+            date = donationMaintenance.parseDate(dateString);
             if (date != null)
                 break;
             System.out.println("Invalid date format.");
@@ -150,128 +152,137 @@ public class DonationMaintenanceUI {
         Donation donation = new Donation(donationId, donorId, amount, date, paymentMethod, receiptNumber, donationType,
                 notes);
         donationMaintenance.addDonation(donation);
-        System.out.println("Donation created: " + donation);
+        System.out.println("Donation created: \n\n" + donation);
     }
 
-    // Method to view a donation
+    // view donation
     private void viewDonation() {
-        // Create a Scanner instance for user input
-        Scanner scanner = new Scanner(System.in);
 
-        // Prompt the user to enter a donor ID
-        System.out.print("Enter Donor ID to view: ");
-        String donorId = scanner.nextLine().trim(); // Retrieve donor ID and trim any leading/trailing spaces
+        while (true) {
+            // Prompt the user to enter a donor ID
+            System.out.print("Enter Donor ID to view (or type 'exit' to cancel): ");
+            String donorId = scanner.nextLine().trim();
 
-        // Validate the donor ID
-        if (donorId.isEmpty()) {
-            System.out.println("Donor ID cannot be empty.");
-            return;
-        }
-
-        // Retrieve the list of donations associated with the provided donor ID from CSV
-        ListInterface<Donation> donations = donationMaintenance.getDonationsByDonorIdFromCSV(donorId);
-
-        // Check if donations were found and display them
-        if (donations != null && !donations.isEmpty()) {
-            System.out.println("Donation Details:");
-            System.out.printf("%-12s %-10s %-10s %-20s %-15s %-15s %-10s %-30s%n",
-                    "Donation ID", "Donor ID", "Amount", "Date", "Payment Method",
-                    "Receipt No.", "Donation Type", "Notes");
-            System.out.println(
-                    "------------------------------------------------------------------------------------------------" +
-                            "-------------------------------");
-
-            for (Donation donation : donations) {
-                System.out.printf("%-12s %-10s %-10.2f %-20s %-15s %-15s %-10s %-30s%n",
-                        donation.getDonationId(),
-                        donation.getDonorId(),
-                        donation.getAmount(),
-                        donation.getDate(),
-                        donation.getPaymentMethod(),
-                        donation.getReceiptNumber(),
-                        donation.getDonationType(),
-                        donation.getNotes());
-            }
-        } else {
-            // Inform the user if no donations were found
-            System.out.println("No donations found with the given Donor ID.");
-        }
-    }
-
-    // Method to update a donation
-    private void updateDonation() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter Donation ID to update: ");
-        String donationId = scanner.nextLine();
-
-        // Retrieve the list of donations for the given ID
-        ListInterface<Donation> donations = donationMaintenance.getDonationsById(donationId);
-        if (donations != null && !donations.isEmpty()) {
-            System.out.println("Current Details:");
-            for (Donation donation : donations) {
-                System.out.println(donation);
+            // Exit condition
+            if (donorId.equalsIgnoreCase("exit")) {
+                return;
             }
 
-            System.out.println("Select a donation to update (enter the index):");
-            for (int i = 0; i < donations.size(); i++) {
-                System.out.println(i + ": " + donations.get(i));
+            // Validate the donor ID
+            if (donorId.isEmpty()) {
+                System.out.println("Donor ID cannot be empty.");
+                continue; // Re-prompt the user
             }
 
-            int index = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            // Retrieve the list of donations associated with the provided donor ID from CSV
+            ListInterface<Donation> donations = donationMaintenance.getDonationsByDonorIdFromCSV(donorId);
 
-            if (index >= 0 && index < donations.size()) {
-                Donation donationToUpdate = donations.get(index);
-
-                System.out.println("Updating details for: " + donationToUpdate);
-                // Update details (for simplicity, assume user enters new values)
-                System.out.print("Enter new Amount (RM): ");
-                double amount = scanner.nextDouble();
-                scanner.nextLine(); // Consume newline
-
-                System.out.print("Enter new Date (yyyy-MM-dd): ");
-                String dateString = scanner.nextLine();
-                Date date = parseDate(dateString);
-
-                // Update other fields as necessary
-                donationToUpdate.setAmount(amount);
-                donationToUpdate.setDate(date);
-
-                // Remove old donation and re-add updated donation
-                donationMaintenance.deleteDonation(donationToUpdate.getDonationId());
-                donationMaintenance.addDonation(donationToUpdate);
-
-                System.out.println("Donation updated: " + donationToUpdate);
-            } else {
-                System.out.println("Invalid index selected.");
+            if (donations == null || donations.isEmpty()) {
+                System.out.println("No donations found with the given Donor ID.");
+                continue; // Re-prompt for donor ID
             }
-        } else {
-            System.out.println("No donations found with the given ID.");
+
+            // Prompt for sorting preference
+            System.out.println("\nChoose sorting option:");
+            System.out.println("1. Sort by Date (Ascending)");
+            System.out.println("2. Sort by Date (Descending)");
+            System.out.println("3. Sort by Amount (Ascending)");
+            System.out.println("4. Sort by Amount (Descending)");
+            System.out.print("Enter your choice: ");
+            String choice = scanner.nextLine().trim();
+
+            // Sort based on user choice
+            switch (choice) {
+                case "1":
+                    donations = donationMaintenance.sortDonationsByDate(donations, true);
+                    break;
+                case "2":
+                    donations = donationMaintenance.sortDonationsByDate(donations, false);
+                    break;
+                case "3":
+                    donations = donationMaintenance.sortDonationsByAmount(donations, true);
+                    break;
+                case "4":
+                    donations = donationMaintenance.sortDonationsByAmount(donations, false);
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please select a valid option.");
+                    continue; // Re-prompt for sorting choice
+            }
+
+            // Display the sorted donations
+            donationMaintenance.displayDonationsForDonor(donorId, donations);
+            break;
         }
     }
 
-    // delete donation
-    private void deleteDonation() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("1. Remove a single donation");
-        System.out.println("2. Clear all donations");
+    // -----------------------------------------------------------------------------------------------
+
+    public void filterDonation() {
+        System.out.println("1. Filter by Donation Type");
+        System.out.println("2. Filter by Date Range");
+        System.out.println("3. Filter by Donation Amount");
+        System.out.println("4. Filter by Payment Method");
         System.out.println("0. Return to menu");
         System.out.print("Enter your choice: ");
         int choice = scanner.nextInt();
         scanner.nextLine(); // Consume newline
 
+        ListInterface<Donation> filteredDonations = new LinkedList<>();
+
         switch (choice) {
             case 1:
-                // Remove a single donation
-                System.out.print("Enter Donation ID to remove: ");
-                String donationId = scanner.nextLine();
-                donationMaintenance.deleteDonation(donationId);
-                System.out.println("Donation removed.");
+                // Filter by Donation Type
+                System.out.print("Enter Donation Type (FOOD, DAILY_EXPENSES, CASH): ");
+                String donationType = scanner.nextLine();
+                try {
+                    filteredDonations = donationMaintenance.filterDonationsByDonationType(
+                            donationMaintenance.getAllDonations(), // Assuming a method to get all donations
+                            DonationType.valueOf(donationType.toUpperCase()));
+                    donationMaintenance.displayFilteredDonations(filteredDonations);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Invalid Donation Type. Please enter a valid type.");
+                }
                 break;
             case 2:
-                // Clear all donations
-                donationMaintenance.clearAllDonations();
-                System.out.println("All donations cleared.");
+                // Filter by Date Range
+                System.out.print("Enter Start Date (yyyy-MM-dd): ");
+                String startDateString = scanner.nextLine();
+                Date startDate = donationMaintenance.parseDate(startDateString);
+
+                System.out.print("Enter End Date (yyyy-MM-dd): ");
+                String endDateString = scanner.nextLine();
+                Date endDate = donationMaintenance.parseDate(endDateString);
+
+                if (startDate != null && endDate != null) {
+                    filteredDonations = donationMaintenance.filterDonationsByDate(
+                            donationMaintenance.getAllDonations(), startDate, endDate);
+                    donationMaintenance.displayFilteredDonations(filteredDonations);
+                } else {
+                    System.out.println("Invalid date format. Please enter dates in yyyy-MM-dd format.");
+                }
+                break;
+            case 3:
+                // Filter by Donation Amount
+                System.out.print("Enter Minimum Amount (RM): ");
+                double minAmount = scanner.nextDouble();
+                scanner.nextLine(); // Consume newline
+
+                System.out.print("Enter Maximum Amount (RM): ");
+                double maxAmount = scanner.nextDouble();
+                scanner.nextLine(); // Consume newline
+
+                filteredDonations = donationMaintenance.filterDonationsByAmount(
+                        donationMaintenance.getAllDonations(), minAmount, maxAmount);
+                donationMaintenance.displayFilteredDonations(filteredDonations);
+                break;
+            case 4:
+                // Filter by Payment Method
+                System.out.print("Enter Payment Method: ");
+                String paymentMethod = scanner.nextLine();
+                filteredDonations = donationMaintenance.filterDonationsByPaymentMethod(
+                        donationMaintenance.getAllDonations(), paymentMethod);
+                donationMaintenance.displayFilteredDonations(filteredDonations);
                 break;
             case 0:
                 // Return to menu
@@ -282,15 +293,74 @@ public class DonationMaintenanceUI {
         }
     }
 
-    // Helper method to parse date
-    private Date parseDate(String dateString) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            return sdf.parse(dateString);
-        } catch (Exception e) {
-            return null;
+    // -----------------------------------------------------------------------------------------------
+
+    // delete donation
+    private void deleteDonation() {
+        boolean validInput = false;
+    
+        while (!validInput) {
+            System.out.println("1. Remove a single donation");
+            System.out.println("2. Clear all donations");
+            System.out.println("0. Return to menu");
+            System.out.print("Enter your choice: ");
+            
+            if (scanner.hasNextInt()) {
+                int choice = scanner.nextInt();
+                scanner.nextLine(); // Consume newline
+                
+                switch (choice) {
+                    case 1:
+                        // Remove a single donation
+                        System.out.print("Enter Donation ID to remove: ");
+                        String donationId = scanner.nextLine();
+                        donationMaintenance.deleteDonation(donationId);
+                        validInput = true; // Exit loop after successful operation
+                        displayMenu();
+                        break;
+                    case 2:
+                        // Clear all donations
+                        donationMaintenance.clearAllDonations();
+                        validInput = true; // Exit loop after successful operation
+                        displayMenu();
+                        break;
+                    case 0:
+                        // Return to menu
+                        validInput = true; // Exit loop and return to menu
+                        return; // Exit method
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                        break;
+                }
+            } else {
+                System.out.println("Invalid input. Please enter a number.\n");
+                scanner.next(); // Consume invalid input
+            }
         }
     }
+
+    // -----------------------------------------------------------------------------------------------
+    private void donationReport(){
+        System.out.println("1. Donation Summary Report");
+        System.out.println("0. Return to menu");
+        System.out.print("Enter your choice: ");
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+
+        switch (choice) {
+            case 1:
+                donationMaintenance.generateDonationSummaryReport();
+                break;
+            case 0:
+                return;
+            default:
+                System.out.println("Invalid choice. Please try again.");
+                break;
+        }
+    }
+    
+
+
 
     public static void main(String[] args) {
         DonationMaintenance donationMaintenance = new DonationMaintenance();

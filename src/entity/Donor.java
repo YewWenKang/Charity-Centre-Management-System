@@ -104,18 +104,31 @@ public class Donor {
     @Override
     public String toString() {
         return String.format(
-            "Donor Information:\n" +
-            "-------------------\n" +
-            "ID: %s\n" +
-            "Name: %s\n" +
-            "Contact Number: %s\n" +
-            "Email: %s\n" +
-            "Address: %s\n" +
-            "Donor Type: %s\n" +
-            "Donation Preference: %s\n" +
-            "Donation Times: %s\n" +
-            "Total Amount(RM): %s\n",
-            donorId, name, contactNumber, email, address, donorType, donationPreference, donorTimes, totalAmount
+            "\n=====================\n" +
+            "   DONOR INFORMATION   \n" +
+            "=====================\n" +
+            "ID               : %-20s\n" +
+            "Name             : %-20s\n" +
+            "Contact Number   : %-20s\n" +
+            "Email            : %-20s\n" +
+            "Address          : %-20s\n" +
+            "-------------------------------\n" +
+            "Donor Type       : %-20s\n" +
+            "Donation Preference: %-15s\n" +
+            "Donation Times   : %-20s\n" +
+            "Total Amount (RM): %-20s\n" +
+            "=============================\n",
+            donorId, 
+            name, 
+            contactNumber, 
+            email, 
+            address, 
+            donorType, 
+            donationPreference, 
+            donorTimes, 
+            totalAmount
         );
     }
+    
+    
 }

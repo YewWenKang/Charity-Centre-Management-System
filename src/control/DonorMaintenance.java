@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
-import utility.ValidationUI;
 
 public class DonorMaintenance {
     private ListInterface<Donor> donorList = new LinkedList<>();
@@ -39,9 +38,8 @@ public class DonorMaintenance {
         fileDao = new FileDao<>();
         donorList = fileDao.loadDataFromCSV(FILE_NAME, this::mapRowToDonor);
 
-
-               // Initialize the sets with existing donor data
-               initializeContactAndEmailSets();
+        // Initialize the sets with existing donor data
+        initializeContactAndEmailSets();
     }
 
     private Donor mapRowToDonor(String[] row) {
@@ -63,22 +61,23 @@ public class DonorMaintenance {
     }
 
     public boolean addDonor(String donorId, String name, String contactNumber, String email, String address,
-                            String donorType, String donationPreference, String donorTimes, String totalAmount) {
+            String donorType, String donationPreference, String donorTimes, String totalAmount) {
         if (contactNumbers.contains(contactNumber)) {
             System.out.println("\nError: Contact number already exists.");
             return false;
-        }else{
+        } else {
             System.out.println("\nDonor added successfully!");
         }
 
         if (emails.contains(email)) {
             System.out.println("\nError: Email already exists.");
             return false;
-        }else {
+        } else {
             System.out.println("\nDonor added successfully!");
         }
 
-        Donor donor = new Donor(donorId, name, contactNumber, email, address, donorType, donationPreference, donorTimes, totalAmount);
+        Donor donor = new Donor(donorId, name, contactNumber, email, address, donorType, donationPreference, donorTimes,
+                totalAmount);
         donorList.add(donor);
         contactNumbers.add(contactNumber); // Update the set with the new contact number
         emails.add(email); // Update the set with the new email
@@ -89,19 +88,45 @@ public class DonorMaintenance {
     }
 
     public boolean updateDonor(String donorId, String name, String contactNumber, String email,
-                               String address, String donorType, String donationPreference) {
+            String address, String donorType, String donationPreference) {
         Donor donor = findDonorById(donorId);
         if (donor == null) {
-            return false; // Donor not found
+            System.out.println("\nError: Donor not found.");
+            return false;
         }
 
+        // Check if the contact number already exists in another donor's record
+        for (Donor d : donorList) {
+            if (!d.getDonorId().equals(donorId) && d.getContactNumber().equals(contactNumber)) {
+                System.out.println("\nError: Contact number already exists.");
+                return false;
+            }
+        }
+
+        // Check if the email already exists in another donor's record
+        for (Donor d : donorList) {
+            if (!d.getDonorId().equals(donorId) && d.getEmail().equals(email)) {
+                System.out.println("\nError: Email already exists.");
+                return false;
+            }
+        }
+
+        // Update donor details
         donor.setName(name);
         donor.setContactNumber(contactNumber);
         donor.setEmail(email);
         donor.setAddress(address);
         donor.setDonorType(donorType);
         donor.setDonationPreference(donationPreference);
-        return saveDonorsToCSV();
+
+        // Save changes
+        if (saveDonorsToCSV()) {
+            System.out.println("\nDonor updated successfully!");
+            return true;
+        } else {
+            System.out.println("\nError: Failed to save donor updates.");
+            return false;
+        }
     }
 
     public boolean deleteDonor(String donorId) {
@@ -109,42 +134,10 @@ public class DonorMaintenance {
     
         // Check if donor exists
         if (donor != null) {
-            while (true) {
-                System.out.println("Are you sure you want to delete the donor with ID: " + donorId + "?");
-                System.out.println("1. Yes");
-                System.out.println("2. No");
-                System.out.print("Enter your choice: ");
-                
-                String input = scanner.nextLine();
-                
-                if (ValidationUI.isDigit(input)) {
-                    int choice = Integer.parseInt(input);
-                    
-                    switch (choice) {
-                        case 1:
-                            // User confirmed deletion
-                            donorList.remove(donor);
-                            saveDonorsToCSV();
-                            System.out.println("Donor deleted successfully.");
-                            return true;
-                            
-                        case 2:
-                            // User canceled deletion
-                            System.out.println("Deletion canceled.");
-                            return false;
-                            
-                        default:
-                            // Invalid choice
-                            System.out.println("Invalid choice. Please enter 1 for Yes or 2 for No.");
-                            break;
-                    }
-                } else {
-                    // Invalid input
-                    System.out.println("Invalid input. Please enter a valid number.");
-                }
-            }
+            donorList.remove(donor);
+            saveDonorsToCSV();
+            return true;
         } else {
-            System.out.println("Donor not found.");
             return false;
         }
     }
@@ -205,7 +198,7 @@ public class DonorMaintenance {
     }
 
     private ListInterface<Donor> merge(ListInterface<Donor> left, ListInterface<Donor> right,
-                                       Comparator<Donor> comparator) {
+            Comparator<Donor> comparator) {
         ListInterface<Donor> result = new LinkedList<>();
 
         while (!left.isEmpty() && !right.isEmpty()) {
@@ -253,7 +246,8 @@ public class DonorMaintenance {
     }
 
     public void sortByAmountDescending() {
-        ListInterface<Donor> sortedList = mergeSort(getAllDonors(), Comparator.comparing(Donor::getTotalAmount).reversed());
+        ListInterface<Donor> sortedList = mergeSort(getAllDonors(),
+                Comparator.comparing(Donor::getTotalAmount).reversed());
         updateDonorList(sortedList);
     }
 
@@ -291,6 +285,32 @@ public class DonorMaintenance {
                 .findFirst()
                 .orElse(null);
     }
+
+    //filter 
+        // Method to display the filtered donors
+        public void displayFilteredDonors(TreeMapInterface<String, Donor> filteredDonors) {
+            if (filteredDonors.isEmpty()) {
+                System.out.println("No donors found with the specified criteria.");
+            } else {
+                System.out.println("\n--- Filtered Donors ---");
+                System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
+                "Donor ID", "Name", "Contact No.", "Email", "Address",
+                "Donor Type", "Donor Times", "Total Amount (RM)");
+                for (java.util.Map.Entry<String, Donor> entry : filteredDonors.entries()) {
+                    Donor donor = entry.getValue();
+                    System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
+                            donor.getDonorId(),
+                            donor.getName(),
+                            donor.getContactNumber(),
+                            donor.getEmail(),
+                            donor.getAddress(),
+                            donor.getDonorType(),
+                            donor.getDonorTimes(),
+                            donor.getTotalAmount());
+                }
+            }
+        }
+    
 
     public TreeMapInterface<String, Donor> filterByDonorType(String donorType) {
         TreeMapInterface<String, Donor> result = new TreeMapImplementation<>();
@@ -373,8 +393,8 @@ public class DonorMaintenance {
         return row;
     }
 
-
-    //Donor Report
+    //-------------------------------------------------------------------------------------------------
+    // Donor Report
     public void generateDetailedDonorReport() {
         System.out.println("\n--- Detailed Donor Report ---");
         System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
@@ -382,8 +402,8 @@ public class DonorMaintenance {
                 "Donor Type", "Donor Times", "Total Amount (RM)");
         System.out.println(
                 "---------------------------------------------------------------------------------------------"
-                + "-------------------------------------------------------------");
-    
+                        + "-------------------------------------------------------------");
+
         for (Donor donor : donorList) {
             System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
                     donor.getDonorId(),
@@ -401,7 +421,7 @@ public class DonorMaintenance {
         // Calculate summary statistics
         int totalDonors = donorList.size();
         int totalDonorTypes = (int) donorList.stream().map(Donor::getDonorType).distinct().count();
-        
+
         // Convert String to double and handle potential NumberFormatException
         double totalAmountDonated = donorList.stream()
                 .mapToDouble(donor -> {
@@ -412,7 +432,7 @@ public class DonorMaintenance {
                     }
                 })
                 .sum();
-        
+
         // Get highest donation times
         int highestDonationTimes = donorList.stream()
                 .mapToInt(donor -> {
@@ -424,7 +444,7 @@ public class DonorMaintenance {
                 })
                 .max()
                 .orElse(0);
-        
+
         // Get top donor
         Donor topDonor = donorList.stream()
                 .max(Comparator.comparing(donor -> {
@@ -435,20 +455,20 @@ public class DonorMaintenance {
                     }
                 }))
                 .orElse(null);
-        
+
         // Print summary with creative formatting
         System.out.println("\n" + "-".repeat(50));
         System.out.println("              Donor Summary Report");
         System.out.println("-".repeat(50));
         System.out.println();
-        
+
         System.out.printf("Total Number of Donors     : %d%n", totalDonors);
         System.out.printf("Number of Unique Donor Types: %d%n", totalDonorTypes);
         System.out.printf("Total Amount Donated (RM)  : %.2f%n", totalAmountDonated);
         System.out.printf("Highest Number of Donations : %d%n", highestDonationTimes);
-        
+
         System.out.println();
-        
+
         if (topDonor != null) {
             System.out.println("Top Donor:");
             System.out.println("  Name                : " + topDonor.getName());
@@ -456,14 +476,10 @@ public class DonorMaintenance {
         } else {
             System.out.println("No donors found.");
         }
-        
+
         System.out.println();
         System.out.println("-".repeat(50));
     }
-    
-    
-    
-
 
     public static void main(String[] args) {
         DonorMaintenanceUI ui = new DonorMaintenanceUI();

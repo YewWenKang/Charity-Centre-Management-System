@@ -1,5 +1,6 @@
 package ADT;
 
+import java.util.Comparator;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 
@@ -40,4 +41,7 @@ public interface TreeMapInterface<K, V> {
     
     // Apply a function to each entry
     void forEach(BiConsumer<? super K, ? super V> action);
+
+    // Method to get the comparator used by the TreeMap
+    Comparator<K> comparator();
 }

@@ -1,5 +1,6 @@
 package ADT;
 
+import java.util.Comparator;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
@@ -8,8 +9,14 @@ public class TreeMapImplementation<K extends Comparable<K>, V> implements TreeMa
 
     private final TreeMap<K, V> treeMap;
 
+    // Default constructor
     public TreeMapImplementation() {
         this.treeMap = new TreeMap<>();
+    }
+
+    // Constructor with a comparator
+    public TreeMapImplementation(Comparator<? super K> comparator) {
+        this.treeMap = new TreeMap<>(comparator);
     }
 
     @Override
@@ -68,9 +75,16 @@ public class TreeMapImplementation<K extends Comparable<K>, V> implements TreeMa
     public void clear() {
         treeMap.clear();
     }
-    
+
     @Override
     public void forEach(BiConsumer<? super K, ? super V> action) {
         treeMap.forEach(action);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Comparator<K> comparator() {
+        Comparator<? super K> cmp = treeMap.comparator();
+        return (Comparator<K>) cmp;
     }
 }

@@ -379,12 +379,51 @@ public class DonorMaintenanceUI {
     private void deleteDonor() {
         System.out.print("Enter Donor ID to delete: ");
         String donorId = scanner.nextLine();
-        if (donorMaintenance.deleteDonor(donorId)) {
-            System.out.println("Donor deleted successfully.");
-        } else {
+    
+        Donor donor = donorMaintenance.findDonorById(donorId);
+        if (donor == null) {
             System.out.println("Donor not found.");
+            return;
+        }
+    
+        while (true) {
+            System.out.println("Are you sure you want to delete the donor with ID: " + donorId + "?");
+            System.out.println("1. Yes");
+            System.out.println("2. No");
+            System.out.print("Enter your choice: ");
+    
+            String input = scanner.nextLine();
+    
+            if (ValidationUI.isDigit(input)) {
+                int choice = Integer.parseInt(input);
+    
+                switch (choice) {
+                    case 1:
+                        // User confirmed deletion
+                        if (donorMaintenance.deleteDonor(donorId)) {
+                            System.out.println("Donor deleted successfully.");
+                        } else {
+                            System.out.println("Failed to delete donor.");
+                        }
+                        return;
+    
+                    case 2:
+                        // User canceled deletion
+                        System.out.println("Deletion canceled.");
+                        return;
+    
+                    default:
+                        // Invalid choice
+                        System.out.println("Invalid choice. Please enter 1 for Yes or 2 for No.");
+                        break;
+                }
+            } else {
+                // Invalid input
+                System.out.println("Invalid input. Please enter a valid number.");
+            }
         }
     }
+    
 
     private void viewAllDonors() {
         while (true) {
@@ -589,7 +628,7 @@ public class DonorMaintenanceUI {
                         foundDonor = donorMaintenance.findDonorByEmail(searchValue);
                         break;
                     case 5:
-                        System.out.println("Exiting to the main menu...");
+                        exitToMainMenu();
                         return; // Exit the method
                     default:
                         System.out.println("Invalid choice. Please enter a number between 1 and 5.");
@@ -598,7 +637,7 @@ public class DonorMaintenanceUI {
     
                 // Display the search result
                 if (foundDonor != null) {
-                    System.out.println("Donor Found: " + foundDonor);
+                    System.out.println("\n" + foundDonor);
                 } else {
                     System.out.println("Donor not found.");
                 }
@@ -672,7 +711,7 @@ public class DonorMaintenanceUI {
                 }
 
                 // Display the filtered donors
-                displayFilteredDonors(filteredDonors);
+                donorMaintenance.displayFilteredDonors(filteredDonors);
 
             } else {
                 System.out.println("Invalid input. Please enter a valid number.");
@@ -680,26 +719,7 @@ public class DonorMaintenanceUI {
         }
     }
 
-    // Method to display the filtered donors
-    private void displayFilteredDonors(TreeMapInterface<String, Donor> filteredDonors) {
-        if (filteredDonors.isEmpty()) {
-            System.out.println("No donors found with the specified criteria.");
-        } else {
-            System.out.println("\n--- Filtered Donors ---");
-            for (java.util.Map.Entry<String, Donor> entry : filteredDonors.entries()) {
-                Donor donor = entry.getValue();
-                System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
-                        donor.getDonorId(),
-                        donor.getName(),
-                        donor.getContactNumber(),
-                        donor.getEmail(),
-                        donor.getAddress(),
-                        donor.getDonorType(),
-                        donor.getDonorTimes(),
-                        donor.getTotalAmount());
-            }
-        }
-    }
+    //------------------------------------------------------------------------------------------------
 
     private void showReportMenu() {
         while (true) {
