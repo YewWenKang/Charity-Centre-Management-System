@@ -56,7 +56,24 @@ public class DoneeMaintenanceUI {
         System.out.println("| 3. | Apply for cash                |");
         System.out.println("| 4. | Show Available Aid            |");
         System.out.println("| 0. | Quit                          |");
-        printDash(40);
+        printDash(38);
+        System.out.println();
+        System.out.print("Enter your choice: ");
+        String choice = scanner.nextLine();
+        System.out.println();
+        return choice;
+    }
+
+    public String getReportMenuChoice() {
+        System.out.println();
+        printDash(41);
+        System.out.println("\n|              Report Menu              |");
+        printDash(41);
+        System.out.println();
+        System.out.println("| 1. | Donee Summary Report             |");
+        System.out.println("| 2. | Distribution Summary Report      |");
+        System.out.println("| 0. | Quit                             |");
+        printDash(41);
         System.out.println();
         System.out.print("Enter your choice: ");
         String choice = scanner.nextLine();
@@ -203,7 +220,6 @@ public class DoneeMaintenanceUI {
                 "Name", "Address", "Phone Number", "Email", "Donee Type", "Organization Name");
         System.out.println("-".repeat(totalWidth));
     }
-
 
     public void printRow(String name, String address, String phoneNumber, String email, String doneeType, String organizationName) {
         int nameWidth = 15;

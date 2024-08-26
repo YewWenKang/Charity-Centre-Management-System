@@ -1,5 +1,7 @@
 package control;
 
+import ADT.DictionaryInterface;
+import ADT.HashedDictionary;
 import ADT.LinkedStack;
 import ADT.LinkedList;
 import ADT.ListInterface;
@@ -11,9 +13,11 @@ import utility.ValidationUI;
 import ADT.StackInterface;
 import entity.Distribution;
 import entity.Donation;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
@@ -439,7 +443,7 @@ public class DoneeMaintenance {
     }
 
     //choice 7
-    public void generateSummaryReport() {
+    public void generateDoneeSummaryReport() {
         int totalDonees = doneeList.getNumberOfEntries();
         int organizationCount = 0;
         int individualCount = 0;
@@ -453,10 +457,18 @@ public class DoneeMaintenance {
             }
         }
 
-        System.out.println("Summary Report:");
-        System.out.println("Total Donees: " + totalDonees);
-        System.out.println("Total Organizations: " + organizationCount);
-        System.out.println("Total Individuals: " + individualCount);
+        // Print the summary report
+        System.out.println("Donee Summary Report:");
+        System.out.println("-----------------------------------------------------");
+        System.out.printf("| %-30s | %-16s |\n", "Donee Type", "Total Amount");
+        System.out.println("|--------------------------------|------------------|");
+        System.out.printf("| %-30s | %-16d |\n", "Total Organizations", organizationCount);
+        System.out.printf("| %-30s | %-16d |\n", "Total Individuals", individualCount);
+        System.out.println("|---------------------------------------------------|");
+
+        System.out.printf("Total Donees registered : " + totalDonees);
+        System.out.println();
+        System.out.println();
     }
 
     public void generateDistributionSummaryReport() {
@@ -468,18 +480,114 @@ public class DoneeMaintenance {
             Distribution distribution = manager.distributionList.getEntry(i);
             if (distribution.getType().equals("CASH")) {
                 totalCashAmount += distribution.getDistributedAmount();
-            }else if(distribution.getType().equals("DAILY_EXPENSES")){
+            } else if (distribution.getType().equals("DAILY_EXPENSES")) {
                 totalDailyExpensesAmount += distribution.getDistributedAmount();
-            }else if (distribution.getType().equals("FOOD")){
+            } else if (distribution.getType().equals("FOOD")) {
                 totalFoodAmount += distribution.getDistributedAmount();
             }
         }
-        
+
+        // Print the summary report
+        System.out.println("\n\n-----------------------------------------------------");
+        System.out.printf("| %-30s | %-16s |\n", "Distribution Type", "Total Amount");
+        System.out.println("|--------------------------------|------------------|");
+        System.out.printf("| %-30s | RM %-13.2f |\n", "Cash", totalCashAmount);
+        System.out.printf("| %-30s | RM %-13.2f |\n", "Food", totalFoodAmount);
+        System.out.printf("| %-30s | RM %-13.2f |\n", "Daily Expenses", totalDailyExpensesAmount);
+        System.out.println("|---------------------------------------------------|");
+    }
+
+    public void distributionReportByDonee() {
+        String donationFilePath = "donationDistribution.csv";
+        String doneeFilePath = "doneeData.csv";
+
+        // Arrays to hold donee data
+        String[] doneeIDs = new String[100]; // Initial size
+        String[] doneeNames = new String[100];
+        double[] foodAmounts = new double[100];
+        double[] cashAmounts = new double[100];
+        double[] dailyExpensesAmounts = new double[100];
+        double[] totalAmounts = new double[100];
+        int doneeCount = 0;
+
+        // Read donee data
+        try (BufferedReader br = new BufferedReader(new FileReader(doneeFilePath))) {
+            String line;
+            // Skip header line
+            br.readLine();
+
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                String id = values[0];
+                String name = values[1];
+
+                // Store donee data in arrays
+                doneeIDs[doneeCount] = id;
+                doneeNames[doneeCount] = name;
+                doneeCount++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Read donation distribution data and aggregate amounts
+        try (BufferedReader br = new BufferedReader(new FileReader(donationFilePath))) {
+            String line;
+            // Skip header line
+            br.readLine();
+
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                String recipientID = values[2];
+                double distributedAmount = Double.parseDouble(values[3]);
+                String type = values[5];
+
+                // Find index of recipientID in donee arrays
+                int index = findIndex(doneeIDs, doneeCount, recipientID);
+                if (index != -1) {
+                    switch (type) {
+                        case "FOOD":
+                            foodAmounts[index] += distributedAmount;
+                            break;
+                        case "CASH":
+                            cashAmounts[index] += distributedAmount;
+                            break;
+                        case "DAILY_EXPENSES":
+                            dailyExpensesAmounts[index] += distributedAmount;
+                            break;
+                    }
+                    // Update total amount last
+                    totalAmounts[index] += distributedAmount;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Print the report
+        System.out.println();
+        System.out.println();
         System.out.println("Donation Distribution Summary Report:");
-        System.out.println("Total Cash Distrbute : RM " + totalCashAmount);
-        System.out.println("Total Food Distrbute : RM " + totalFoodAmount);
-        System.out.println("Total Daily Expenses Distrbute : RM " + totalDailyExpensesAmount);
-        
+        System.out.println("------------------------------------------------------------------------------------------------------");
+        System.out.printf("| %-8s | %-20s | %-8s | %-8s | %-14s | %-25s |\n", "Donee ID", "Name", "FOOD", "CASH", "DAILY_EXPENSES", "Total Distributed Amount");
+        System.out.println("------------------------------------------------------------------------------------------------------");
+
+        for (int i = 0; i < doneeCount; i++) {
+            System.out.printf("| %-8s | %-20s | %-8.2f | %-8.2f | %-14.2f | %-25.2f |\n",
+                    doneeIDs[i], doneeNames[i], foodAmounts[i], cashAmounts[i], dailyExpensesAmounts[i], totalAmounts[i]);
+        }
+
+        System.out.println("|----------------------------------------------------------------------------------------------------|");
+    }
+
+    // Find the index of the doneeID in the array
+    private static int findIndex(String[] array, int size, String key) {
+        for (int i = 0; i < size; i++) {
+            if (array[i].equals(key)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public String getAllDonees() {
@@ -539,8 +647,25 @@ public class DoneeMaintenance {
                     filterDonees();
                     break;
                 case "7":
-                    generateDistributionSummaryReport();
-//                    generateSummaryReport();
+                    String reportChoice;
+                    do {
+                        reportChoice = doneeUI.getReportMenuChoice();;
+                        switch (reportChoice) {
+                            case "1":
+                                generateDoneeSummaryReport();
+                                break;
+                            case "2":
+                                distributionReportByDonee();
+                                generateDistributionSummaryReport();
+
+                                break;
+                            case "0":
+                                break;
+                            default:
+                                MessageUI.displayInvalidChoiceMessage();
+                        }
+                    } while (!reportChoice.equals("0"));
+
                     break;
                 case "8":
                     undo();
