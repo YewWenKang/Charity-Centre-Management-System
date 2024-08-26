@@ -54,7 +54,7 @@ public class DoneeMaintenanceUI {
         System.out.println("| 1. | Apply for food                |");
         System.out.println("| 2. | Apple for daily expenses      |");
         System.out.println("| 3. | Apply for cash                |");
-        System.out.println("| 3. | Show Available Aid            |");
+        System.out.println("| 4. | Show Available Aid            |");
         System.out.println("| 0. | Quit                          |");
         printDash(40);
         System.out.println();
@@ -73,7 +73,7 @@ public class DoneeMaintenanceUI {
         System.out.printf("%-20s: %s%n", "Donee Type", donee.getDoneeType());
         System.out.printf("%-20s: %s%n", "Organization Name", (donee.getOrganizationName() == null || donee.getOrganizationName().trim().isEmpty()) ? "N/A" : donee.getOrganizationName());
     }
-    
+
     public String inputDoneeID() {
         System.out.print("Enter your ID: ");
         String id = scanner.nextLine();
@@ -169,76 +169,51 @@ public class DoneeMaintenanceUI {
         String updateDonee = scanner.nextLine();
         return updateDonee;
     }
-    
-    public String inputAmount(){
+
+    public String inputAmount() {
         System.out.print("Enter your amount needed (RM) :");
         String amount = scanner.nextLine();
         return amount;
     }
 
     public void printDoneeDetailsRow(Donee donee) {
-        printBox("Donee Details");
 
-        // Define the column widths
-        int idWidth = 8;
-        int nameWidth = 30;
-        int addressWidth = 35;
-        int phoneWidth = 20;
-        int emailWidth = 30;
-        int doneeTypeWidth = 15;
-        int orgNameWidth = 25;
-
-        // Field headers with adjusted width
-        String headers = String.format("%-" + idWidth + "s %-" + nameWidth + "s %-" + addressWidth + "s %-" + phoneWidth + "s %-" + emailWidth + "s %-" + doneeTypeWidth + "s %-" + orgNameWidth + "s",
-                "ID", "Name", "Address", "Phone Number", "Email", "Donee Type", "Organization Name");
-        
-        // Print headers
-        System.out.println(headers);
-        printDash(headers.length());
-        System.out.println();
-
-//        // Print each field value, align and handle overflow
-//        printField(donee.getId(), idWidth, 0);
-//        printField(donee.getName(), nameWidth, idWidth);
-//        printField(donee.getAddress(), addressWidth, nameWidth + idWidth);
-//        printField(donee.getPhoneNumber(), phoneWidth, nameWidth + idWidth + addressWidth);
-//        printField(donee.getEmail(), emailWidth, nameWidth + idWidth + addressWidth + phoneWidth);
-//        printField(donee.getDoneeType(), doneeTypeWidth, nameWidth + idWidth + addressWidth + phoneWidth + emailWidth);
-//        printField(
-//                (donee.getOrganizationName() == null || donee.getOrganizationName().trim().isEmpty())
-//                ? "N/A" : donee.getOrganizationName(),
-//                orgNameWidth, nameWidth + idWidth + addressWidth + phoneWidth + emailWidth + doneeTypeWidth
-//        );
-//
-//        System.out.println();
-//        printDash(headers.length());
-//        System.out.println();
+        // Print the donee details
+        printRow(
+                donee.getName(),
+                donee.getAddress(),
+                donee.getPhoneNumber(),
+                donee.getEmail(),
+                donee.getDoneeType(),
+                donee.getOrganizationName() != null && !donee.getOrganizationName().trim().isEmpty()
+                ? donee.getOrganizationName()
+                : "N/A"
+        );
     }
 
-//    private void printField(String value, int width, String fieldName) {
-//        final int maxLength = width; // Maximum length for one line
-//        int start = 0;
-//
-//        while (start < value.length()) {
-//            int end = Math.min(start + maxLength, value.length());
-//            String line = value.substring(start, end);
-//
-//            // Print the line with proper padding to align with the rest of the fields
-//            if (start == 0) {
-//                System.out.printf("%" + (offset + width + 1) + "s", line);
-//            } else {
-//                // Subsequent lines should align with the start of the column
-//                System.out.println();
-//                System.out.printf("%" + (offset + 1) + "s", line);
-//            }
-//
-//            start = end;
-//            // Move to the next line if there is more data to print
-//            if (start < value.length()) {
-//                System.out.println();
-//                // Indentation for overflow lines
-//                System.out.print(" ".repeat(offset + width));
-//            }
-//        }
-//    }
+    public void printHeader() {
+        int nameWidth = 15;
+        int addressWidth = 40;
+        int phoneNumberWidth = 15;
+        int emailWidth = 25;
+        int doneeTypeWidth = 15;
+        int organizationNameWidth = 20;
+        int totalWidth = nameWidth + addressWidth + phoneNumberWidth + emailWidth + doneeTypeWidth + organizationNameWidth;
+        System.out.printf("%-" + nameWidth + "s%-" + addressWidth + "s%-" + phoneNumberWidth + "s%-" + emailWidth + "s%-" + doneeTypeWidth + "s%-" + organizationNameWidth + "s%n",
+                "Name", "Address", "Phone Number", "Email", "Donee Type", "Organization Name");
+        System.out.println("-".repeat(totalWidth));
+    }
+
+
+    public void printRow(String name, String address, String phoneNumber, String email, String doneeType, String organizationName) {
+        int nameWidth = 15;
+        int addressWidth = 40;
+        int phoneNumberWidth = 15;
+        int emailWidth = 25;
+        int doneeTypeWidth = 15;
+        int organizationNameWidth = 20;
+        System.out.printf("%-" + nameWidth + "s%-" + addressWidth + "s%-" + phoneNumberWidth + "s%-" + emailWidth + "s%-" + doneeTypeWidth + "s%-" + organizationNameWidth + "s%n",
+                name, address, phoneNumber, email, doneeType, organizationName);
+    }
+
 }

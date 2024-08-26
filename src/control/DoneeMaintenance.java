@@ -355,14 +355,58 @@ public class DoneeMaintenance {
     }
 
     //choice 5
-//    public void listDoneesWithDonations() {
-//        for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
-//            Donee donee = doneeList.getEntry(i);
-//            System.out.println("Donee: " + donee.getName());
-//            // Assuming a method getDonations() that returns a list of donations for the donee
-//            donee.getDonations().forEach(donation -> System.out.println("\tDonation: " + donation));
-//        }
-//    }
+    public void aidMenu() {
+        String aidChoice;
+        Donation.DonationType donationType = null;
+        do {
+            aidChoice = doneeUI.getDonationMenuChoice();
+            switch (aidChoice) {
+                case "1":
+                    donationType = Donation.DonationType.FOOD;
+                    break;
+                case "2":
+                    donationType = Donation.DonationType.DAILY_EXPENSES;
+                    break;
+                case "3":
+                    donationType = Donation.DonationType.CASH;
+                    break;
+                case "4":
+                    manager.printAvailableDonations();
+                    aidChoice = "";
+                    break;
+                default:
+                    MessageUI.displayInvalidChoiceMessage();
+                    break;
+            }
+            if (donationType != null) {
+                String doneeID = doneeUI.inputDoneeID();
+                Donee target = new Donee(doneeID, "", "", "", "", "", ""); // Create Donee with the given ID
+                double doubleAmount;
+
+                // Perform the linear search
+                Donee result = doneeList.linearSearch(target);
+                if (result != null) {
+
+                    // Input and validation for Donee Name
+                    do {
+                        String strAmount = doneeUI.inputAmount();
+                        if (ValidationUI.isNotEmpty(strAmount) && ValidationUI.isValidAmount(strAmount)) {
+                            doubleAmount = Double.parseDouble(strAmount);
+                            break;
+                        } else {
+                            System.out.println("Please enter valid amount.");
+                        }
+                    } while (true);
+
+                    manager.distributeDonation(result.getId(), doubleAmount, new Date(), donationType);
+
+                }
+            }
+
+        } while (!aidChoice.equals("0"));
+
+    }
+
     //choice 6
     public void filterDonees() {
         String type = doneeUI.inputDoneeTypeFilter();
@@ -371,9 +415,11 @@ public class DoneeMaintenance {
         // If both filters are empty, print all donees without filtering
         if (type.isEmpty() && location.isEmpty()) {
             System.out.println("No filters applied. Displaying all donees:");
+            System.out.println();
+            doneeUI.printHeader();
             for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
                 Donee donee = doneeList.getEntry(i);
-                doneeUI.printDoneeDetails(donee);
+                doneeUI.printDoneeDetailsRow(donee);
             }
             return; // Exit the method early
         }
@@ -384,8 +430,10 @@ public class DoneeMaintenance {
             boolean matchesType = type.isEmpty() || donee.getDoneeType().equalsIgnoreCase(type);
             boolean matchesLocation = location.isEmpty() || donee.getAddress().toLowerCase().contains(location.toLowerCase());
 
+            System.out.println();
+            doneeUI.printHeader();
             if (matchesType && matchesLocation) {
-                doneeUI.printDoneeDetails(donee);
+                doneeUI.printDoneeDetailsRow(donee);
             }
         }
     }
@@ -409,6 +457,29 @@ public class DoneeMaintenance {
         System.out.println("Total Donees: " + totalDonees);
         System.out.println("Total Organizations: " + organizationCount);
         System.out.println("Total Individuals: " + individualCount);
+    }
+
+    public void generateDistributionSummaryReport() {
+        double totalFoodAmount = 0;
+        double totalCashAmount = 0;
+        double totalDailyExpensesAmount = 0;
+
+        for (int i = 1; i <= manager.distributionList.getNumberOfEntries(); i++) {
+            Distribution distribution = manager.distributionList.getEntry(i);
+            if (distribution.getType().equals("CASH")) {
+                totalCashAmount += distribution.getDistributedAmount();
+            }else if(distribution.getType().equals("DAILY_EXPENSES")){
+                totalDailyExpensesAmount += distribution.getDistributedAmount();
+            }else if (distribution.getType().equals("FOOD")){
+                totalFoodAmount += distribution.getDistributedAmount();
+            }
+        }
+        
+        System.out.println("Donation Distribution Summary Report:");
+        System.out.println("Total Cash Distrbute : RM " + totalCashAmount);
+        System.out.println("Total Food Distrbute : RM " + totalFoodAmount);
+        System.out.println("Total Daily Expenses Distrbute : RM " + totalDailyExpensesAmount);
+        
     }
 
     public String getAllDonees() {
@@ -461,63 +532,15 @@ public class DoneeMaintenance {
 
                     break;
                 case "5":
-                    // Pending implementation
-                    String aidChoice;
-                    Donation.DonationType donationType = null;
-                    do {
-                        aidChoice = doneeUI.getDonationMenuChoice();
-                        switch (aidChoice) {
-                            case "1":
-                                donationType = Donation.DonationType.FOOD;
-                                break;
-                            case "2":
-                                donationType = Donation.DonationType.DAILY_EXPENSES;
-                                break;
-                            case "3":
-                                donationType = Donation.DonationType.CASH;
-                                break;
-                            case "4":
-                                manager.printAvailableDonations();
-                                aidChoice = "";
-                                break;
-                            default:
-                                MessageUI.displayInvalidChoiceMessage();
-                                break;
-                        }
-                        if (donationType != null) {
-                            String doneeID = doneeUI.inputDoneeID();
-                            Donee target = new Donee(doneeID, "", "", "", "", "", ""); // Create Donee with the given ID
-                            double doubleAmount;
-
-                            // Perform the linear search
-                            Donee result = doneeList.linearSearch(target);
-                            if (result != null) {
-
-                                // Input and validation for Donee Name
-                                do {
-                                    String strAmount = doneeUI.inputAmount();
-                                    if (ValidationUI.isNotEmpty(strAmount) && ValidationUI.isValidAmount(strAmount)) {
-                                        doubleAmount = Double.parseDouble(strAmount);
-                                        break;
-                                    } else {
-                                        System.out.println("Please enter valid amount.");
-                                    }
-                                } while (true);
-
-                                manager.distributeDonation(result.getId(), doubleAmount, new Date(), donationType);
-
-                            }
-                        }
-
-                    } while (!aidChoice.equals("0"));
-
+                    aidMenu();
                     break;
 
                 case "6":
                     filterDonees();
                     break;
                 case "7":
-                    generateSummaryReport();
+                    generateDistributionSummaryReport();
+//                    generateSummaryReport();
                     break;
                 case "8":
                     undo();

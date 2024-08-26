@@ -2,13 +2,14 @@ package control;
 
 import boundary.DonorMaintenanceUI;
 import boundary.MainUI;
+import java.text.ParseException;
 import utility.MessageUI;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
         MainUI mainUI = new MainUI();
         int choice = getValidChoice();
         while (choice != 0) {
