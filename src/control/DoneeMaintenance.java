@@ -9,7 +9,17 @@ import utility.MessageUI;
 import DAO.DoneeDAO;
 import utility.ValidationUI;
 import ADT.StackInterface;
-import java.util.Arrays;
+import entity.Distribution;
+import entity.Donation;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Scanner;
 
 public class DoneeMaintenance {
 
@@ -21,7 +31,9 @@ public class DoneeMaintenance {
     private StackInterface<Command> undoStack = new LinkedStack<>();
     private StackInterface<Command> redoStack = new LinkedStack<>();
 
-    public DoneeMaintenance() {
+    DonationManager manager = new DonationManager();
+
+    public DoneeMaintenance() throws ParseException {
         loadDoneeData();
         this.nextId = calculateNextId(); // Initialize nextId based on existing IDs
     }
@@ -53,6 +65,7 @@ public class DoneeMaintenance {
     }
 
     public Donee inputDoneeDetails() {
+        doneeUI.printBox("Donee Registration");
         String doneeId = generateDoneeId();
         String doneeName;
         String doneeAddress;
@@ -449,8 +462,57 @@ public class DoneeMaintenance {
                     break;
                 case "5":
                     // Pending implementation
-                    System.out.println("Feature not yet implemented.");
+                    String aidChoice;
+                    Donation.DonationType donationType = null;
+                    do {
+                        aidChoice = doneeUI.getDonationMenuChoice();
+                        switch (aidChoice) {
+                            case "1":
+                                donationType = Donation.DonationType.FOOD;
+                                break;
+                            case "2":
+                                donationType = Donation.DonationType.DAILY_EXPENSES;
+                                break;
+                            case "3":
+                                donationType = Donation.DonationType.CASH;
+                                break;
+                            case "4":
+                                manager.printAvailableDonations();
+                                aidChoice = "";
+                                break;
+                            default:
+                                MessageUI.displayInvalidChoiceMessage();
+                                break;
+                        }
+                        if (donationType != null) {
+                            String doneeID = doneeUI.inputDoneeID();
+                            Donee target = new Donee(doneeID, "", "", "", "", "", ""); // Create Donee with the given ID
+                            double doubleAmount;
+
+                            // Perform the linear search
+                            Donee result = doneeList.linearSearch(target);
+                            if (result != null) {
+
+                                // Input and validation for Donee Name
+                                do {
+                                    String strAmount = doneeUI.inputAmount();
+                                    if (ValidationUI.isNotEmpty(strAmount) && ValidationUI.isValidAmount(strAmount)) {
+                                        doubleAmount = Double.parseDouble(strAmount);
+                                        break;
+                                    } else {
+                                        System.out.println("Please enter valid amount.");
+                                    }
+                                } while (true);
+
+                                manager.distributeDonation(result.getId(), doubleAmount, new Date(), donationType);
+
+                            }
+                        }
+
+                    } while (!aidChoice.equals("0"));
+
                     break;
+
                 case "6":
                     filterDonees();
                     break;
@@ -604,7 +666,214 @@ public class DoneeMaintenance {
         }
     }
 
-    public static void main(String[] args) {
+    public static class DonationManager {
+
+        private LinkedList<Donation> donationList;
+        private LinkedList<Distribution> distributionList;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        public DonationManager() throws ParseException {
+            this.donationList = new LinkedList<>();
+            this.distributionList = new LinkedList<>();
+            loadDonations();
+            loadDistributions();
+        }
+
+        // Method to load donations from donation.csv
+        public void loadDonations() throws ParseException {
+
+            try (Scanner scanner = new Scanner(new File("Donation.csv"))) {
+                // Skip the header line
+                if (scanner.hasNextLine()) {
+                    scanner.nextLine();
+                }
+                while (scanner.hasNextLine()) {
+                    String[] data = scanner.nextLine().split(",");
+                    String donationID = data[0];
+                    String donorID = data[1];
+                    double amount = Double.parseDouble(data[2]);
+                    Date date;
+                    try {
+                        date = dateFormat.parse(data[3]);
+                    } catch (ParseException e) {
+                        System.err.println("Error parsing date: " + e.getMessage());
+                        continue; // Skip this line and continue with the next
+                    }
+                    String paymentMethod = data[4];
+                    String receiptNumber = data[5];
+                    Donation.DonationType donationType;
+                    try {
+                        donationType = Donation.DonationType.valueOf(data[6].toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        System.err.println("Error parsing donation type: " + e.getMessage());
+                        continue; // Skip this line and continue with the next
+                    }
+                    String notes = data[7];
+
+                    donationList.add(new Donation(donationID, donorID, amount, date, paymentMethod, receiptNumber, donationType, notes));
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Method to load distributions from donationDistribution.csv
+        public void loadDistributions() throws ParseException {
+            try (Scanner scanner = new Scanner(new File("donationDistribution.csv"))) {
+                // Skip the header line
+                if (scanner.hasNextLine()) {
+                    scanner.nextLine();
+                }
+                while (scanner.hasNextLine()) {
+                    String[] data = scanner.nextLine().split(",");
+                    String distributionID = data[0];
+                    String donationID = data[1];
+                    String doneeID = data[2];
+                    double distributedAmount = Double.parseDouble(data[3]);
+                    Date date;
+                    try {
+                        date = dateFormat.parse(data[4]);
+                    } catch (ParseException e) {
+                        System.err.println("Error parsing date: " + e.getMessage());
+                        continue; // Skip this line and continue with the next
+                    }
+                    String type = data[5];
+
+                    distributionList.add(new Distribution(distributionID, donationID, doneeID, distributedAmount, dateFormat.format(date), type));
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Method to distribute a donation
+        public boolean distributeDonation(String doneeID, double distributedAmount, Date date, Donation.DonationType donationType) {
+            // Filter donations by the specified type
+            LinkedList<Donation> eligibleDonations = new LinkedList<>();
+            for (Donation donation : donationList) {
+                if (donation.getDonationType().equals(donationType)) {
+                    // Calculate total distributed amount for this donation ID
+                    double totalDistributedAmount = 0.0;
+                    for (Distribution distribution : distributionList) {
+                        if (distribution.getDonationID().equals(donation.getDonationId())) {
+                            totalDistributedAmount += distribution.getDistributedAmount();
+                        }
+                    }
+
+                    double availableAmount = donation.getAmount() - totalDistributedAmount;
+                    if (availableAmount > 0) {
+                        eligibleDonations.add(new Donation(donation.getDonationId(), donation.getDonorId(), availableAmount, donation.getDate(), donation.getPaymentMethod(), donation.getReceiptNumber(), donation.getDonationType(), donation.getNotes()));
+                    }
+                }
+            }
+
+            if (eligibleDonations.isEmpty()) {
+                System.out.println("Error: No eligible donations available for the specified type.");
+                return false;
+            }
+
+            double remainingAmount = distributedAmount;
+            for (Donation donation : eligibleDonations) {
+                double availableAmount = donation.getAmount();
+                if (remainingAmount <= availableAmount) {
+                    // Create a new Distribution entry
+                    String distributionID = generateDistributionID();
+                    Distribution newDistribution = new Distribution(distributionID, donation.getDonationId(), doneeID, remainingAmount, dateFormat.format(date), donationType.name());
+
+                    // Add the new distribution to the distribution list
+                    distributionList.add(newDistribution);
+
+                    // Save the updated distribution data
+                    saveDistributionData();
+
+                    System.out.println("Distribution successfully created.");
+                    System.out.println(distributionList.getEntry(distributionList.getNumberOfEntries()));
+                    return true;
+                } else {
+                    // Create a new Distribution entry with the maximum available amount
+                    String distributionID = generateDistributionID();
+                    Distribution newDistribution = new Distribution(distributionID, donation.getDonationId(), doneeID, availableAmount, dateFormat.format(date), donationType.name());
+
+                    // Add the new distribution to the distribution list
+                    distributionList.add(newDistribution);
+
+                    // Update the remaining amount to be distributed
+                    remainingAmount -= availableAmount;
+                }
+            }
+
+            System.out.println("Error: Distributed amount exceeds available donation amounts.");
+            return false;
+        }
+
+        private String generateDistributionID() {
+            return "DIST" + (distributionList.size() + 1);
+        }
+
+        // Method to save distribution data to donationDistribution.csv
+        private void saveDistributionData() {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter("donationDistribution.csv"))) {
+                // Write the header line
+                writer.write("DistributionID,DonationID,DoneeID,DistributedAmount,IssuedDate,AidType");
+                writer.newLine();
+
+                // Write the distribution data
+                for (Distribution distribution : distributionList) {
+                    writer.write(distribution.getDistributionID() + ","
+                            + distribution.getDonationID() + ","
+                            + distribution.getdoneeID() + ","
+                            + distribution.getDistributedAmount() + ","
+                            + distribution.getDate() + ","
+                            + distribution.getType());
+                    writer.newLine();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Method to print all donations
+        public void printDonations() {
+
+            for (Donation donation : donationList) {
+                System.out.println(donation);
+            }
+        }
+
+        // Method to print available donations based on the remaining amount
+        public void printAvailableDonations() {
+
+            System.out.println("Available Donations:");
+            for (Donation donation : donationList) {
+                // Calculate total distributed amount for this donation ID
+                double totalDistributedAmount = 0.0;
+                for (Distribution distribution : distributionList) {
+                    if (distribution.getDonationID().equals(donation.getDonationId())) {
+                        totalDistributedAmount += distribution.getDistributedAmount();
+                    }
+                }
+
+                double availableAmount = donation.getAmount() - totalDistributedAmount;
+
+                if (availableAmount > 0) {
+                    // Print the donation information along with the available amount
+                    System.out.println("Donation ID: " + donation.getDonationId()
+                            //                            + ", Donor ID: " + donation.getDonorId()
+                            //                            + ", Amount: " + donation.getAmount()
+                            + ", Available Amount: " + availableAmount
+                            //                            + ", Date: " + dateFormat.format(donation.getDate())
+                            //                            + ", Payment Method: " + donation.getPaymentMethod()
+                            //                            + ", Receipt Number: " + donation.getReceiptNumber()
+                            + ", Donation Type: " + donation.getDonationType()
+                            + ", Notes: " + donation.getNotes());
+
+                }
+            }
+        }
+
+    }
+
+    public static void main(String[] args) throws ParseException {
         DoneeMaintenance doneeMaintenance = new DoneeMaintenance();
         doneeMaintenance.runDoneeMaintenance();
     }
