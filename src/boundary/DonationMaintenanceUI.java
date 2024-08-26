@@ -10,7 +10,7 @@ import java.util.Scanner;
 import utility.ValidationUI;
 
 public class DonationMaintenanceUI {
-    private final Scanner scanner ;
+    private final Scanner scanner;
     private final DonationMaintenance donationMaintenance;
 
     public DonationMaintenanceUI(DonationMaintenance donationMaintenance) {
@@ -65,6 +65,7 @@ public class DonationMaintenanceUI {
         }
     }
 
+    //-----------------------------------------------------------------------------------------------
     // Method to create a new donation with validation
     private void createDonation() {
         String donationId = donationMaintenance.generateDonationId();
@@ -111,11 +112,16 @@ public class DonationMaintenanceUI {
 
         // Validate Payment Method
         while (true) {
-            System.out.print("Enter Payment Method: ");
-            paymentMethod = scanner.nextLine();
-            if (ValidationUI.isNotEmpty(paymentMethod))
+            System.out.print("Enter Payment Method (online or cash): ");
+            paymentMethod = scanner.nextLine().trim().toLowerCase(); // Normalize input
+
+            // Check if the input is either "online" or "cash"
+            if (paymentMethod.equals("online") || paymentMethod.equals("cash")) {
                 break;
-            System.out.println("Payment Method cannot be empty.");
+            } else {
+                System.out.println("Invalid Payment Method. Please enter 'online' or 'cash'.");
+            }
+
             if (!ValidationUI.retryOrExit())
                 return;
         }
@@ -154,6 +160,8 @@ public class DonationMaintenanceUI {
         donationMaintenance.addDonation(donation);
         System.out.println("Donation created: \n\n" + donation);
     }
+
+    //-----------------------------------------------------------------------------------------------
 
     // view donation
     private void viewDonation() {
@@ -298,17 +306,17 @@ public class DonationMaintenanceUI {
     // delete donation
     private void deleteDonation() {
         boolean validInput = false;
-    
+
         while (!validInput) {
             System.out.println("1. Remove a single donation");
             System.out.println("2. Clear all donations");
             System.out.println("0. Return to menu");
             System.out.print("Enter your choice: ");
-            
+
             if (scanner.hasNextInt()) {
                 int choice = scanner.nextInt();
                 scanner.nextLine(); // Consume newline
-                
+
                 switch (choice) {
                     case 1:
                         // Remove a single donation
@@ -340,7 +348,7 @@ public class DonationMaintenanceUI {
     }
 
     // -----------------------------------------------------------------------------------------------
-    private void donationReport(){
+    private void donationReport() {
         System.out.println("1. Donation Summary Report");
         System.out.println("0. Return to menu");
         System.out.print("Enter your choice: ");
@@ -358,9 +366,6 @@ public class DonationMaintenanceUI {
                 break;
         }
     }
-    
-
-
 
     public static void main(String[] args) {
         DonationMaintenance donationMaintenance = new DonationMaintenance();

@@ -33,7 +33,8 @@ public class FileDao<T> {
     }
 
     // Method to write data from a LinkedList to a CSV file
-    public void writeDataToCSV(String fileName, ListInterface<String> headers, ListInterface<T> data, Function<T, ListInterface<String>> mapper) {
+    public void writeDataToCSV(String fileName, ListInterface<String> headers, ListInterface<T> data,
+            Function<T, ListInterface<String>> mapper) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
             writer.println(joinList(headers));
             for (int i = 0; i < data.size(); i++) {
@@ -47,7 +48,7 @@ public class FileDao<T> {
             e.printStackTrace();
         }
     }
-    
+
     // Helper method to join ListInterface<String> into a single CSV line
     private String joinList(ListInterface<String> list) {
         StringBuilder result = new StringBuilder();
@@ -59,7 +60,7 @@ public class FileDao<T> {
         }
         return result.toString();
     }
-    
+
     // Helper method to parse a CSV line into an array of Strings
     private String[] parseCSVLine(String line) {
         return line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Splits on commas, but not within quotes

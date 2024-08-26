@@ -1,5 +1,7 @@
 package control;
 
+import ADT.DictionaryInterface;
+import ADT.HashedDictionary;
 import ADT.LinkedList;
 import ADT.ListInterface;
 import ADT.TreeMapImplementation;
@@ -7,15 +9,23 @@ import ADT.TreeMapInterface;
 import DAO.FileDao;
 import boundary.DonorMaintenanceUI;
 import entity.Donor;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DonorMaintenance {
     private ListInterface<Donor> donorList = new LinkedList<>();
     private static final String FILE_NAME = "donorData.csv";
+    private static final String CSV_FILE_NAME = "donorData.csv"; // Specify the CSV file name
     private final ListInterface<String> headers;
+    private final Random random;
     private final FileDao<Donor> fileDao;
     private final Scanner scanner = new Scanner(System.in);
 
@@ -37,6 +47,7 @@ public class DonorMaintenance {
 
         fileDao = new FileDao<>();
         donorList = fileDao.loadDataFromCSV(FILE_NAME, this::mapRowToDonor);
+        random = new Random();
 
         // Initialize the sets with existing donor data
         initializeContactAndEmailSets();
@@ -58,6 +69,43 @@ public class DonorMaintenance {
                 emails.add(donor.getEmail());
             }
         }
+    }
+
+    // Method to generate a unique Donor ID
+    public String generateUniqueDonorId() {
+        DictionaryInterface<Integer, Void> existingIds = getExistingDonorIds();
+        int newId;
+
+        do {
+            newId = random.nextInt(999) + 1; // Generate a random number between 1 and 999
+        } while (existingIds.contains(newId));
+
+        return String.format("DA%03d", newId); // Format the ID as DA### with leading zeros
+    }
+
+    // Method to read existing donor IDs from the CSV file
+    private DictionaryInterface<Integer, Void> getExistingDonorIds() {
+        DictionaryInterface<Integer, Void> existingIds = new HashedDictionary<>();
+        Pattern pattern = Pattern.compile("DA(\\d{3})");
+
+        try (BufferedReader br = new BufferedReader(new FileReader(CSV_FILE_NAME))) {
+            String line;
+            boolean firstLine = true;
+            while ((line = br.readLine()) != null) {
+                if (firstLine) {
+                    firstLine = false; // Skip the header line
+                    continue;
+                }
+                Matcher matcher = pattern.matcher(line);
+                if (matcher.find()) {
+                    int id = Integer.parseInt(matcher.group(1));
+                    existingIds.add(id, null); // Add ID to dictionary with null value
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return existingIds;
     }
 
     public boolean addDonor(String donorId, String name, String contactNumber, String email, String address,
@@ -87,6 +135,8 @@ public class DonorMaintenance {
         return true;
     }
 
+    //-------------------------------------------------------------------------------------------------
+    // Method to update donor details
     public boolean updateDonor(String donorId, String name, String contactNumber, String email,
             String address, String donorType, String donationPreference) {
         Donor donor = findDonorById(donorId);
@@ -129,9 +179,12 @@ public class DonorMaintenance {
         }
     }
 
+    //-------------------------------------------------------------------------------------------------
+    // Method to delete a donor
+
     public boolean deleteDonor(String donorId) {
         Donor donor = findDonorById(donorId);
-    
+
         // Check if donor exists
         if (donor != null) {
             donorList.remove(donor);
@@ -141,11 +194,13 @@ public class DonorMaintenance {
             return false;
         }
     }
-    
 
     public ListInterface<Donor> getAllDonors() {
         return donorList;
     }
+
+    //-------------------------------------------------------------------------------------------------
+    // Method to display all donors
 
     public void viewAllDonors() {
         ListInterface<Donor> donorList = getAllDonors();
@@ -175,6 +230,8 @@ public class DonorMaintenance {
         }
     }
 
+    
+    //merge sort
     private ListInterface<Donor> mergeSort(ListInterface<Donor> list, Comparator<Donor> comparator) {
         if (list.size() <= 1) {
             return list;
@@ -258,6 +315,9 @@ public class DonorMaintenance {
         }
     }
 
+    //-------------------------------------------------------------------------------------------------
+    // Method to search for a donor by ID, name, email, or contact number
+
     public Donor findDonorById(String donorId) {
         return donorList.stream()
                 .filter(donor -> donor != null && donor.getDonorId().equals(donorId))
@@ -286,31 +346,32 @@ public class DonorMaintenance {
                 .orElse(null);
     }
 
-    //filter 
-        // Method to display the filtered donors
-        public void displayFilteredDonors(TreeMapInterface<String, Donor> filteredDonors) {
-            if (filteredDonors.isEmpty()) {
-                System.out.println("No donors found with the specified criteria.");
-            } else {
-                System.out.println("\n--- Filtered Donors ---");
+    //-------------------------------------------------------------------------------------------------
+
+    // filter
+    // Method to display the filtered donors
+    public void displayFilteredDonors(TreeMapInterface<String, Donor> filteredDonors) {
+        if (filteredDonors.isEmpty()) {
+            System.out.println("No donors found with the specified criteria.");
+        } else {
+            System.out.println("\n--- Filtered Donors ---");
+            System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
+                    "Donor ID", "Name", "Contact No.", "Email", "Address",
+                    "Donor Type", "Donor Times", "Total Amount (RM)");
+            for (java.util.Map.Entry<String, Donor> entry : filteredDonors.entries()) {
+                Donor donor = entry.getValue();
                 System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
-                "Donor ID", "Name", "Contact No.", "Email", "Address",
-                "Donor Type", "Donor Times", "Total Amount (RM)");
-                for (java.util.Map.Entry<String, Donor> entry : filteredDonors.entries()) {
-                    Donor donor = entry.getValue();
-                    System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
-                            donor.getDonorId(),
-                            donor.getName(),
-                            donor.getContactNumber(),
-                            donor.getEmail(),
-                            donor.getAddress(),
-                            donor.getDonorType(),
-                            donor.getDonorTimes(),
-                            donor.getTotalAmount());
-                }
+                        donor.getDonorId(),
+                        donor.getName(),
+                        donor.getContactNumber(),
+                        donor.getEmail(),
+                        donor.getAddress(),
+                        donor.getDonorType(),
+                        donor.getDonorTimes(),
+                        donor.getTotalAmount());
             }
         }
-    
+    }
 
     public TreeMapInterface<String, Donor> filterByDonorType(String donorType) {
         TreeMapInterface<String, Donor> result = new TreeMapImplementation<>();
@@ -359,6 +420,8 @@ public class DonorMaintenance {
         return result;
     }
 
+    //-------------------------------------------------------------------------------------------------
+
     public boolean saveDonorsToCSV() {
         try {
             ListInterface<Donor> validDonors = new LinkedList<>();
@@ -393,7 +456,7 @@ public class DonorMaintenance {
         return row;
     }
 
-    //-------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------
     // Donor Report
     public void generateDetailedDonorReport() {
         System.out.println("\n--- Detailed Donor Report ---");

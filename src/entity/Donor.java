@@ -7,13 +7,13 @@ public class Donor {
     private String email;
     private String address;
     private String donorType; // e.g., government, private, public
-    private String donationPreference; 
-    private String donorTimes; 
+    private String donationPreference;
+    private String donorTimes;
     private String totalAmount;
-    
+
     // Constructor
     public Donor(String donorId, String name, String contactNumber, String email, String address,
-                 String donorType, String donationPreference, String donorTimes, String totalAmount) {
+            String donorType, String donationPreference, String donorTimes, String totalAmount) {
         this.donorId = donorId;
         this.name = name;
         this.contactNumber = contactNumber;
@@ -104,31 +104,29 @@ public class Donor {
     @Override
     public String toString() {
         return String.format(
-            "\n=====================\n" +
-            "   DONOR INFORMATION   \n" +
-            "=====================\n" +
-            "ID               : %-20s\n" +
-            "Name             : %-20s\n" +
-            "Contact Number   : %-20s\n" +
-            "Email            : %-20s\n" +
-            "Address          : %-20s\n" +
-            "-------------------------------\n" +
-            "Donor Type       : %-20s\n" +
-            "Donation Preference: %-15s\n" +
-            "Donation Times   : %-20s\n" +
-            "Total Amount (RM): %-20s\n" +
-            "=============================\n",
-            donorId, 
-            name, 
-            contactNumber, 
-            email, 
-            address, 
-            donorType, 
-            donationPreference, 
-            donorTimes, 
-            totalAmount
-        );
+                "\n=====================\n" +
+                        "   DONOR INFORMATION   \n" +
+                        "=====================\n" +
+                        "ID               : %-20s\n" +
+                        "Name             : %-20s\n" +
+                        "Contact Number   : %-20s\n" +
+                        "Email            : %-20s\n" +
+                        "Address          : %-20s\n" +
+                        "-------------------------------\n" +
+                        "Donor Type       : %-20s\n" +
+                        "Donation Preference: %-15s\n" +
+                        "Donation Times   : %-20s\n" +
+                        "Total Amount (RM): %-20s\n" +
+                        "=============================\n",
+                donorId,
+                name,
+                contactNumber,
+                email,
+                address,
+                donorType,
+                donationPreference,
+                donorTimes,
+                totalAmount);
     }
-    
-    
+
 }

@@ -22,17 +22,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.TreeMap;
 import java.util.function.Function;
 
 public class DonationMaintenance {
-    private DictionaryInterface<String, ListInterface<Donation>> donationHashMap;
-    private TreeMapInterface<Date, ListInterface<Donation>> donationTreeMap;
-    private ListInterface<Donation> donationLinkedList;
-    private FileDao fileDao;
+    private final DictionaryInterface<String, ListInterface<Donation>> donationHashMap;
+    private final TreeMapInterface<Date, ListInterface<Donation>> donationTreeMap;
+    private final ListInterface<Donation> donationLinkedList;
     private static final String DONATION_CSV_PATH = "Donation.csv";
-    private static int donationCounter;
-    private DonorMaintenance donorMaintenance = new DonorMaintenance();
+    private int donationCounter;
 
     // Constructor
     public DonationMaintenance() {
@@ -304,6 +301,9 @@ public class DonationMaintenance {
         }
     }
 
+    // ------------------------------------------------------------------------------------------------
+    //sort part
+
     private ListInterface<Donation> mergeSort(ListInterface<Donation> list, Comparator<Donation> comparator) {
         if (list.size() <= 1) {
             return list;
@@ -438,14 +438,6 @@ public class DonationMaintenance {
         }
     }
 
-    private TreeMap<String, Donation> convertListToTreeMap(ListInterface<Donation> donations) {
-        TreeMap<String, Donation> treeMap = new TreeMap<>();
-        for (Donation donation : donations) {
-            treeMap.put(donation.getDonationId(), donation); // Assuming ID is unique and serves as the key
-        }
-        return treeMap;
-    }
-
     // Method to find donations by Date Range
     public ListInterface<Donation> getDonationsByDateRange(Date startDate, Date endDate) {
         ListInterface<Donation> result = new LinkedList<>();
@@ -461,204 +453,202 @@ public class DonationMaintenance {
 
     // ------------------------------------------------------------------------------------------------
 
-// Method to delete a donation
-public void deleteDonation(String donationId) {
-    // Load the existing donations from CSV
-    FileDao<Donation> fileDao = new FileDao<>();
-    ListInterface<Donation> donations = fileDao.loadDataFromCSV("Donation.csv", this::mapRowToDonation);
+    // Method to delete a donation
+    public void deleteDonation(String donationId) {
+        // Load the existing donations from CSV
+        FileDao<Donation> fileDao = new FileDao<>();
+        ListInterface<Donation> donations = fileDao.loadDataFromCSV("Donation.csv", this::mapRowToDonation);
 
-    // Find the donation with the given donationId
-    Donation donationToDelete = donations.stream()
-            .filter(d -> d.getDonationId().equals(donationId))
-            .findFirst()
-            .orElse(null);
+        // Find the donation with the given donationId
+        Donation donationToDelete = donations.stream()
+                .filter(d -> d.getDonationId().equals(donationId))
+                .findFirst()
+                .orElse(null);
 
-    if (donationToDelete != null) {
-        System.out.println("Deleting donation: " + donationId);
-        
-        // Update the donor details after deleting the donation
-        updateDeletedDetails(donationToDelete.getDonorId(), donationToDelete.getAmount());
+        if (donationToDelete != null) {
+            System.out.println("Deleting donation: " + donationId);
 
-        // Remove the donation from the list
-        donations.remove(donationToDelete);
+            // Update the donor details after deleting the donation
+            updateDeletedDetails(donationToDelete.getDonorId(), donationToDelete.getAmount());
 
-             // Reassign donation IDs
-             reassignDonationIds();
+            // Remove the donation from the list
+            donations.remove(donationToDelete);
 
-        // Write the updated donation list back to CSV
-        ListInterface<String> headers = new LinkedList<>();
-        headers.add("Donation ID");
-        headers.add("Donor ID");
-        headers.add("Amount");
-        headers.add("Date");
-        headers.add("Payment Method");
-        headers.add("Receipt Number");
-        headers.add("Donation Type");
-        headers.add("Notes");
+            // Reassign donation IDs
+            reassignDonationIds();
 
-        fileDao.writeDataToCSV("Donation.csv", headers, donations, this::mapDonationToRow);
-        System.out.println("Donation deleted successfully.");
-    } else {
-        System.out.println("Donation with ID " + donationId + " not found.");
-    }
-}
+            // Write the updated donation list back to CSV
+            ListInterface<String> headers = new LinkedList<>();
+            headers.add("Donation ID");
+            headers.add("Donor ID");
+            headers.add("Amount");
+            headers.add("Date");
+            headers.add("Payment Method");
+            headers.add("Receipt Number");
+            headers.add("Donation Type");
+            headers.add("Notes");
 
-private void updateDeletedDetails(String donorId, double donationAmount) {
-    // Load the existing donors from CSV
-    FileDao<Donor> fileDao = new FileDao<>();
-    ListInterface<Donor> donors = fileDao.loadDataFromCSV("donorData.csv", this::mapRowToDonor);
-
-    // Find the donor with the given donorId
-    Donor donor = donors.stream()
-            .filter(d -> d.getDonorId().equals(donorId))
-            .findFirst()
-            .orElse(null);
-
-    if (donor != null) {
-        System.out.println("Updating donor: " + donorId);
-        // Update the total amount by subtracting the donation amount
-        double currentTotalAmount = Double.parseDouble(donor.getTotalAmount());
-        double newTotalAmount = currentTotalAmount - donationAmount;
-        donor.setTotalAmount(String.format("%.2f", newTotalAmount));
-
-        // Decrement the donation times
-        int currentDonationTimes = Integer.parseInt(donor.getDonorTimes());
-        int newDonationTimes = currentDonationTimes - 1;
-        donor.setDonorTimes(String.valueOf(newDonationTimes));
-
-        // Write updated donor details back to CSV
-        ListInterface<String> headers = new LinkedList<>();
-        headers.add("ID");
-        headers.add("Name");
-        headers.add("Contact Number");
-        headers.add("Email");
-        headers.add("Address");
-        headers.add("Donor Type");
-        headers.add("Donation Preference");
-        headers.add("Donation Times");
-        headers.add("Total Amount(RM)");
-
-        fileDao.writeDataToCSV("donorData.csv", headers, donors, this::mapDonorToRow);
-        System.out.println("Donor details updated successfully.");
-    } else {
-        System.out.println("Donor with ID " + donorId + " not found.");
-    }
-}
-
-
-// Method to reassign donation IDs
-private void reassignDonationIds() {
-    int newIdCounter = 1;
-    for (int i = 0; i < donationLinkedList.size(); i++) {
-        Donation donation = donationLinkedList.get(i);
-        String newId = String.format("D%03d", newIdCounter);
-        donation.setDonationId(newId);
-        newIdCounter++;
-    }
-}
-
-
-public void clearAllDonations() {
-    // Initialize variables to keep track of total amount and donation count per donor
-    Map<String, Double> donorTotalAmounts = new HashMap<>();
-    Map<String, Integer> donorDonationCounts = new HashMap<>();
-
-    // Accumulate donation data
-    for (Donation donation : donationLinkedList) {
-        String donorId = donation.getDonorId();
-        double donationAmount = donation.getAmount();
-
-        // Calculate total donation amount and count per donor
-        donorTotalAmounts.put(donorId, donorTotalAmounts.getOrDefault(donorId, 0.0) + donationAmount);
-        donorDonationCounts.put(donorId, donorDonationCounts.getOrDefault(donorId, 0) + 1);
+            fileDao.writeDataToCSV("Donation.csv", headers, donations, this::mapDonationToRow);
+            System.out.println("Donation deleted successfully.");
+        } else {
+            System.out.println("Donation with ID " + donationId + " not found.");
+        }
     }
 
-    System.out.println("\nTotal donation amounts to subtract: " + donorTotalAmounts);
-    System.out.println("Donation counts to subtract: " + donorDonationCounts);
+    private void updateDeletedDetails(String donorId, double donationAmount) {
+        // Load the existing donors from CSV
+        FileDao<Donor> fileDao = new FileDao<>();
+        ListInterface<Donor> donors = fileDao.loadDataFromCSV("donorData.csv", this::mapRowToDonor);
 
-    // Clear all entries from the data structures
-    donationHashMap.clear();
-    donationTreeMap.clear();
-    donationLinkedList.clear();
+        // Find the donor with the given donorId
+        Donor donor = donors.stream()
+                .filter(d -> d.getDonorId().equals(donorId))
+                .findFirst()
+                .orElse(null);
 
-    // Clear the donation CSV file
-    clearDonationCSV();
+        if (donor != null) {
+            System.out.println("Updating donor: " + donorId);
+            // Update the total amount by subtracting the donation amount
+            double currentTotalAmount = Double.parseDouble(donor.getTotalAmount());
+            double newTotalAmount = currentTotalAmount - donationAmount;
+            donor.setTotalAmount(String.format("%.2f", newTotalAmount));
 
-    // Update donor details by subtracting the accumulated amounts and counts
-    for (Map.Entry<String, Double> entry : donorTotalAmounts.entrySet()) {
-        String donorId = entry.getKey();
-        double totalAmountToSubtract = entry.getValue();
-        int donationCountToSubtract = donorDonationCounts.get(donorId);
+            // Decrement the donation times
+            int currentDonationTimes = Integer.parseInt(donor.getDonorTimes());
+            int newDonationTimes = currentDonationTimes - 1;
+            donor.setDonorTimes(String.valueOf(newDonationTimes));
 
-        // Update donor details
-        clearDetails(donorId, totalAmountToSubtract, donationCountToSubtract);
+            // Write updated donor details back to CSV
+            ListInterface<String> headers = new LinkedList<>();
+            headers.add("ID");
+            headers.add("Name");
+            headers.add("Contact Number");
+            headers.add("Email");
+            headers.add("Address");
+            headers.add("Donor Type");
+            headers.add("Donation Preference");
+            headers.add("Donation Times");
+            headers.add("Total Amount(RM)");
+
+            fileDao.writeDataToCSV("donorData.csv", headers, donors, this::mapDonorToRow);
+            System.out.println("Donor details updated successfully.");
+        } else {
+            System.out.println("Donor with ID " + donorId + " not found.");
+        }
     }
-}
 
-private void clearDetails(String donorId, double totalAmountToSubtract, int donationCountToSubtract) {
-    // Load the existing donors from CSV
-    FileDao<Donor> fileDao = new FileDao<>();
-    ListInterface<Donor> donors = fileDao.loadDataFromCSV("donorData.csv", this::mapRowToDonor);
-
-    // Find the donor with the given donorId
-    Donor donor = donors.stream()
-            .filter(d -> d.getDonorId().equals(donorId))
-            .findFirst()
-            .orElse(null);
-
-    if (donor != null) {
-        // Update the total amount by subtracting the accumulated donation amount
-        double currentTotalAmount = Double.parseDouble(donor.getTotalAmount());
-        double newTotalAmount = currentTotalAmount - totalAmountToSubtract;
-        donor.setTotalAmount(String.format("%.2f", newTotalAmount));
-
-        // Decrement the donation times
-        int currentDonationTimes = Integer.parseInt(donor.getDonorTimes());
-        int newDonationTimes = currentDonationTimes - donationCountToSubtract;
-        donor.setDonorTimes(String.valueOf(newDonationTimes));
-
-        // Write updated donor details back to CSV
-        ListInterface<String> headers = new LinkedList<>();
-        headers.add("ID");
-        headers.add("Name");
-        headers.add("Contact Number");
-        headers.add("Email");
-        headers.add("Address");
-        headers.add("Donor Type");
-        headers.add("Donation Preference");
-        headers.add("Donation Times");
-        headers.add("Total Amount(RM)");
-
-        fileDao.writeDataToCSV("donorData.csv", headers, donors, this::mapDonorToRow);
-        System.out.println("All donations cleared.");
-        System.out.println("\nDonor details updated successfully for donor ID: " + donorId);
-    } else {
-        System.out.println("Donor with ID " + donorId + " not found.");
+    // Method to reassign donation IDs
+    private void reassignDonationIds() {
+        int newIdCounter = 1;
+        for (int i = 0; i < donationLinkedList.size(); i++) {
+            Donation donation = donationLinkedList.get(i);
+            String newId = String.format("D%03d", newIdCounter);
+            donation.setDonationId(newId);
+            newIdCounter++;
+        }
     }
-}
 
-private void clearDonationCSV() {
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter("Donation.csv", false))) {
-        // Write headers
-        ListInterface<String> headers = new LinkedList<>();
-        headers.add("Donation ID");
-        headers.add("Donor ID");
-        headers.add("Amount");
-        headers.add("Date");
-        headers.add("Payment Method");
-        headers.add("Receipt Number");
-        headers.add("Donation Type");
-        headers.add("Notes");
-        writer.write(String.join(",", headers));
-        writer.newLine();
-    } catch (IOException e) {
-        System.out.println("Error clearing Donation.csv: " + e.getMessage());
+    public void clearAllDonations() {
+        // Initialize variables to keep track of total amount and donation count per
+        // donor
+        Map<String, Double> donorTotalAmounts = new HashMap<>();
+        Map<String, Integer> donorDonationCounts = new HashMap<>();
+
+        // Accumulate donation data
+        for (Donation donation : donationLinkedList) {
+            String donorId = donation.getDonorId();
+            double donationAmount = donation.getAmount();
+
+            // Calculate total donation amount and count per donor
+            donorTotalAmounts.put(donorId, donorTotalAmounts.getOrDefault(donorId, 0.0) + donationAmount);
+            donorDonationCounts.put(donorId, donorDonationCounts.getOrDefault(donorId, 0) + 1);
+        }
+
+        System.out.println("\nTotal donation amounts to subtract: " + donorTotalAmounts);
+        System.out.println("Donation counts to subtract: " + donorDonationCounts);
+
+        // Clear all entries from the data structures
+        donationHashMap.clear();
+        donationTreeMap.clear();
+        donationLinkedList.clear();
+
+        // Clear the donation CSV file
+        clearDonationCSV();
+
+        // Update donor details by subtracting the accumulated amounts and counts
+        for (Map.Entry<String, Double> entry : donorTotalAmounts.entrySet()) {
+            String donorId = entry.getKey();
+            double totalAmountToSubtract = entry.getValue();
+            int donationCountToSubtract = donorDonationCounts.get(donorId);
+
+            // Update donor details
+            clearDetails(donorId, totalAmountToSubtract, donationCountToSubtract);
+        }
     }
-}
 
+    private void clearDetails(String donorId, double totalAmountToSubtract, int donationCountToSubtract) {
+        // Load the existing donors from CSV
+        FileDao<Donor> fileDao = new FileDao<>();
+        ListInterface<Donor> donors = fileDao.loadDataFromCSV("donorData.csv", this::mapRowToDonor);
+
+        // Find the donor with the given donorId
+        Donor donor = donors.stream()
+                .filter(d -> d.getDonorId().equals(donorId))
+                .findFirst()
+                .orElse(null);
+
+        if (donor != null) {
+            // Update the total amount by subtracting the accumulated donation amount
+            double currentTotalAmount = Double.parseDouble(donor.getTotalAmount());
+            double newTotalAmount = currentTotalAmount - totalAmountToSubtract;
+            donor.setTotalAmount(String.format("%.2f", newTotalAmount));
+
+            // Decrement the donation times
+            int currentDonationTimes = Integer.parseInt(donor.getDonorTimes());
+            int newDonationTimes = currentDonationTimes - donationCountToSubtract;
+            donor.setDonorTimes(String.valueOf(newDonationTimes));
+
+            // Write updated donor details back to CSV
+            ListInterface<String> headers = new LinkedList<>();
+            headers.add("ID");
+            headers.add("Name");
+            headers.add("Contact Number");
+            headers.add("Email");
+            headers.add("Address");
+            headers.add("Donor Type");
+            headers.add("Donation Preference");
+            headers.add("Donation Times");
+            headers.add("Total Amount(RM)");
+
+            fileDao.writeDataToCSV("donorData.csv", headers, donors, this::mapDonorToRow);
+            System.out.println("All donations cleared.");
+            System.out.println("\nDonor details updated successfully for donor ID: " + donorId);
+        } else {
+            System.out.println("Donor with ID " + donorId + " not found.");
+        }
+    }
+
+    private void clearDonationCSV() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Donation.csv", false))) {
+            // Write headers
+            ListInterface<String> headers = new LinkedList<>();
+            headers.add("Donation ID");
+            headers.add("Donor ID");
+            headers.add("Amount");
+            headers.add("Date");
+            headers.add("Payment Method");
+            headers.add("Receipt Number");
+            headers.add("Donation Type");
+            headers.add("Notes");
+            writer.write(String.join(",", headers));
+            writer.newLine();
+        } catch (IOException e) {
+            System.out.println("Error clearing Donation.csv: " + e.getMessage());
+        }
+    }
 
     // ------------------------------------------------------------------------------------------------
-    //report
+    // report
     public void generateDonationSummaryReport() {
         double totalAmountDonated = 0;
         int totalDonations = donationLinkedList.size();
@@ -694,7 +684,8 @@ private void clearDonationCSV() {
         }
         System.out.println("==============================");
     }
-    //------------------------------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------------------------------
     // Method to display donations (for testing)
     public void displayDonations() {
         System.out.println("Donations in HashMap:");
@@ -752,11 +743,10 @@ private void clearDonationCSV() {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             return sdf.parse(dateString);
         } catch (Exception e) {
-            System.out.println("Invalid date format. Using current date.");
+            System.err.println("Invalid date format. Using current date.");
             return new Date();
         }
     }
-
 
     // Method to check if donor ID exists in CSV
     public static boolean donorIdExistsInCSV(String donorId, String filePath) {
@@ -769,7 +759,7 @@ private void clearDonationCSV() {
                 }
             }
         } catch (IOException e) {
-            System.out.println("An error occurred while reading the CSV file: " + e.getMessage());
+            System.err.println("An error occurred while reading the CSV file: " + e.getMessage());
         }
         return false;
     }

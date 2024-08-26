@@ -1,67 +1,19 @@
 package boundary;
 
-import ADT.DictionaryInterface;
-import ADT.HashedDictionary;
 import ADT.TreeMapImplementation;
 import ADT.TreeMapInterface;
 import control.DonorMaintenance;
 import entity.Donor;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Random;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import utility.ValidationUI;
 
 public class DonorMaintenanceUI {
     private final Scanner scanner;
     private final DonorMaintenance donorMaintenance;
-    private final Random random;
-    private static final String CSV_FILE_NAME = "donorData.csv"; // Specify the CSV file name
 
     public DonorMaintenanceUI() {
         scanner = new Scanner(System.in);
         donorMaintenance = new DonorMaintenance();
-        random = new Random();
-    }
-
-    // Method to generate a unique Donor ID
-    private String generateUniqueDonorId() {
-        DictionaryInterface<Integer, Void> existingIds = getExistingDonorIds();
-        int newId;
-
-        do {
-            newId = random.nextInt(999) + 1; // Generate a random number between 1 and 999
-        } while (existingIds.contains(newId));
-
-        return String.format("DA%03d", newId); // Format the ID as DA### with leading zeros
-    }
-
-    // Method to read existing donor IDs from the CSV file
-    private DictionaryInterface<Integer, Void> getExistingDonorIds() {
-        DictionaryInterface<Integer, Void> existingIds = new HashedDictionary<>();
-        Pattern pattern = Pattern.compile("DA(\\d{3})");
-
-        try (BufferedReader br = new BufferedReader(new FileReader(CSV_FILE_NAME))) {
-            String line;
-            boolean firstLine = true;
-            while ((line = br.readLine()) != null) {
-                if (firstLine) {
-                    firstLine = false; // Skip the header line
-                    continue;
-                }
-                Matcher matcher = pattern.matcher(line);
-                if (matcher.find()) {
-                    int id = Integer.parseInt(matcher.group(1));
-                    existingIds.add(id, null); // Add ID to dictionary with null value
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return existingIds;
     }
 
     public void start() {
@@ -117,6 +69,8 @@ public class DonorMaintenanceUI {
         System.out.print("Enter your choice: ");
     }
 
+    // ------------------------------------------------------------------------------------------------
+    // add donor
     private void addDonor() {
         String name, contactNumber, email, address, donorType, donationPreference, donorTimes, totalAmount;
 
@@ -176,15 +130,15 @@ public class DonorMaintenanceUI {
         }
 
         while (true) {
-            System.out.print("Enter Donation Preference (Cash, Bank In, Tng): ");
+            System.out.print("Enter Donation Preference (Cash, Online): ");
             donationPreference = scanner.nextLine();
 
             if (ValidationUI.isNotEmpty(donationPreference) &&
-                    donationPreference.matches("(?i)^(Cash|Bank In|Tng)$")) {
+                    donationPreference.matches("(?i)^(Cash|Online)$")) {
                 break;
             }
 
-            System.out.println("Donation Preference is invalid! It must be one of: Cash, Bank In, Tng.");
+            System.out.println("Donation Preference is invalid! It must be one of: Cash, Online.");
 
             if (!ValidationUI.retryOrExit()) {
                 return;
@@ -223,7 +177,7 @@ public class DonorMaintenanceUI {
 
         // Generate sequential Donor ID after all details are entered
         // Inside the addDonor method
-        String donorId = generateUniqueDonorId();
+        String donorId = donorMaintenance.generateUniqueDonorId();
         System.out.println("Generated Donor ID: " + donorId);
 
         donorMaintenance.addDonor(donorId, name, contactNumber, email, address, donorType, donationPreference,
@@ -231,6 +185,8 @@ public class DonorMaintenanceUI {
 
     }
 
+    // ------------------------------------------------------------------------------------------------
+    // update donor
     private void updateDonor() {
         System.out.println("\n--- Update Donor ---");
         System.out.print("Enter Donor ID to update: ");
@@ -376,27 +332,29 @@ public class DonorMaintenanceUI {
         }
     }
 
+    // ------------------------------------------------------------------------------------------------
+    // delete donor
     private void deleteDonor() {
         System.out.print("Enter Donor ID to delete: ");
         String donorId = scanner.nextLine();
-    
+
         Donor donor = donorMaintenance.findDonorById(donorId);
         if (donor == null) {
             System.out.println("Donor not found.");
             return;
         }
-    
+
         while (true) {
             System.out.println("Are you sure you want to delete the donor with ID: " + donorId + "?");
             System.out.println("1. Yes");
             System.out.println("2. No");
             System.out.print("Enter your choice: ");
-    
+
             String input = scanner.nextLine();
-    
+
             if (ValidationUI.isDigit(input)) {
                 int choice = Integer.parseInt(input);
-    
+
                 switch (choice) {
                     case 1:
                         // User confirmed deletion
@@ -406,12 +364,12 @@ public class DonorMaintenanceUI {
                             System.out.println("Failed to delete donor.");
                         }
                         return;
-    
+
                     case 2:
                         // User canceled deletion
                         System.out.println("Deletion canceled.");
                         return;
-    
+
                     default:
                         // Invalid choice
                         System.out.println("Invalid choice. Please enter 1 for Yes or 2 for No.");
@@ -423,19 +381,21 @@ public class DonorMaintenanceUI {
             }
         }
     }
-    
+
+    // ------------------------------------------------------------------------------------------------
+    // view all donors
 
     private void viewAllDonors() {
         while (true) {
             // Display the list of all donors
             donorMaintenance.viewAllDonors();
-    
+
             // Present sorting options to the user
             displaySortingOptions();
-    
+
             // Read and validate the user's choice
             String input = getUserChoice();
-    
+
             // Process the user's choice
             if (ValidationUI.isDigit(input)) {
                 int choice = Integer.parseInt(input);
@@ -445,7 +405,7 @@ public class DonorMaintenanceUI {
             }
         }
     }
-    
+
     private void displaySortingOptions() {
         System.out.println("\n--- Sort Donors ---");
         System.out.println("1. Sort by Donor ID");
@@ -453,12 +413,12 @@ public class DonorMaintenanceUI {
         System.out.println("3. Sort by Total Amount");
         System.out.println("4. Exit");
     }
-    
+
     private String getUserChoice() {
         System.out.print("Enter your choice: ");
         return scanner.nextLine(); // Read input as String for validation
     }
-    
+
     private void handleSortingChoice(int choice) {
         switch (choice) {
             case 1:
@@ -478,12 +438,11 @@ public class DonorMaintenanceUI {
                 break;
         }
     }
-    
+
     private void exitToMainMenu() {
         System.out.println("Exiting to the main menu...");
         start(); // Assumes this method returns to the main menu
     }
-    
 
     // Sort by ID
     private void sortById() {
@@ -597,14 +556,14 @@ public class DonorMaintenanceUI {
             System.out.println("4. Search by Email");
             System.out.println("5. Exit");
             System.out.print("Enter your choice: ");
-    
+
             String input = scanner.nextLine(); // Read input as String for validation
-    
+
             if (ValidationUI.isDigit(input)) {
                 int choice = Integer.parseInt(input);
                 Donor foundDonor = null; // Variable to store the found donor
                 String searchValue;
-    
+
                 // Handle search options based on user choice
                 switch (choice) {
                     case 1:
@@ -634,7 +593,7 @@ public class DonorMaintenanceUI {
                         System.out.println("Invalid choice. Please enter a number between 1 and 5.");
                         continue; // Re-prompt the menu
                 }
-    
+
                 // Display the search result
                 if (foundDonor != null) {
                     System.out.println("\n" + foundDonor);
@@ -646,8 +605,8 @@ public class DonorMaintenanceUI {
             }
         }
     }
-    
 
+    // ------------------------------------------------------------------------------------------------
     // filter donors
     private void filterDonors() {
         // Initialize TreeMap to store filtered donors
@@ -719,7 +678,7 @@ public class DonorMaintenanceUI {
         }
     }
 
-    //------------------------------------------------------------------------------------------------
+    // ------------------------------------------------------------------------------------------------
 
     private void showReportMenu() {
         while (true) {
@@ -728,9 +687,9 @@ public class DonorMaintenanceUI {
             System.out.println("2. Summary Donor Report");
             System.out.println("3. Exit to Main Menu");
             System.out.print("Enter your choice: ");
-    
+
             String input = scanner.nextLine(); // Read input as String for validation
-    
+
             if (ValidationUI.isDigit(input)) {
                 int choice = Integer.parseInt(input);
                 switch (choice) {
@@ -751,6 +710,5 @@ public class DonorMaintenanceUI {
             }
         }
     }
-    
 
 }

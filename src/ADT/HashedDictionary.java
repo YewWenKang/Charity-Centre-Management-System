@@ -6,16 +6,15 @@ import java.util.Map;
 import java.util.Set;
 
 public class HashedDictionary<K, V> implements DictionaryInterface<K, V> {
-    private TableEntry<K, V>[] hashTable;  // dictionary entries
+    private TableEntry<K, V>[] hashTable; // dictionary entries
     private int numberOfEntries;
     private static final int DEFAULT_SIZE = 101; // must be prime
     private static final double LOAD_FACTOR_THRESHOLD = 0.75;
-     private Map<K, V> dictionary; // This will hold the key-value pairs
+    private Map<K, V> dictionary; // This will hold the key-value pairs
 
-    @SuppressWarnings("unchecked")
     public HashedDictionary() {
         this(DEFAULT_SIZE);
-         dictionary = new HashMap<>(); // Initialize the HashMap
+        dictionary = new HashMap<>(); // Initialize the HashMap
     }
 
     @SuppressWarnings("unchecked")
@@ -23,8 +22,6 @@ public class HashedDictionary<K, V> implements DictionaryInterface<K, V> {
         hashTable = new TableEntry[tableSize];
         numberOfEntries = 0;
     }
-
-    
 
     public String toString() {
         StringBuilder outputStr = new StringBuilder();
@@ -35,7 +32,8 @@ public class HashedDictionary<K, V> implements DictionaryInterface<K, V> {
             } else if (hashTable[index].isRemoved()) {
                 outputStr.append("notIn\n");
             } else {
-                outputStr.append(hashTable[index].getKey()).append(" ").append(hashTable[index].getValue()).append("\n");
+                outputStr.append(hashTable[index].getKey()).append(" ").append(hashTable[index].getValue())
+                        .append("\n");
             }
         }
         return outputStr.toString();
@@ -60,7 +58,7 @@ public class HashedDictionary<K, V> implements DictionaryInterface<K, V> {
         }
     }
 
-        @Override
+    @Override
     public Set<K> getKeys() {
         Set<K> keys = new HashSet<>();
         // Assuming you have a way to iterate over the dictionary's entries

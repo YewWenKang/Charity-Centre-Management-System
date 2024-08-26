@@ -74,7 +74,8 @@ public class LinkedList<T> implements ListInterface<T>, Iterable<T> {
 
     @Override
     public boolean remove(T element) {
-        if (head == null) return false;
+        if (head == null)
+            return false;
 
         if (head.data.equals(element)) {
             head = head.next;
@@ -251,8 +252,5 @@ public class LinkedList<T> implements ListInterface<T>, Iterable<T> {
         }
         return null; // Return null if the item is not found
     }
-    
-    
-    
-    
+
 }

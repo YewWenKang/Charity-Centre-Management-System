@@ -20,11 +20,12 @@ public class Donation {
     }
 
     // Constructors
-    public Donation() {}
+    public Donation() {
+    }
 
     public Donation(String donationId, String donorId, double amount, Date date,
-                    String paymentMethod, String receiptNumber, DonationType donationType, 
-                    String notes) {
+            String paymentMethod, String receiptNumber, DonationType donationType,
+            String notes) {
         this.donationId = donationId;
         this.donorId = donorId;
         this.amount = amount;
@@ -99,31 +100,30 @@ public class Donation {
     public void setNotes(String notes) {
         this.notes = notes;
     }
+
     @Override
     public String toString() {
         return String.format(
-            "╔══════════════════════════════════════════╗%n" +
-            "║               Donation Details           ║%n" +
-            "╠══════════════════════════════════════════╣%n" +
-            "║ Donation ID     : %-23s ║%n" +
-            "║ Donor ID        : %-23s ║%n" +
-            "║ Amount (RM)     : %-23.2f ║%n" +
-            "║ Date            : %-23s ║%n" +
-            "║ Payment Method  : %-23s ║%n" +
-            "║ Receipt Number  : %-23s ║%n" +
-            "║ Donation Type   : %-23s ║%n" +
-            "║ Notes           : %-23s ║%n" +
-            "╚══════════════════════════════════════════╝", 
-            donationId, 
-            donorId, 
-            amount, 
-            new SimpleDateFormat("yyyy-MM-dd").format(date), // Format the date as needed
-            paymentMethod, 
-            receiptNumber, 
-            donationType, 
-            notes
-        );
+                "╔══════════════════════════════════════════╗%n" +
+                        "║               Donation Details           ║%n" +
+                        "╠══════════════════════════════════════════╣%n" +
+                        "║ Donation ID     : %-23s ║%n" +
+                        "║ Donor ID        : %-23s ║%n" +
+                        "║ Amount (RM)     : %-23.2f ║%n" +
+                        "║ Date            : %-23s ║%n" +
+                        "║ Payment Method  : %-23s ║%n" +
+                        "║ Receipt Number  : %-23s ║%n" +
+                        "║ Donation Type   : %-23s ║%n" +
+                        "║ Notes           : %-23s ║%n" +
+                        "╚══════════════════════════════════════════╝",
+                donationId,
+                donorId,
+                amount,
+                new SimpleDateFormat("yyyy-MM-dd").format(date), // Format the date as needed
+                paymentMethod,
+                receiptNumber,
+                donationType,
+                notes);
     }
-    
+
 }
-    
