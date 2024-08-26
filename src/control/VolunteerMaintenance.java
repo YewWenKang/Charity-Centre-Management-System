@@ -1,9 +1,17 @@
 package control;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Scanner;
+import java.util.function.Function;
+
 import ADT.LinkedList;
 import ADT.ListInterface;
 import DAO.FileDao;
@@ -11,455 +19,443 @@ import boundary.VolunteerMaintenanceUI;
 import entity.Event;
 import entity.Volunteer;
 import utility.MessageUI;
-import DAO.DoneeDAO;
 
-    /**
-     *
-     * @author User
-     */
-    public class VolunteerMaintenance {
-        private final FileDao<Volunteer> fileDao;
-        private static final String FILE_NAME = "VolunteerData.csv";
-        private final ListInterface<String> headers;
-        private ListInterface<Volunteer> VolunteerList = new LinkedList<>();
-        private VolunteerMaintenanceUI VolunteerUI = new VolunteerMaintenanceUI();
-    
-        public VolunteerMaintenance() {
-                headers = new LinkedList<>();
-                headers.add("ID");
-                headers.add("Volunteer Type");
-                headers.add("Name");
-                headers.add("Email");
-                headers.add("Address");
-                headers.add("Contact Number");
-                headers.add("EventCode");
 
- 
+/**
+ *
+ * @author User
+ */
+public class VolunteerMaintenance {
+    private final FileDao<Volunteer> fileDao;
+    private static final String FILE_NAME = "VolunteerData.csv";
+    private final ListInterface<String> headers;
+    private ListInterface<Volunteer> VolunteerList = new LinkedList<>();
+    private VolunteerMaintenanceUI VolunteerUI = new VolunteerMaintenanceUI();
+
+    public VolunteerMaintenance() {
+        headers = new LinkedList<>();
+        headers.add("ID");
+        headers.add("Volunteer Type");
+        headers.add("Name");
+        headers.add("Phone number");
+        headers.add("Email");
+        headers.add("Address");
+
+        fileDao = new FileDao<>();
+        VolunteerList = fileDao.loadDataFromCSV(FILE_NAME, this::mapRowToVolunteer);
+
+    }
+
+    // file code
+    private Volunteer mapRowToVolunteer(String[] row) {
+
+        if (row.length < 6) {
+            System.out.println("Error: Malformed row detected. Expected at least 6 elements but got: " + row.length);
+            return null; // Skip this row if it is malformed
+        }
+        String volunteerId = row[0];
+        String volunteerType = row[1];
+        String name = row[2];
+        String phoneNumber = row[3];
+        String email = row[4];
+        String address = row[5];
+
+        Volunteer volunteer = new Volunteer(volunteerId, volunteerType, name, phoneNumber, email, address);
+        return volunteer;
+    }
+
+    public <T> void writeDataToCSV(String fileName, ListInterface<String> headers, ListInterface<T> data,
+            Function<T, ListInterface<String>> mapper) throws IOException {
+        File file = new File(fileName);
+        boolean append = file.exists(); // Append if file already exists
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, append))) {
+            if (!append) {
+                // Write headers if creating a new file
+                writer.write(String.join(",", headers));
+                writer.newLine();
+            }
+
+            // Write data rows
+            for (T item : data) {
+                ListInterface<String> row = mapper.apply(item);
+                writer.write(String.join(",", row));
+                writer.newLine();
+            }
+        }
+    }
+
+    public boolean saveVolunteersToCSV() {
+        try {
+            ListInterface<Volunteer> validVolunteers = new LinkedList<>();
+            for (int i = 0; i < VolunteerList.size(); i++) {
+                Volunteer volunteer = VolunteerList.get(i);
+                if (volunteer != null) {
+                    validVolunteers.add(volunteer);
+                } else {
+                    System.out.println("Warning: Null donor found at index " + i);
+                }
+            }
+            fileDao.writeDataToCSV(FILE_NAME, headers, validVolunteers, this::mapVolunteerToRow);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error saving volunteer to CSV: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private ListInterface<String> mapVolunteerToRow(Volunteer Volunteer) {
+        ListInterface<String> row = new LinkedList<>();
+        row.add(Volunteer.getVolunteerId());
+        row.add(Volunteer.getVolunteertype());
+        row.add(Volunteer.getName());
+        row.add(Volunteer.getPhoneNumber());
+        row.add(Volunteer.getEmail());
+        row.add(Volunteer.getAddress());
+        return row;
+    }
+
+    public void writeVolunteerToCSV(Volunteer volunteer) {
+        File file = new File("VolunteerData.csv");
+        boolean isNewFile = !file.exists(); // Check if the file does not exist (new file)
+
+        try (FileWriter writer = new FileWriter(file, true)) {
+            // If it's a new file or an empty file, write the header first
+            if (isNewFile || file.length() == 0) {
+                writer.append("VolunteerId,VolunteerType,Name,phoneNumber,Email,Address\n");
+            }
+
+            // Now write the volunteer data
+            writer.append(volunteer.getVolunteerId())
+                    .append(',')
+                    .append(volunteer.getVolunteertype())
+                    .append(',')
+                    .append(volunteer.getName())
+                    .append(',')
+                    .append(volunteer.getPhoneNumber())
+                    .append(',')
+                    .append(volunteer.getEmail())
+                    .append(',')
+                    .append(volunteer.getAddress())
+                    .append('\n');
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Optionally add the volunteer to the list if they are non-experienced
+        if (volunteer.getVolunteertype().equalsIgnoreCase("Non-Experienced")) {
+            VolunteerList.add(volunteer);
+        }
+    }
+
+    //Case 1 : registerNewVolunteer
+    public Volunteer inputVolunteerDetails() {
+        boolean isExperienced = VolunteerMaintenanceUI.inputVolunteerExperience();
+        String volunteerType = isExperienced ? "Experienced" : "Non-Experienced";
+
+        String volunteerId = VolunteerUI.inputVolunteerId(VolunteerList);
+        String name = VolunteerUI.inputVolunteerName();
+        String phoneNumber = VolunteerUI.inputVolunteerPhoneNumber(VolunteerList);
+        String email = VolunteerUI.inputVolunteerEmail(VolunteerList);
+        String address = VolunteerUI.inputVolunteerAddress();
+
+        return new Volunteer(volunteerId, volunteerType, name, phoneNumber, email, address);
+    }
+
+    public void registerNewVolunteer() {
+        Volunteer newVolunteer = inputVolunteerDetails();
+        if (newVolunteer != null) {
+            VolunteerList.add(newVolunteer);
+            writeVolunteerToCSV(newVolunteer);
+            System.out.println("Volunteer registered successfully!");
+        } else {
+            System.out.println("Error: Unable to register new volunteer. Please try again.");
+        }
+    }
+
     
-            fileDao = new FileDao<>();
-            VolunteerList = fileDao.loadDataFromCSV(FILE_NAME, this::mapRowToVolunteer);
+    //Case 2 : deleteVolunteerById
+    public void deleteVolunteerById() {
+        String volunteerId = VolunteerUI.inputVolunteerId(); // Input the volunteer ID
+        
+        // Look for the volunteer in the in-memory list
+        Volunteer volunteerToRemove = null;
+        for (int i = 0; i < VolunteerList.size(); i++) {
+            Volunteer volunteer = VolunteerList.get(i);
+            if (volunteer.getVolunteerId().equals(volunteerId)) {
+                volunteerToRemove = volunteer;
+                break;
+            }
+        }
+        
+        // If the volunteer is found, remove it
+        if (volunteerToRemove != null) {
+            VolunteerList.remove(volunteerToRemove); // Remove from in-memory list
             
-        }
-        
-
-
-        private Volunteer mapRowToVolunteer(String[] row) {
-
-            if (row.length < 6) {
-                System.out.println("Error: Malformed row detected. Expected at least 6 elements but got: " + row.length);
-                return null; // Skip this row if it is malformed
-            }
-            String volunteerId = row[0];
-            String volunteerType = row[1];
-            String name = row[2];
-            String address = row[3];
-            String phoneNumber = row[4];
-            String email = row[5];
-
-            Event assignedEvent = null;
-            if (row.length > 6 && !row[6].isEmpty()) {
-                assignedEvent = new Event(row[6], "Hardcoded Event Name"); // Adjust as needed
-            }
-
-            Volunteer volunteer = new Volunteer(volunteerId, volunteerType, name, address, phoneNumber, email);
-            volunteer.setAssignedEvent(assignedEvent);
-            return volunteer;
-        }
-        
-        private ListInterface<String> mapVolunteerToRow(Volunteer Volunteer) {
-            ListInterface<String> row = new LinkedList<>();
-            row.add(Volunteer.getVolunteerId());
-            row.add(Volunteer.getVolunteertype());
-            row.add(Volunteer.getName());
-            row.add(Volunteer.getPhoneNumber());
-            row.add(Volunteer.getEmail());
-            row.add(Volunteer.getAddress());
-
-            if (Volunteer.getAssignedEvent() != null) {
-                row.add(Volunteer.getAssignedEvent().geteventId()); // or whatever identifier you use
+            // Now update the file by re-saving the list to the CSV
+            if (saveVolunteersToCSV()) {
+                System.out.println("Volunteer " + volunteerId + " has been deleted successfully.");
             } else {
-                row.add(""); // or some other default value
+                System.out.println("Error: Could not save changes to file.");
             }
-            return row;
+        } else {
+            System.out.println("Volunteer with ID " + volunteerId + " not found.");
         }
+    }
 
-        private boolean saveVolunteersToCSV() {
-            try {
-                ListInterface<Volunteer> validVolunteers = new LinkedList<>();
-                for (int i = 0; i < VolunteerList.size(); i++) {
-                    Volunteer Volunteer = VolunteerList.get(i);
-                    if (Volunteer != null) {
-                        validVolunteers.add(Volunteer);
-                    } else {
-                        System.out.println("Warning: Null Volunteer found at index " + i);
+    // This method is assumed to print the list of volunteers to the console
+    private void printVolunteerList() {
+        for (int i = 0; i < VolunteerList.getNumberOfEntries(); i++) {
+            Volunteer volunteer = VolunteerList.getEntry(i);
+            if (volunteer != null) {
+                System.out.println(volunteer);
+            }
+        }
+    }
+
+    //case 3 : searchVolunteerById
+    public void searchVolunteerById() {
+        String volunteerId = VolunteerUI.inputVolunteerId();
+        Volunteer volunteer = findVolunteerByIdInFile(volunteerId);
+        if (volunteer != null) {
+            VolunteerUI.printVolunteerDetails(volunteer);
+        } else {
+            System.out.println("Volunteer with ID " + volunteerId + " not found.");
+        }
+    }
+    
+    private Volunteer findVolunteerByIdInFile(String volunteerId) {
+        String fileName = "VolunteerData.csv";
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            boolean skipHeader = true; // To skip the header line
+    
+            while ((line = br.readLine()) != null) {
+                if (skipHeader) {
+                    skipHeader = false;
+                    continue; // Skip the header line
+                }
+    
+                String[] fields = line.split(",");
+                if (fields.length >= 6) {
+                    String csvVolunteerId = fields[0];
+                    if (csvVolunteerId.equals(volunteerId)) {
+                        String volunteerType = fields[1];
+                        String name = fields[2];
+                        String phoneNumber = fields[3];
+                        String email = fields[4];
+                        String address = fields[5];
+                        return new Volunteer(volunteerId, volunteerType, name, phoneNumber, email, address);
                     }
                 }
-                fileDao.writeDataToCSV(FILE_NAME, headers, validVolunteers, this::mapVolunteerToRow);
-                return true;
-            } catch (Exception e) {
-                e.printStackTrace(); // Log the error stack trace for debugging
-                System.out.println("Error saving Volunteers to CSV: " + e.getMessage());
-                return false;
             }
+        } catch (IOException e) {
+            System.out.println("Error reading the VolunteerData.csv file: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        // public void saveVolunteersToCSV() {
-        //     try (FileWriter writer = new FileWriter("VolunteerData.csv", true)) {
-        //         for (int i = 0; i < VolunteerList.getNumberOfEntries(); i++) {
-        //             Volunteer volunteer = VolunteerList.getEntry(i);
-        //             writer.append(volunteer.getVolunteerId())
-        //                   .append(',')
-        //                   .append(volunteer.getVolunteerType())
-        //                   .append(',')
-        //                   .append(volunteer.getName())
-        //                   .append(',')
-        //                   .append(volunteer.getAddress())
-        //                   .append(',')
-        //                   .append(volunteer.getPhoneNumber())
-        //                   .append(',')
-        //                   .append(volunteer.getEmail())
-        //                   .append('\n');
-        //         }
-        //     } catch (IOException e) {
-        //         e.printStackTrace();
-        //     }
-        public void writeVolunteerToCSV(Volunteer volunteer) {
-            try (FileWriter writer = new FileWriter("VolunteerData.csv", true)) {
-                writer.append(volunteer.getVolunteerId())
-                .append(',')
-                .append(volunteer.getVolunteertype())
-                .append(',')
-                .append(volunteer.getName())
-                .append(',')
-                .append(volunteer.getAddress())
-                .append(',')
-                .append(volunteer.getPhoneNumber())
-                .append(',')
-                .append(volunteer.getEmail())
-                .append(',')
-                .append(volunteer.getAssignedEvent() != null ? volunteer.getAssignedEvent().geteventId() : "")
-                .append('\n');
-        
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            
-            if (volunteer.getVolunteertype().equalsIgnoreCase("Non-Experienced")) {
-                VolunteerList.add(volunteer);
-            }
-        }
-//     public LinkedList<Volunteer> readVolunteersFromCSV(String filePath) {
-//     LinkedList<Volunteer> volunteers = new LinkedList<>();
-//     try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-//         String line;
-//         while ((line = br.readLine()) != null) {
-//             String[] values = line.split(",");
-//             Volunteer volunteer = new Volunteer(values[0], values[1], values[2],values[3],values[4],values[5]); // Adjust based on your CSV structure
-//             volunteers.add(volunteer);
-//         }
-//     } catch (IOException e) {
-//         e.printStackTrace();
-//     }
-
-
-// public Volunteer inputVolunteerDetails() {
-//     String volunteerId = VolunteerUI.inputVolunteerId();
-//     boolean isExperienced = VolunteerMaintenanceUI.inputVolunteerExperience();
-//     String volunteerType = isExperienced ? "Experienced" : "Non-Experienced"; // Set volunteerType based on isExperienced
-//     String name = VolunteerUI.inputVolunteerName();
-//     String address = VolunteerUI.inputVolunteerAddress();
-//     String phoneNumber = VolunteerUI.inputVolunteerPhoneNumber();
-//     String email = VolunteerUI.inputVolunteerEmail();
-
-//     return new Volunteer(volunteerId, volunteerType, name, address, phoneNumber, email);
-// }
-
-public Volunteer inputVolunteerDetails() {
-    boolean isExperienced = VolunteerMaintenanceUI.inputVolunteerExperience(); // Assume this method returns true for "yes" and false for "no"
-    String volunteerType = isExperienced ? "Experienced" : "Non-Experienced"; // Set volunteerType based on user input
-    
-    String volunteerId = VolunteerUI.inputVolunteerId(VolunteerList);
-    String name = VolunteerUI.inputVolunteerName();
-    String address = VolunteerUI.inputVolunteerAddress();
-    String phoneNumber = VolunteerUI.inputVolunteerPhoneNumber(VolunteerList);
-    String email = VolunteerUI.inputVolunteerEmail(VolunteerList);
-
-    return new Volunteer(volunteerId, volunteerType, name, address, phoneNumber, email);
-}
-
-public void registerNewVolunteer() {
-    Volunteer newVolunteer = inputVolunteerDetails();
-    if (newVolunteer != null) {
-        VolunteerList.add(newVolunteer);
-        writeVolunteerToCSV(newVolunteer);
-    } else {
-        System.out.println("Error: Unable to register new volunteer. Please try again.");
+        return null; // Volunteer ID not found
     }
-}
 
 
 
-        // public String getAllVolunteers() {
-        //     StringBuilder outputStr = new StringBuilder("Volunteer List:\n");
-        //     for (int i = 1; i <= VolunteerList.getNumberOfEntries(); i++) {
-        //         outputStr.append(String.format("%d. %s%n", i + 1, VolunteerList.getEntry(i)));
-        //     }
-        //     return outputStr.toString();
-        // }
-
-        public String getAllVolunteers() {
-            String outputStr = "";
-            for (int i = 1; i <= VolunteerList.getNumberOfEntries(); i++) {
-                outputStr += i + ". " + VolunteerList.getEntry(i) + "\n";
-            }
-            return outputStr;
-        }
-
-        public void removeVolunteerByPosition(int position) {
-            if (position >= 1 && position <= VolunteerList.getNumberOfEntries()) {
-                VolunteerList.remove(position);
-                saveVolunteersToCSV();
-            } else {
-                System.out.println("Error: Invalid Volunteer Index");
-            }
-        }
-
-        
-
-        public void removeVolunteerByName(String name) {
-            boolean found = false;
-            for (int i = 0; i <= VolunteerList.getNumberOfEntries(); i++) {
-                Volunteer volunteer = VolunteerList.getEntry(i);
-                if (volunteer != null && volunteer.getName().equalsIgnoreCase(name)) {
-                    VolunteerList.remove(i);
-                    found = true;
-                    saveVolunteersToCSV();
-                    System.out.println("Volunteer " + name + " has been removed.");
-                    break;
+    //case 4 : filterVolunteersByExperience
+    public void filterVolunteersByExperience() {
+        String filterType = VolunteerMaintenanceUI.inputFilterChoice();
+        boolean found = false;
+    
+        String fileName = "VolunteerData.csv";
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            boolean skipHeader = true; // To skip the header line
+    
+            while ((line = br.readLine()) != null) {
+                if (skipHeader) {
+                    skipHeader = false;
+                    continue; // Skip the header line
+                }
+    
+                String[] fields = line.split(",");
+                if (fields.length >= 6) {
+                    String volunteerType = fields[1];
+                    if (volunteerType.equalsIgnoreCase(filterType)) {
+                        String volunteerId = fields[0];
+                        String name = fields[2];
+                        String phoneNumber = fields[3];
+                        String email = fields[4];
+                        String address = fields[5];
+                        Volunteer volunteer = new Volunteer(volunteerId, volunteerType, name, phoneNumber, email, address);
+                        System.out.println(volunteer.toString());
+                        found = true;
+                    }
                 }
             }
-            if (!found) {
-                System.out.println("Error: Volunteer with name " + name + " not found.");
-            }
-            return;
+        } catch (IOException e) {
+            System.out.println("Error reading the VolunteerData.csv file: " + e.getMessage());
+            e.printStackTrace();
         }
-
-
-        public void removeVolunteerById(String volunteerId) {
-            boolean found = false;
     
-            // Iterate through the list to find and remove the volunteer
-            for (int i = 0; i < VolunteerList.getNumberOfEntries(); i++) {
-                Volunteer volunteer = VolunteerList.getEntry(i);
-                if (volunteer != null && volunteer.getVolunteerId().equals(volunteerId)) {
-                    VolunteerList.remove(i);
-                    found = true;
-                    System.out.println("Volunteer with ID " + volunteerId + " has been removed.");
-                    break;
+        // If no volunteers found for the given type
+        if (!found) {
+            System.out.println("No volunteers found for type: " + filterType);
+        }
+    }
+
+    //case 5 : listAllVolunteers
+    public String getAllVolunteers() {
+        String outputStr = "";
+        for (int i = 1; i <= VolunteerList.getNumberOfEntries(); i++) {
+            outputStr += VolunteerList.getEntry(i) + "\n";
+        }
+        return outputStr;
+    }
+
+    //case 6 : assignVolunteerEvent
+    public void assignVolunteerEvent(String volunteerId) {
+        EventMaintenance eventMaintenance = new EventMaintenance();
+
+        // Hardcode the event details
+        Event event = new Event("E001", "Community Clean-Up");
+
+        Volunteer volunteer = findVolunteerByIdInFile(volunteerId);
+
+        if (volunteer != null) {
+            if (eventMaintenance.isVolunteerAlreadyAssigned(volunteer, event)) {
+                System.out.println("Volunteer " + volunteer.getName() + " has already been assigned to the event '"
+                        + event.geteventName() + "'.");
+                return; 
+            }
+            eventMaintenance.assignVolunteerToEventAndSave(volunteer, event);
+        } else {
+            System.out.println("Volunteer with ID " + volunteerId + " not found.");
+        }
+    }
+
+    private String getEventIdByName(String eventName) {
+        String EVENT_FILE_NAME = "Event.csv"; // Declare and initialize the EVENT_FILE_NAME variable with the
+                                              // appropriate value
+        try (BufferedReader br = new BufferedReader(new FileReader(EVENT_FILE_NAME))) {
+            String line;
+            boolean skipHeader = true; // To skip the header line
+
+            while ((line = br.readLine()) != null) {
+                if (skipHeader) {
+                    skipHeader = false;
+                    continue; // Skip the header line
+                }
+
+                String[] fields = line.split(",");
+                if (fields.length >= 2) {
+                    String csvEventName = fields[1];
+
+                    if (csvEventName.equalsIgnoreCase(eventName)) {
+                        return fields[0]; // Return the event ID
+                    }
                 }
             }
-    
-            if (!found) {
-                System.out.println("Volunteer with ID " + volunteerId + " not found.");
-            }
-    
-            // Save the updated list to the CSV file
-            saveVolunteersToCSV();
+        } catch (IOException e) {
+            System.out.println("Error reading the Event.csv file: " + e.getMessage());
+            e.printStackTrace();
         }
 
-        private void removeVolunteer() {
-            VolunteerUI.listAllProducts(getAllVolunteers());
-            System.out.print("Do you want to remove a volunteer by (1) Index or (2) Name? ");
-            int removeChoice = VolunteerUI.inputRemoveChoice();
-            if (removeChoice == 1) {
-                int volunteerIndex = VolunteerUI.inputVolunteerIndex();
-                removeVolunteerByPosition(volunteerIndex);
-            } else if (removeChoice == 2) {
-                System.out.print("Enter the name of the volunteer to remove: ");
-                String name = VolunteerUI.inputVolunteerName();
-                removeVolunteerByName(name);
-            } else {
-                System.out.println("Invalid choice. Please enter 1 or 2.");
+        return null; // Event name not found
+    }
+
+    public void printVolunteersByEventName(String eventName) {
+        List<Volunteer> volunteers = getVolunteersByEventName(eventName);
+        if (volunteers.isEmpty()) {
+            System.out.println("No volunteers found for the event: " + eventName);
+        } else {
+            System.out.println("Volunteers for the event: " + eventName);
+            for (Volunteer volunteer : volunteers) {
+                System.out.println("Volunteer ID: " + volunteer.getVolunteerId() + ", Name: " + volunteer.getName());
             }
         }
+    }
 
-        public Volunteer findVolunteerById(String volunteerId) {
-            try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    String[] row = line.split(",");
-                    if (row.length >= 6) {
-                        String id = row[0];
-                        if (id.startsWith("V") && id.equals(volunteerId)) {
-                            return new Volunteer(row[0], row[1], row[2], row[3], row[4], row[5]);
+    // public void printVolunteersByEventName() {
+    // String eventName = VolunteerUI.inputEventName(); // Assume this method
+    // prompts the user for input and returns the event name
+    // printVolunteersByEventName(eventName);
+    // }
+
+    //case 7 : getVolunteersByEventName
+    public List<Volunteer> getVolunteersByEventName(String eventName) {
+        List<Volunteer> volunteers = new ArrayList<>();
+        String eventId = getEventIdByName(eventName);
+
+        if (eventId == null) {
+            System.out.println("Event not found.");
+            return volunteers;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader("Event.csv"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] fields = line.split(",");
+                if (fields.length >= 4) {
+                    String eventFileId = fields[0];
+                    if (eventFileId.equals(eventId)) {
+                        String volunteerId = fields[2];
+                        Volunteer volunteer = findVolunteerByIdInFile(volunteerId);
+                        if (volunteer != null) {
+                            volunteers.add(volunteer);
                         }
                     }
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-            return null; // Volunteer not found
-        }
-    
-        public void searchVolunteerById() {
-            String volunteerId = VolunteerUI.inputVolunteerId();
-            Volunteer volunteer = findVolunteerById(volunteerId);
-            if (volunteer != null) {
-                VolunteerUI.printVolunteerDetails(volunteer);
-            } else {
-                System.out.println("Volunteer with ID " + volunteerId + " not found.");
-            }
-        }
-        // public Volunteer findVolunteerById(String volunteerId) {
-        //     for (int i = 0; i < VolunteerList.getNumberOfEntries(); i++) {
-        //         Volunteer volunteer = VolunteerList.getEntry(i);
-        //         if (volunteer != null && volunteer.getVolunteerId().equals(volunteerId)) {
-        //             return volunteer;
-        //         }
-        //     }
-        //     return null;
-        // }
-
-        // public void searchVolunteerById() {
-        //     String volunteerId = VolunteerUI.inputVolunteerId();
-        //     Volunteer volunteer = findVolunteerById(volunteerId);
-        //     if (volunteer != null) {
-        //         VolunteerUI.printVolunteerDetails(volunteer);
-        //     } else {
-        //         System.out.println("Volunteer with ID " + volunteerId + " not found.");
-        //     }
-        
-
-
-        public void searchVolunteerByType() {
-            String type = VolunteerUI.inputFilterChoice(); // Assume this method prompts the user for input and returns the type
-            ListInterface<Volunteer> result = new LinkedList<>();
-        
-            for (int i = 1; i <= VolunteerList.getNumberOfEntries(); i++) {
-                Volunteer volunteer = VolunteerList.getEntry(i);
-                if (volunteer.getType().equalsIgnoreCase(type)) {
-                    result.add(volunteer);
-                }
-            }
-        
-            if (result.getNumberOfEntries() > 0) {
-                VolunteerUI.printVolunteerList(result); // Assume this method prints the details of volunteers in the list
-            } else {
-                System.out.println("ERROR");
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-
-        // private void updateVolunteer() {
-        //     int position = VolunteerUI.inputUpdatedVolunteerDetails();
-        //     Volunteer updatedVolunteer = inputVolunteerDetails();
-        //     LinkedList<Volunteer> volunteers = (LinkedList<Volunteer>) fileDao.loadDataFromCSV("VolunteerData.csv", this::mapRowToVolunteer);
-            
-        //     if (position >= 0 && position < volunteers.size()) {
-        //         volunteers.replace(position, updatedVolunteer);
-        //         saveVolunteersToCSV();
-        //         System.out.println("Volunteer at position " + position + " has been updated.");
-        //     } else {
-        //         System.out.println("Error: Invalid position.");
-        //     }
-        // }
-
-        public void assignVolunteerToEvent(String volunteerId) {
-            // Load volunteers from CSV
-            LinkedList<Volunteer> volunteers = (LinkedList<Volunteer>) fileDao.loadDataFromCSV("VolunteerData.csv", this::mapRowToVolunteer);
-        
-            // Find the volunteer by ID
-            for (int i = 1; i <= volunteers.getNumberOfEntries(); i++) {
-                Volunteer volunteer = volunteers.getEntry(i);
-                if (volunteer.getVolunteerId().equals(volunteerId)) {
-                    // Hardcode the event details
-                    String eventId = "E001"; // Hardcoded event ID
-                    String eventName = "Community Clean-Up"; // Hardcoded event name
-                    
-                    // Create and assign the event to the volunteer
-                    Event event = new Event(eventId, eventName);
-                    volunteer.setAssignedEvent(event);
-        
-                    // Save the updated volunteer information
-                    writeVolunteerToCSV(volunteer);
-        
-                    System.out.println("Volunteer " + volunteerId + " has been assigned to event " + eventName);
-                    return;
-                }
-            }
-        
-            System.out.println("Volunteer with ID " + volunteerId + " not found.");
-        }
-        
-
-        public void searchVolunteersByEvent() {
-            // Input event details
-            String eventId = VolunteerUI.inputEventId(); // Assume this prompts user to input the event ID
-        
-            // List to store volunteers found under the specified event
-            ListInterface<Volunteer> foundVolunteers = new LinkedList<>();
-        
-            // Search volunteers by event
-            for (int i = 1; i <= VolunteerList.getNumberOfEntries(); i++) {
-                Volunteer volunteer = VolunteerList.getEntry(i);
-                Event assignedEvent = volunteer.getAssignedEvent();
-                
-                if (assignedEvent != null && assignedEvent.geteventId().equals(eventId)) {
-                    foundVolunteers.add(volunteer);
-                }
-            }
-        
-            // Check if any volunteers were found and display results
-            if (foundVolunteers.getNumberOfEntries() > 0) {
-                VolunteerUI.printVolunteerList(foundVolunteers); // Assume this method prints the list of volunteers
-            } else {
-                System.out.println("No volunteers found for event ID: " + eventId);
-            }
-        }
-
-
-        public void runVolunteerMaintenance() {
-            int choice;
-            VolunteerMaintenance volunteerMaintenance = new VolunteerMaintenance(); // Declare and initialize the volunteerMaintenance variable
-            String volunteerId = ""; // Declare and initialize the volunteerId variable
-            do {
-                choice = VolunteerUI.getMenuChoice();
-                switch (choice) {
-                    case 0:
-                        MessageUI.displayExitMessage();
-                        break;
-                    case 1:
-                        registerNewVolunteer();
-                        // VolunteerUI.printVolunteerDetails(VolunteerList.getEntry(VolunteerList.getNumberOfEntries()));
-                        break;
-                    case 2:
-                        volunteerId = VolunteerUI.inputVolunteerId(); // Prompt user for volunteerId
-                        volunteerMaintenance.removeVolunteerById(volunteerId);
-                        break;
-                    case 3:
-                        volunteerMaintenance.searchVolunteerById();
-                        break;
-                    case 4:
-                    volunteerMaintenance.searchVolunteerByType();
-                        break;
-                    case 5:
-                        VolunteerUI.listAllProducts(getAllVolunteers());
-                        break;
-                    case 6:
-                    volunteerId = VolunteerUI.inputVolunteerId(); // Prompt user for volunteerId
-                    volunteerMaintenance.assignVolunteerToEvent(volunteerId);
-                    break;
-                    case 7:
-                    volunteerMaintenance.searchVolunteersByEvent();
-                    break;
-                    default:
-                        MessageUI.displayInvalidChoiceMessage();
-                }
-            } while (choice != 0);
-        }
-
-        public static void main(String[] args) {
-            VolunteerMaintenance volunteerMaintenance = new VolunteerMaintenance();
-            volunteerMaintenance.runVolunteerMaintenance();
-        }
+        return volunteers;
     }
+
+    public void runVolunteerMaintenance() {
+        int choice;
+        VolunteerMaintenance volunteerMaintenance = new VolunteerMaintenance(); // Declare and initialize the
+
+        String volunteerId = ""; // Declare and initialize the volunteerId variable
+        do {
+            choice = VolunteerUI.getMenuChoice();
+            switch (choice) {
+                case 0:
+                    MessageUI.displayExitMessage();
+                    break;
+                case 1:
+                    registerNewVolunteer();
+                    // VolunteerUI.printVolunteerDetails(VolunteerList.getEntry(VolunteerList.getNumberOfEntries()));
+                    break;
+                case 2:
+                    // volunteerId = VolunteerUI.inputVolunteerId(); // Prompt user for volunteerId
+                    deleteVolunteerById();
+                    break;
+                case 3:
+                searchVolunteerById();
+                    break;
+                case 4:
+                    volunteerMaintenance.filterVolunteersByExperience();
+                    break;
+                case 5:
+                    VolunteerUI.listAllProducts(getAllVolunteers());
+                    break;
+                case 6:
+                    volunteerId = VolunteerUI.inputVolunteerId(); // Prompt user for volunteerId
+                    assignVolunteerEvent(volunteerId);
+                    break;
+                case 7:
+                    String eventName = VolunteerUI.inputEventName(); // Assume this method prompts the user for input
+                    printVolunteersByEventName(eventName);
+                    break;
+                default:
+                    MessageUI.displayInvalidChoiceMessage();
+            }
+        } while (choice != 0);
+    }
+
+    public static void main(String[] args) {
+        VolunteerMaintenance volunteerMaintenance = new VolunteerMaintenance();
+        volunteerMaintenance.runVolunteerMaintenance();
+    }
+}

@@ -92,39 +92,27 @@ public class Volunteer {
     public void setAssignedEvent(Event assignedEvent) {
         this.assignedEvent = assignedEvent;
     }
+
     @Override
     public String toString() {
-        return "Volunteer{" +
-                "ID = '" + VolunteerId + '\'' +
-                "Type = '"+ Volunteertype +'\'' +
-                " name='" + name + '\'' +
-                ", address='" + address + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", Email='" + email + '\'' +
-                '}';
+        return String.format(
+            "=====================================%n" +
+            "           Volunteer Details         %n" +
+            "=====================================%n" +
+            "Volunteer ID  : %s%n" +
+            "Name          : %s%n" +
+            "Phone Number  : %s%n" +
+            "Email         : %s%n" +
+            "Address       : %s%n" +
+            "=====================================%n",
+            VolunteerId,
+            name,
+            phoneNumber,
+            email,
+            address
+        );
     }
 
-    // @Override
-    // public String toString() {
-    //     return String.format("%s,%s,%s,%s,%s,%s,%s",
-    //         VolunteerId == null ? "" : VolunteerId,                // Handle null ID
-    //         name == null ? "" : name,            // Handle null name
-    //         address == null ? "" : address,      // Handle null address
-    //         phoneNumber == null ? "" : phoneNumber, // Handle null phone number
-    //         email == null ? "" : email         // Handle null email
-    //     );
-    // }
-
-//     @Override
-// public String toString() {
-//     return String.format("%s,%s,%s,%s,%s,%s",
-//         Objects.toString(VolunteerId, ""), 
-//         Objects.toString(Volunteertype, ""),
-//         Objects.toString(name, ""), 
-//         Objects.toString(address, ""), 
-//         Objects.toString(phoneNumber, ""), 
-//         Objects.toString(email, "")
-//     );
 }
 
 
