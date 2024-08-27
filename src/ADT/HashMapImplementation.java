@@ -1,10 +1,4 @@
-// File: ADT/HashMapImplementation.java
 package ADT;
-
-import java.util.AbstractMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 public class HashMapImplementation<K, V> implements HashMapInterface<K, V> {
     private static final int DEFAULT_CAPACITY = 16;
@@ -28,7 +22,7 @@ public class HashMapImplementation<K, V> implements HashMapInterface<K, V> {
         }
         for (Node<K, V> node : table[index]) {
             if (node.key.equals(key)) {
-                node.value = value;
+                node.setValue(value);
                 return;
             }
         }
@@ -42,7 +36,7 @@ public class HashMapImplementation<K, V> implements HashMapInterface<K, V> {
         if (table[index] != null) {
             for (Node<K, V> node : table[index]) {
                 if (node.key.equals(key)) {
-                    return node.value;
+                    return node.getValue();
                 }
             }
         }
@@ -85,12 +79,13 @@ public class HashMapImplementation<K, V> implements HashMapInterface<K, V> {
     }
 
     @Override
-    public Set<K> keySet() {
-        Set<K> keys = new HashSet<>();
+    public K[] keySet() {
+        K[] keys = (K[]) new Object[size];
+        int index = 0;
         for (LinkedList<Node<K, V>> bucket : table) {
             if (bucket != null) {
                 for (Node<K, V> node : bucket) {
-                    keys.add(node.key);
+                    keys[index++] = node.getKey();
                 }
             }
         }
@@ -98,24 +93,40 @@ public class HashMapImplementation<K, V> implements HashMapInterface<K, V> {
     }
 
     @Override
-    public Set<Map.Entry<K, V>> entrySet() {
-        Set<Map.Entry<K, V>> entrySet = new HashSet<>();
+    public Entry<K, V>[] entrySet() {
+        Entry<K, V>[] entries = (Entry<K, V>[]) new Entry[size];
+        int index = 0;
         for (LinkedList<Node<K, V>> bucket : table) {
             if (bucket != null) {
                 for (Node<K, V> node : bucket) {
-                    entrySet.add(new AbstractMap.SimpleEntry<>(node.key, node.value));
+                    entries[index++] = node;
                 }
             }
         }
-        return entrySet;
+        return entries;
     }
 
-    private static class Node<K, V> {
+    private static class Node<K, V> implements HashMapInterface.Entry<K, V> {
         K key;
         V value;
 
         Node(K key, V value) {
             this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public K getKey() {
+            return key;
+        }
+
+        @Override
+        public V getValue() {
+            return value;
+        }
+
+        @Override
+        public void setValue(V value) {
             this.value = value;
         }
     }

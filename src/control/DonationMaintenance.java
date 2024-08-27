@@ -1,13 +1,13 @@
 package control;
 
 import ADT.DictionaryInterface;
+import ADT.HashMapImplementation;
+import ADT.HashMapInterface;
 import ADT.HashedDictionary;
 import ADT.LinkedList;
 import ADT.ListInterface;
 import ADT.TreeMapImplementation;
 import ADT.TreeMapInterface;
-import ADT.HashMapInterface;
-import ADT.HashMapImplementation;
 import DAO.FileDao;
 import entity.Donation;
 import entity.Donation.DonationType;
@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
-
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
@@ -578,14 +577,15 @@ public class DonationMaintenance {
         clearDonationCSV();
 
         // Update donor details by subtracting the accumulated amounts and counts
-        for (Map.Entry<String, Double> entry : donorTotalAmounts.entrySet()) {
+        for (HashMapInterface.Entry<String, Double> entry : donorTotalAmounts.entrySet()) {
             String donorId = entry.getKey();
             double totalAmountToSubtract = entry.getValue();
             int donationCountToSubtract = donorDonationCounts.get(donorId);
-
+        
             // Update donor details
             clearDetails(donorId, totalAmountToSubtract, donationCountToSubtract);
         }
+        
     }
 
     private void clearDetails(String donorId, double totalAmountToSubtract, int donationCountToSubtract) {

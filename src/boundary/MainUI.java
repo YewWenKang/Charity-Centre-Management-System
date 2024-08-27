@@ -1,16 +1,13 @@
 package boundary;
-import java.util.InputMismatchException;
 import java.util.Scanner;
-
-import control.DoneeMaintenance;
-import control.VolunteerMaintenance;
-import utility.MessageUI;
 
 public class MainUI {
     private Scanner scanner = new Scanner(System.in);
 
     public int MainUI() {
         System.out.println("\nCharity Centre Management System");
+        System.out.println("=================================");
+        System.out.println("1.Donation Management");
         System.out.println("1.Donor Management");
         System.out.println("2.Donee Management");
         System.out.println("3.Volunteer Management");
