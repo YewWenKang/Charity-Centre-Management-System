@@ -13,10 +13,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,8 +28,8 @@ public class DonorMaintenance {
     private final Scanner scanner = new Scanner(System.in);
 
     // Declare sets for unique contact numbers and emails
-    private final Set<String> contactNumbers = new HashSet<>();
-    private final Set<String> emails = new HashSet<>();
+    private final ListInterface<String> contactNumbers = new LinkedList<>();
+    private final ListInterface<String> emails = new LinkedList<>();
 
     public DonorMaintenance() {
         headers = new LinkedList<>();
@@ -358,7 +356,8 @@ public class DonorMaintenance {
             System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
                     "Donor ID", "Name", "Contact No.", "Email", "Address",
                     "Donor Type", "Donor Times", "Total Amount (RM)");
-            for (java.util.Map.Entry<String, Donor> entry : filteredDonors.entries()) {
+            
+            for (TreeMapInterface.CustomEntry<String, Donor> entry : filteredDonors.entries()) {
                 Donor donor = entry.getValue();
                 System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
                         donor.getDonorId(),
@@ -372,6 +371,7 @@ public class DonorMaintenance {
             }
         }
     }
+    
 
     public TreeMapInterface<String, Donor> filterByDonorType(String donorType) {
         TreeMapInterface<String, Donor> result = new TreeMapImplementation<>();

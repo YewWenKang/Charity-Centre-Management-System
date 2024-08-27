@@ -1,20 +1,13 @@
 package ADT;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 public class HashedDictionary<K, V> implements DictionaryInterface<K, V> {
     private TableEntry<K, V>[] hashTable; // dictionary entries
     private int numberOfEntries;
     private static final int DEFAULT_SIZE = 101; // must be prime
     private static final double LOAD_FACTOR_THRESHOLD = 0.75;
-    private Map<K, V> dictionary; // This will hold the key-value pairs
 
     public HashedDictionary() {
         this(DEFAULT_SIZE);
-        dictionary = new HashMap<>(); // Initialize the HashMap
     }
 
     @SuppressWarnings("unchecked")
@@ -59,11 +52,13 @@ public class HashedDictionary<K, V> implements DictionaryInterface<K, V> {
     }
 
     @Override
-    public Set<K> getKeys() {
-        Set<K> keys = new HashSet<>();
-        // Assuming you have a way to iterate over the dictionary's entries
-        for (K key : dictionary.keySet()) { // Replace 'dictionary' with your internal storage structure
-            keys.add(key);
+    public K[] getKeys() {
+        K[] keys = (K[]) new Object[numberOfEntries];
+        int keyIndex = 0;
+        for (TableEntry<K, V> entry : hashTable) {
+            if (entry != null && entry.isIn()) {
+                keys[keyIndex++] = entry.getKey();
+            }
         }
         return keys;
     }

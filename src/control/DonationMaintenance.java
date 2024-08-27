@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -442,15 +441,19 @@ public class DonationMaintenance {
     // Method to find donations by Date Range
     public ListInterface<Donation> getDonationsByDateRange(Date startDate, Date endDate) {
         ListInterface<Donation> result = new LinkedList<>();
-        for (Map.Entry<Date, ListInterface<Donation>> entry : donationTreeMap.entries()) {
+        
+        // Assuming TreeMapInterface has a method entries() returning CustomEntry<Date, ListInterface<Donation>>
+        for (TreeMapInterface.CustomEntry<Date, ListInterface<Donation>> entry : donationTreeMap.entries()) {
             Date date = entry.getKey();
             if ((date.after(startDate) || date.equals(startDate)) &&
                     (date.before(endDate) || date.equals(endDate))) {
                 result.addAll(entry.getValue());
             }
         }
+        
         return result;
     }
+    
 
     // ------------------------------------------------------------------------------------------------
 
@@ -688,7 +691,7 @@ public class DonationMaintenance {
     }
 
     // ------------------------------------------------------------------------------------------------
-    // Method to display donations (for testing)
+    // Method to display donations 
     public void displayDonations() {
         System.out.println("Donations in HashMap:");
         for (String id : donationHashMap.getKeys()) {
@@ -696,12 +699,13 @@ public class DonationMaintenance {
         }
 
         System.out.println("Donations in TreeMap (by Date):");
-        for (Map.Entry<Date, ListInterface<Donation>> entry : donationTreeMap.entries()) {
+        for (TreeMapInterface.CustomEntry<Date, ListInterface<Donation>> entry : donationTreeMap.entries()) {
             System.out.println("Date: " + entry.getKey());
             for (Donation donation : entry.getValue()) {
                 System.out.println(donation);
             }
         }
+        
 
         System.out.println("Donations in LinkedList (by Insertion Order):");
         for (Donation donation : donationLinkedList) {

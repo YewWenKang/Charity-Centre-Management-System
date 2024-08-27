@@ -1,7 +1,5 @@
 package ADT;
 
-import java.util.Set;
-
 public interface DictionaryInterface<K, V> {
 
     V add(K key, V value);
@@ -18,7 +16,7 @@ public interface DictionaryInterface<K, V> {
 
     int getSize();
 
-    Set<K> getKeys();
+    K[] getKeys(); // Replace Set<K> with K[] to return an array of keys
 
     void clear();
-} 
+}
