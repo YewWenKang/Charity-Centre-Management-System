@@ -6,6 +6,8 @@ import ADT.LinkedList;
 import ADT.ListInterface;
 import ADT.TreeMapImplementation;
 import ADT.TreeMapInterface;
+import ADT.HashMapInterface;
+import ADT.HashMapImplementation;
 import DAO.FileDao;
 import entity.Donation;
 import entity.Donation.DonationType;
@@ -19,7 +21,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
+
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
@@ -551,8 +553,8 @@ public class DonationMaintenance {
     public void clearAllDonations() {
         // Initialize variables to keep track of total amount and donation count per
         // donor
-        Map<String, Double> donorTotalAmounts = new HashMap<>();
-        Map<String, Integer> donorDonationCounts = new HashMap<>();
+        HashMapInterface<String, Double> donorTotalAmounts = new HashMapImplementation<>();
+        HashMapInterface<String, Integer> donorDonationCounts = new HashMapImplementation<>();
 
         // Accumulate donation data
         for (Donation donation : donationLinkedList) {
@@ -652,8 +654,8 @@ public class DonationMaintenance {
     public void generateDonationSummaryReport() {
         double totalAmountDonated = 0;
         int totalDonations = donationLinkedList.size();
-        Map<String, Integer> donorDonationCount = new HashMap<>();
-        Map<String, Double> donorDonationAmount = new HashMap<>();
+        HashMapInterface<String, Integer> donorDonationCount = new HashMapImplementation<>();
+        HashMapInterface<String, Double> donorDonationAmount = new HashMapImplementation<>();
 
         for (int i = 0; i < donationLinkedList.size(); i++) {
             Donation donation = donationLinkedList.get(i);
