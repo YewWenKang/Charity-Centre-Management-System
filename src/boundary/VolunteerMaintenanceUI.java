@@ -8,9 +8,6 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 import ADT.ListInterface;
 import entity.Volunteer;
-import entity.Event; // Add this import statement
-import entity.Volunteer;
-import entity.Event;
 
 public class VolunteerMaintenanceUI {
 
@@ -40,11 +37,11 @@ public class VolunteerMaintenanceUI {
             if (isNumeric(input)) {
                 choice = Integer.parseInt(input);
 
-                if (choice < 0 || choice > 7) {
-                    System.out.println("Invalid choice. Please enter a number between 0 and 7.");
+                if (choice < 0 || choice > 8) {
+                    System.out.println("Invalid choice. Please enter a number between 0 and 8.");
                 }
             } else {
-                System.out.println("Invalid input. Please enter a numeric value between 0 and 7.");
+                System.out.println("Invalid input. Please enter a numeric value between 0 and 8.");
             }
         }
 
@@ -154,15 +151,14 @@ public class VolunteerMaintenanceUI {
 
     public String inputVolunteerPhoneNumber(ListInterface<Volunteer> volunteerList) {
         String phoneNumber;
-        Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            System.out.print("Enter your phone number: ");
+            System.out.print("Enter your phone number (10 or 11 digits): ");
             phoneNumber = scanner.nextLine().trim(); // Remove leading/trailing spaces
 
-            // Validate that the phone number only contains digits
-            if (!phoneNumber.matches("\\d+")) {
-                System.out.println("Invalid phone number. Please enter digits only.");
+            // Validate that the phone number is exactly 10 or 11 digits
+            if (!phoneNumber.matches("\\d{10,11}")) {
+                System.out.println("Invalid phone number. Please enter exactly 10 or 11 digits.");
                 continue; // Restart the loop if validation fails
             }
 
@@ -243,23 +239,6 @@ public class VolunteerMaintenanceUI {
         return index;
     }
 
-    public int inputSearchVolunteerIndex() {
-        Scanner scanner = new Scanner(System.in);
-        int index = -1;
-
-        while (true) {
-            System.out.print("Enter the index of the volunteer to Search: ");
-            try {
-                // Check if input is an integer
-                index = Integer.parseInt(scanner.nextLine().trim());
-                break; // Break the loop if input is valid
-            } catch (NumberFormatException e) {
-                // Handle invalid input
-                System.out.println("Invalid input. Please enter a numeric index.");
-            }
-        }
-        return index;
-    }
 
     public String inputVolunteerId() {
         String VolunteerId;
@@ -275,27 +254,13 @@ public class VolunteerMaintenanceUI {
         return VolunteerId;
     }
 
-    public static int inputRemoveChoice() {
-        Scanner scanner = new Scanner(System.in);
-        return scanner.nextInt();
-    }
-
-    public int inputUpdatedVolunteerDetails() {
-
-        System.out.print("Enter the index of the volunteer to Update: ");
-        int index = scanner.nextInt();
-        scanner.nextLine();
-        return index;
-
-    }
-
 
     public static boolean inputVolunteerExperience() {
         Scanner scanner = new Scanner(System.in);
         String input;
 
         while (true) {
-            System.out.print("Is the volunteer experienced? (yes/no): ");
+            System.out.print("Is the volunteer experienced? (Yes/No): ");
             input = scanner.nextLine().trim().toLowerCase();
 
             if (input.equals("yes") || input.equals("no")) {
@@ -312,27 +277,32 @@ public class VolunteerMaintenanceUI {
     public static String inputFilterChoice() {
         Scanner scanner = new Scanner(System.in);
         String input;
-
+    
         while (true) {
-            System.out.print("Enter the type of volunteer (Experienced/Non-Experienced): ");
-            input = scanner.nextLine().trim().toLowerCase();
-
-            if (input.equals("experienced") || input.equals("non-experienced")) {
-                break; // Valid input, exit the loop
+            System.out.println("-------------------------------------------------");
+            System.out.println("         VOLUNTEER FILTER MENU           ");
+            System.out.println("-------------------------------------------------");
+            System.out.println("  1. Filter by Experienced Volunteers");
+            System.out.println("  2. Filter by Non-Experienced Volunteers");
+            System.out.println("-------------------------------------------------");
+            System.out.print("Select an option (1 or 2): ");
+            input = scanner.nextLine().trim();
+    
+            // Validate that the input is numeric and either 1 or 2
+            if (input.matches("[12]")) {
+                if (input.equals("1")) {
+                    return "Experienced";
+                } else {
+                    return "Non-Experienced";
+                }
             } else {
-                System.out.println("Invalid input. Please enter 'Experienced' or 'Non-Experienced'.");
+                System.out.println("Invalid input. Please enter 1 or 2.");
             }
-        }
-
-        // Capitalize the first letter of each word for consistent output
-        if (input.equals("experienced")) {
-            return "Experienced";
-        } else {
-            return "Non-Experienced";
         }
     }
 
     public void printVolunteerList(ListInterface<Volunteer> volunteers) {
+
         System.out.println("=====================================");
         System.out.println("            Volunteers List          ");
         System.out.println("=====================================");
@@ -351,17 +321,6 @@ public class VolunteerMaintenanceUI {
         System.out.println("=====================================");
     }
 
-    // public static String inputeventChoice() {
-
-    // Scanner scanner = new Scanner(System.in);
-
-    // System.out.print("Enter event choice (create/select): ");
-
-    // String choice = scanner.nextLine();
-
-    // return choice;
-
-    // }
 
     public static String inputEventId() {
         Scanner scanner = new Scanner(System.in);
@@ -395,6 +354,33 @@ public class VolunteerMaintenanceUI {
         String eventName = scanner.nextLine();
 
         return eventName;
+    }
+
+    public static String getSummaryChoice() {
+        Scanner scanner = new Scanner(System.in);
+        String choice;
+    
+        while (true) {
+            System.out.println("-------------------------------------------------");
+            System.out.println("         VOLUNTEER SUMMARY REPORT MENU           ");
+            System.out.println("-------------------------------------------------");
+            System.out.println("  1. Summary of Registered Volunteers");
+            System.out.println("  2. View Volunteer Data File (VolunteerData.csv)");
+            System.out.println("-------------------------------------------------");
+            System.out.print("Select an option (1 or 2): ");
+            
+            
+            choice = scanner.nextLine().trim();
+    
+            // Validate that the input is a numeric value and either 1 or 2
+            if (choice.equals("1") || choice.equals("2")) {
+                break; // Valid input, exit the loop
+            } else {
+                System.out.println("Invalid input. Please enter either 1 or 2.");
+            }
+        }
+    
+        return choice;
     }
 
 

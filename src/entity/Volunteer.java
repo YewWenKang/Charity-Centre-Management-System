@@ -1,6 +1,5 @@
 package entity;
 
-import java.util.Objects;
 
 public class Volunteer {
     private String name;
@@ -13,8 +12,8 @@ public class Volunteer {
 
     private Event assignedEvent;
 
-
-    public Volunteer(String VolunteerId, String Volunteertype, String name, String phoneNumber ,String email ,String address ) {
+    public Volunteer(String VolunteerId, String Volunteertype, String name, String phoneNumber, String email,
+            String address) {
         this.VolunteerId = VolunteerId;
         this.Volunteertype = Volunteertype;
         this.name = name;
@@ -23,7 +22,6 @@ public class Volunteer {
         this.address = address;
         this.assignedEvent = null;
     }
-
 
     public String getName() {
         return name;
@@ -61,11 +59,9 @@ public class Volunteer {
         return VolunteerId;
     }
 
-
     public void setVolunteerId(String volunteerId) {
         VolunteerId = volunteerId;
     }
-
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
@@ -96,23 +92,21 @@ public class Volunteer {
     @Override
     public String toString() {
         return String.format(
-            "=====================================%n" +
-            "           Volunteer Details         %n" +
-            "=====================================%n" +
-            "Volunteer ID  : %s%n" +
-            "Name          : %s%n" +
-            "Phone Number  : %s%n" +
-            "Email         : %s%n" +
-            "Address       : %s%n" +
-            "=====================================%n",
-            VolunteerId,
-            name,
-            phoneNumber,
-            email,
-            address
-        );
+                "\n" +
+                        "=====================================%n" +
+                        "           Volunteer Details         %n" +
+                        "=====================================%n" +
+                        "Volunteer ID  : %s%n" +
+                        "Name          : %s%n" +
+                        "Phone Number  : %s%n" +
+                        "Email         : %s%n" +
+                        "Address       : %s%n" +
+                        "=====================================%n",
+                VolunteerId,
+                name,
+                phoneNumber,
+                email,
+                address);
     }
 
 }
-
-

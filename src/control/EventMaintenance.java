@@ -1,12 +1,9 @@
 package control;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 import entity.Event;
 import entity.Volunteer;
 import ADT.ListInterface;
@@ -18,7 +15,6 @@ public class EventMaintenance {
     private ListInterface<Volunteer> assignedVolunteers = new LinkedList<>();
 
     public EventMaintenance() {
-        // Optional: Load existing data from the CSV if needed
     }
 
     // Method to assign a registered volunteer to a hardcoded event and save to Event.csv
@@ -52,19 +48,28 @@ public class EventMaintenance {
 
     // Method to save the assigned volunteer to Event.csv
     private void saveAssignedVolunteerToEvent(Volunteer volunteer, Event event) {
+        if (isVolunteerAlreadyAssigned(volunteer, event)) {
+            System.out.println("Volunteer " + volunteer.getName() + " is already assigned to the event '"
+                    + event.geteventName() + "'.");
+            return; // Exit the method if the volunteer is already assigned
+        }
+    
         File file = new File(EVENT_FILE_NAME);
         boolean isNewFile = !file.exists();
-
+    
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
             // Write the header if the file is new
             if (isNewFile) {
                 writer.write("EventId,EventName,VolunteerId,VolunteerName\n");
             }
-
+    
             // Write the volunteer assignment
             writer.write(event.geteventId() + "," + event.geteventName() + "," + 
                          volunteer.getVolunteerId() + "," + volunteer.getName() + "\n");
-
+    
+            // Update the volunteer's assigned event
+            volunteer.setAssignedEvent(event);
+    
         } catch (IOException e) {
             System.out.println("Error writing to Event.csv: " + e.getMessage());
             e.printStackTrace();
