@@ -1,7 +1,5 @@
 package control;
 
-import ADT.DictionaryInterface;
-import ADT.HashedDictionary;
 import ADT.LinkedStack;
 import ADT.LinkedList;
 import ADT.ListInterface;
@@ -24,6 +22,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
+import ADT.HashMapImplementation;
+import ADT.HashMapInterface;
 
 public class DoneeMaintenance {
 
@@ -37,12 +37,13 @@ public class DoneeMaintenance {
 
     DonationManager manager = new DonationManager();
 
+    //Constructor
     public DoneeMaintenance() throws ParseException {
         loadDoneeData();
         this.nextId = calculateNextId(); // Initialize nextId based on existing IDs
     }
 
-    // Method to load donee data from file
+    // Load Donee From File
     private void loadDoneeData() {
         DoneeDAO.loadFromFile(FILE_NAME, doneeList, line -> {
             // Split on commas not inside quotes
@@ -64,6 +65,7 @@ public class DoneeMaintenance {
         });
     }
 
+    //Save donee data to file
     public void saveDoneeData() {
         DoneeDAO.saveToFile(FILE_NAME, doneeList, headers);
     }
@@ -79,72 +81,22 @@ public class DoneeMaintenance {
         String doneeOrganizationName = "";
 
         // Input and validation for Donee Name
-        do {
-            doneeName = doneeUI.inputDoneeName();
-            if (ValidationUI.isNotEmpty(doneeName)) {
-                break;
-            } else {
-                System.out.println("Name cannot be empty. Please try again.");
-            }
-        } while (true);
+        doneeName = validateName();
 
         // Input and validation for Donee Address
-        do {
-            doneeAddress = doneeUI.inputDoneeAddress();
-            if (ValidationUI.isNotEmpty(doneeAddress)) {
-                break;
-            } else {
-                System.out.println("Address cannot be empty. Please try again.");
-            }
-        } while (true);
+        doneeAddress = validateAddress();
 
         // Input and validation for Donee Phone Number
-        do {
-            doneePhoneNumber = doneeUI.inputDoneePhoneNumber();
-            if (ValidationUI.isValidPhoneNumber(doneePhoneNumber)) {
-                break;
-            } else if (!ValidationUI.isNotEmpty(doneePhoneNumber)) {
-                System.out.println("Phone Number cannot be empty. Please try again.");
-            } else {
-                System.out.println("Invalid phone number. Please enter a valid phone number starting with '01' and 10 or 11 digits long.");
-            }
-        } while (true);
+        doneePhoneNumber = validatePhoneNumber();
 
         // Input and validation for Donee Email
-        do {
-            doneeEmail = doneeUI.inputDoneeEmail();
-            if (ValidationUI.isValidEmail(doneeEmail)) {
-                break;
-            } else {
-                System.out.println("Invalid email format. Please enter a valid email address in the format xxx@xxxx.com.");
-            }
-        } while (true);
+        doneeEmail = validateEmail();
 
         // Input and validation for Donee Type
-        do {
-            doneeType = doneeUI.inputDoneeType();
-            if (doneeType.equalsIgnoreCase("Y") || doneeType.equalsIgnoreCase("N")) {
-                break;
-            } else {
-                System.out.println("Invalid input(Y/N only).");
-            }
-        } while (true);
+        doneeType = validateDoneeType();
 
         //OrganizationName validate
-        if (doneeType.equalsIgnoreCase("Y")) {
-            doneeType = "Organization";
-            // Input and validation for Donee Organization Name
-            do {
-                doneeOrganizationName = doneeUI.inputDoneeOrganizationName();
-                if (ValidationUI.isNotEmpty(doneeOrganizationName)) {
-                    break;
-                } else {
-                    System.out.println("Organization name cannot be empty. Please try again.");
-                }
-            } while (true);
-        } else {
-            doneeType = "Individual";
-        }
+        doneeOrganizationName = validateOrganizationName(doneeType);
 
         return new Donee(doneeId, doneeName, doneeAddress, doneePhoneNumber, doneeEmail, doneeType, doneeOrganizationName);
     }
@@ -156,7 +108,8 @@ public class DoneeMaintenance {
         return prefix + numericPart;
     }
 
-    //Choice 1
+    //Menu Choice
+    //Choice 1 Add new Donee
     public void registerNewDonee() {
         Donee newDonee = inputDoneeDetails();
 
@@ -166,14 +119,14 @@ public class DoneeMaintenance {
         redoStack.clear(); // Clear redo stack after new action
     }
 
-    //Choice 2
+    //Choice 2 Remove Donee
     public void removeDonee() {
-        String nameToRemove = doneeUI.inputRemovedDoneeName();
+        String idToRemove = doneeUI.inputRemovedDoneeID();
 
         boolean removed = false;
         for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
             Donee donee = doneeList.getEntry(i);
-            if (donee.getName().equalsIgnoreCase(nameToRemove)) {
+            if (donee.getId().equalsIgnoreCase(idToRemove)) {
                 //undo
                 Command removeCommand = new RemoveDoneeCommand(doneeList, donee);
                 removeCommand.execute();
@@ -181,25 +134,21 @@ public class DoneeMaintenance {
                 redoStack.clear(); // Clear redo stack after new action
 
                 removed = true;
-                System.out.println("Donee " + nameToRemove + " has been removed.");
+                System.out.println("Donee " + idToRemove + " has been removed.");
 
                 break;
             }
         }
 
         if (!removed) {
-            System.out.println("Donee " + nameToRemove + " not found.");
+            System.out.println("Donee " + idToRemove + " not found.");
         }
     }
 
     //Choice 3
     public void updateDoneeDetails() {
         // Display all donees
-        System.out.println("List of Donees:");
-        for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
-            Donee donee = doneeList.getEntry(i);
-            System.out.println(donee.getId() + ": " + donee.getName());
-        }
+        printAllDonees();
 
         String idToUpdate = doneeUI.inputDoneeIdUpdate();
 
@@ -212,30 +161,30 @@ public class DoneeMaintenance {
 
                 boolean keepUpdating = true;
                 while (keepUpdating) {
-                    int choice = doneeUI.getUpdateDoneeChoice();
+                    String choice = validateUpdateDoneeChoice();
 
                     switch (choice) {
-                        case 1:
-                            String updatedName = doneeUI.inputDoneeName();
+                        case "1":
+                            String updatedName = validateName();
                             donee.setName(updatedName);
                             System.out.println("Name updated successfully.");
                             break;
-                        case 2:
+                        case "2":
                             String updatedAddress = doneeUI.inputDoneeAddress();
                             donee.setAddress(updatedAddress);
                             System.out.println("Address updated successfully.");
                             break;
-                        case 3:
+                        case "3":
                             String updatedPhoneNumber = doneeUI.inputDoneePhoneNumber();
                             donee.setPhoneNumber(updatedPhoneNumber);
                             System.out.println("Phone number updated successfully.");
                             break;
-                        case 4:
+                        case "4":
                             String updatedEmail = doneeUI.inputDoneeEmail();
                             donee.setEmail(updatedEmail);
                             System.out.println("Email updated successfully.");
                             break;
-                        case 5:
+                        case "5":
                             String updatedDoneeType = doneeUI.inputDoneeType();
                             if (updatedDoneeType.equalsIgnoreCase("Y")) {
                                 donee.setDoneeType("Organization");
@@ -246,7 +195,7 @@ public class DoneeMaintenance {
                                 System.out.println("Donee type updated to Individual.");
                             }
                             break;
-                        case 6:
+                        case "6":
                             if (donee.getDoneeType().equalsIgnoreCase("Organization")) {
                                 String updatedOrganizationName = doneeUI.inputDoneeOrganizationName();
                                 donee.setOrganizationName(updatedOrganizationName);
@@ -255,7 +204,7 @@ public class DoneeMaintenance {
                                 System.out.println("This donee is not an organization. Cannot update Organization Name.");
                             }
                             break;
-                        case 0:
+                        case "0":
                             keepUpdating = false;
                             System.out.println("Finished updating donee.");
                             break;
@@ -275,7 +224,23 @@ public class DoneeMaintenance {
         System.out.println("Donee with ID " + idToUpdate + " not found.");
     }
 
-    //choice 4 search Donee by id
+    public String validateUpdateDoneeChoice() {
+        do {
+            String updateDoneeChoice = doneeUI.getUpdateDoneeChoice();
+            if (ValidationUI.isDigit(updateDoneeChoice)) {
+                if (Integer.parseInt(updateDoneeChoice) >= 0 && Integer.parseInt(updateDoneeChoice) <= 6) {
+                    return updateDoneeChoice;
+                }
+
+            } else {
+                MessageUI.displayInvalidChoiceMessage();
+                System.out.println();
+            }
+        } while (true);
+
+    }
+
+    //choice 4 
     public void searchDoneeDetails() {
         String idToSearch = doneeUI.inputDoneeIdToSearch();
         Donee target = new Donee(idToSearch, "", "", "", "", "", ""); // Create Donee with the given ID
@@ -285,7 +250,11 @@ public class DoneeMaintenance {
 
         // Print the result
         if (result != null) {
-            System.out.println("Found donee: " + result);
+            System.out.println("Found donee: " + result.getId());
+            System.out.println();
+            doneeUI.printHeader();
+            doneeUI.printDoneeDetailsRow(result);
+            System.out.println();
 
             // Ask user if they want to update the donee
             String updateChoice = doneeUI.askUpdateDonee();
@@ -293,33 +262,34 @@ public class DoneeMaintenance {
             if (updateChoice.equalsIgnoreCase("y")) {
                 boolean keepUpdating = true;
                 while (keepUpdating) {
-                    int choice = doneeUI.getUpdateDoneeChoice();
+                    String choice = validateUpdateDoneeChoice();
 
                     switch (choice) {
-                        case 1:
-                            String updatedName = doneeUI.inputDoneeName();
+                        case "1":
+                            String updatedName = validateName();
                             result.setName(updatedName);
                             System.out.println("Name updated successfully.");
                             break;
-                        case 2:
-                            String updatedAddress = doneeUI.inputDoneeAddress();
+                        case "2":
+                            String updatedAddress = validateAddress();
                             result.setAddress(updatedAddress);
                             System.out.println("Address updated successfully.");
                             break;
-                        case 3:
-                            String updatedPhoneNumber = doneeUI.inputDoneePhoneNumber();
+                        case "3":
+                            String updatedPhoneNumber = validatePhoneNumber();
                             result.setPhoneNumber(updatedPhoneNumber);
                             System.out.println("Phone number updated successfully.");
                             break;
-                        case 4:
-                            String updatedEmail = doneeUI.inputDoneeEmail();
+                        case "4":
+                            String updatedEmail = validateEmail();
                             result.setEmail(updatedEmail);
                             System.out.println("Email updated successfully.");
                             break;
-                        case 5:
-                            String updatedDoneeType = doneeUI.inputDoneeType();
-                            if (updatedDoneeType.equalsIgnoreCase("Y")) {
-                                result.setDoneeType("Organization");
+                        case "5":
+                            String updatedDoneeType = validateDoneeType();
+                            if (updatedDoneeType.equalsIgnoreCase("Organization")) {
+                                String updateOrganizationName = validateOrganizationName(updatedDoneeType);
+                                result.setOrganizationName(updateOrganizationName);
                                 System.out.println("Donee type updated to Organization.");
                             } else {
                                 result.setDoneeType("Individual");
@@ -327,16 +297,16 @@ public class DoneeMaintenance {
                                 System.out.println("Donee type updated to Individual.");
                             }
                             break;
-                        case 6:
+                        case "6":
                             if (result.getDoneeType().equalsIgnoreCase("Organization")) {
-                                String updatedOrganizationName = doneeUI.inputDoneeOrganizationName();
+                                String updatedOrganizationName = validateOrganizationName(result.getDoneeType());
                                 result.setOrganizationName(updatedOrganizationName);
                                 System.out.println("Organization name updated successfully.");
                             } else {
                                 System.out.println("This donee is not an organization. Cannot update Organization Name.");
                             }
                             break;
-                        case 0:
+                        case "0":
                             keepUpdating = false;
                             System.out.println("Finished updating donee.");
                             break;
@@ -358,11 +328,120 @@ public class DoneeMaintenance {
         }
     }
 
+    public String validateName() {
+        String name;
+        // Input and validation for Donee Name
+        do {
+            name = doneeUI.inputDoneeName();
+            if (ValidationUI.isNotEmpty(name)) {
+                break;
+            } else {
+                System.out.println("Name cannot be empty. Please try again.");
+            }
+        } while (true);
+        return name;
+    }
+
+    public String validateAddress() {
+        String address;
+        // Input and validation for Donee Address
+        do {
+            address = doneeUI.inputDoneeAddress();
+            if (ValidationUI.isNotEmpty(address)) {
+                break;
+            } else {
+                System.out.println("Address cannot be empty. Please try again.");
+            }
+        } while (true);
+        return address;
+    }
+
+    public String validatePhoneNumber() {
+        String phoneNumber;
+        // Input and validation for Donee Phone Number
+        do {
+            phoneNumber = doneeUI.inputDoneePhoneNumber();
+            if (ValidationUI.isValidPhoneNumber(phoneNumber)) {
+                break;
+            } else if (!ValidationUI.isNotEmpty(phoneNumber)) {
+                System.out.println("Phone Number cannot be empty. Please try again.");
+            } else {
+                System.out.println("Invalid phone number. Please enter a valid phone number starting with '01' and 10 or 11 digits long.");
+            }
+        } while (true);
+        return phoneNumber;
+    }
+
+    public String validateEmail() {
+        String email;
+        // Input and validation for Donee Email
+        do {
+            email = doneeUI.inputDoneeEmail();
+            if (ValidationUI.isValidEmail(email)) {
+                break;
+            } else {
+                System.out.println("Invalid email format. Please enter a valid email address in the format xxx@xxxx.com.");
+            }
+        } while (true);
+        return email;
+    }
+
+    public String validateDoneeType() {
+        String doneeType;
+        // Input and validation for Donee Type
+        do {
+            doneeType = doneeUI.inputDoneeType();
+            if (doneeType.equalsIgnoreCase("Y")) {
+                doneeType = "Organization";
+                break;
+            } else if (doneeType.equalsIgnoreCase("N")) {
+                doneeType = "Individual";
+                break;
+            } else {
+                System.out.println("Invalid input(Y/N only).");
+            }
+        } while (true);
+
+        return doneeType;
+    }
+
+    public String validateOrganizationName(String doneeType) {
+        String organizationName = "";
+
+        //OrganizationName validate
+        if (doneeType.equalsIgnoreCase("Organization")) {
+            // Input and validation for Donee Organization Name
+            do {
+                organizationName = doneeUI.inputDoneeOrganizationName();
+                if (ValidationUI.isNotEmpty(organizationName)) {
+                    break;
+                } else {
+                    System.out.println("Organization name cannot be empty. Please try again.");
+                }
+            } while (true);
+        }
+        return organizationName;
+    }
+
+    public double validateDistributionAmount() {
+        double doubleAmount;
+        do {
+            String strAmount = doneeUI.inputAmount();
+            if (ValidationUI.isNotEmpty(strAmount) && ValidationUI.isValidAmount(strAmount)) {
+                doubleAmount = Double.parseDouble(strAmount);
+                break;
+            } else {
+                System.out.println("Please enter valid amount.");
+            }
+        } while (true);
+        return doubleAmount;
+    }
+
     //choice 5
     public void aidMenu() {
         String aidChoice;
-        Donation.DonationType donationType = null;
         do {
+            Donation.DonationType donationType = null;
             aidChoice = doneeUI.getDonationMenuChoice();
             switch (aidChoice) {
                 case "1":
@@ -390,17 +469,7 @@ public class DoneeMaintenance {
                 // Perform the linear search
                 Donee result = doneeList.linearSearch(target);
                 if (result != null) {
-
-                    // Input and validation for Donee Name
-                    do {
-                        String strAmount = doneeUI.inputAmount();
-                        if (ValidationUI.isNotEmpty(strAmount) && ValidationUI.isValidAmount(strAmount)) {
-                            doubleAmount = Double.parseDouble(strAmount);
-                            break;
-                        } else {
-                            System.out.println("Please enter valid amount.");
-                        }
-                    } while (true);
+                    doubleAmount = validateDistributionAmount();
 
                     manager.distributeDonation(result.getId(), doubleAmount, new Date(), donationType);
 
@@ -429,13 +498,22 @@ public class DoneeMaintenance {
         }
 
         // Filter donees based on the provided criteria
+        System.out.println();
+        System.out.println();
+        System.out.println("Filters Applied.");
+        if (!type.isEmpty()) {
+            System.out.println("Donee Type : " + type);
+        }
+        if (!location.isEmpty()) {
+            System.out.println("Location : " + location);
+        }
+        System.out.println();
+        doneeUI.printHeader();
         for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
             Donee donee = doneeList.getEntry(i);
             boolean matchesType = type.isEmpty() || donee.getDoneeType().equalsIgnoreCase(type);
             boolean matchesLocation = location.isEmpty() || donee.getAddress().toLowerCase().contains(location.toLowerCase());
 
-            System.out.println();
-            doneeUI.printHeader();
             if (matchesType && matchesLocation) {
                 doneeUI.printDoneeDetailsRow(donee);
             }
@@ -590,12 +668,14 @@ public class DoneeMaintenance {
         return -1;
     }
 
-    public String getAllDonees() {
-        String outputStr = "";
+    public void printAllDonees() {
+        System.out.println();
+        doneeUI.printHeader();
         for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
-            outputStr += doneeList.getEntry(i) + "\n";
+            Donee donee = doneeList.getEntry(i);
+            doneeUI.printDoneeDetailsRow(donee);
         }
-        return outputStr;
+        System.out.println();
     }
 
     private int calculateNextId() {
@@ -629,7 +709,7 @@ public class DoneeMaintenance {
                     }
                     break;
                 case "2":
-                    System.out.println(getAllDonees());
+                    printAllDonees();
                     removeDonee();
                     break;
                 case "3":
@@ -894,37 +974,45 @@ public class DoneeMaintenance {
             }
         }
 
-        // Method to distribute a donation
         public boolean distributeDonation(String doneeID, double distributedAmount, Date date, Donation.DonationType donationType) {
-            // Filter donations by the specified type
             LinkedList<Donation> eligibleDonations = new LinkedList<>();
+            HashMapInterface<String, Double> donationDistributedMap = new HashMapImplementation<>();
+            double totalAvailableAmount = 0.0;
+
+            // Step 1: Populate the HashMap with total distributed amounts for each donationID
+            for (Distribution distribution : distributionList) {
+                String donationID = distribution.getDonationID();
+                double amount = distribution.getDistributedAmount();
+
+
+                donationDistributedMap.put(donationID, donationDistributedMap.getOrDefault(donationID, 0.0) + amount);
+            }
+
+            // Step 2: Filter donations by the specified type and calculate total available amounts
             for (Donation donation : donationList) {
                 if (donation.getDonationType().equals(donationType)) {
-                    // Calculate total distributed amount for this donation ID
-                    double totalDistributedAmount = 0.0;
-                    for (Distribution distribution : distributionList) {
-                        if (distribution.getDonationID().equals(donation.getDonationId())) {
-                            totalDistributedAmount += distribution.getDistributedAmount();
-                        }
-                    }
-
+                    double totalDistributedAmount = donationDistributedMap.getOrDefault(donation.getDonationId(), 0.0);
                     double availableAmount = donation.getAmount() - totalDistributedAmount;
+
                     if (availableAmount > 0) {
                         eligibleDonations.add(new Donation(donation.getDonationId(), donation.getDonorId(), availableAmount, donation.getDate(), donation.getPaymentMethod(), donation.getReceiptNumber(), donation.getDonationType(), donation.getNotes()));
+                        totalAvailableAmount += availableAmount;
                     }
                 }
             }
 
-            if (eligibleDonations.isEmpty()) {
-                System.out.println("Error: No eligible donations available for the specified type.");
+            // Step 3: Check if the total available amount is sufficient
+            if (totalAvailableAmount < distributedAmount) {
+                System.out.println("Error: The requested amount exceeds the total available amount for the specified donation type.");
                 return false;
             }
 
+            // Step 4: Distribute the amount across eligible donations
             double remainingAmount = distributedAmount;
             for (Donation donation : eligibleDonations) {
                 double availableAmount = donation.getAmount();
                 if (remainingAmount <= availableAmount) {
-                    // Create a new Distribution entry
+                    // Create a new Distribution entry for the remaining amount
                     String distributionID = generateDistributionID();
                     Distribution newDistribution = new Distribution(distributionID, donation.getDonationId(), doneeID, remainingAmount, dateFormat.format(date), donationType.name());
 
@@ -950,8 +1038,7 @@ public class DoneeMaintenance {
                 }
             }
 
-            System.out.println("Error: Distributed amount exceeds available donation amounts.");
-            return false;
+            return true; // This line will never be reached due to the totalAvailableAmount check
         }
 
         private String generateDistributionID() {
@@ -990,31 +1077,28 @@ public class DoneeMaintenance {
 
         // Method to print available donations based on the remaining amount
         public void printAvailableDonations() {
-
             System.out.println("Available Donations:");
-            for (Donation donation : donationList) {
-                // Calculate total distributed amount for this donation ID
-                double totalDistributedAmount = 0.0;
-                for (Distribution distribution : distributionList) {
-                    if (distribution.getDonationID().equals(donation.getDonationId())) {
-                        totalDistributedAmount += distribution.getDistributedAmount();
-                    }
-                }
 
+            // Step 1: Calculate total distributed amounts using a map
+            HashMapInterface<String, Double> distributedAmountsMap = new HashMapImplementation<>();
+
+            for (Distribution distribution : distributionList) {
+                distributedAmountsMap.put(
+                        distribution.getDonationID(),
+                        distributedAmountsMap.getOrDefault(distribution.getDonationID(), 0.0) + distribution.getDistributedAmount()
+                );
+            }
+
+            // Step 2: Print donations with available amounts
+            for (Donation donation : donationList) {
+                double totalDistributedAmount = distributedAmountsMap.getOrDefault(donation.getDonationId(), 0.0);
                 double availableAmount = donation.getAmount() - totalDistributedAmount;
 
                 if (availableAmount > 0) {
-                    // Print the donation information along with the available amount
                     System.out.println("Donation ID: " + donation.getDonationId()
-                            //                            + ", Donor ID: " + donation.getDonorId()
-                            //                            + ", Amount: " + donation.getAmount()
                             + ", Available Amount: " + availableAmount
-                            //                            + ", Date: " + dateFormat.format(donation.getDate())
-                            //                            + ", Payment Method: " + donation.getPaymentMethod()
-                            //                            + ", Receipt Number: " + donation.getReceiptNumber()
                             + ", Donation Type: " + donation.getDonationType()
                             + ", Notes: " + donation.getNotes());
-
                 }
             }
         }

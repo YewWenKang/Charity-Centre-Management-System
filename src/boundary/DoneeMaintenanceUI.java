@@ -133,10 +133,10 @@ public class DoneeMaintenanceUI {
         return organizationName;
     }
 
-    public String inputRemovedDoneeName() {
-        System.out.print("Enter the name of the Donee to remove: ");
-        String nameToRemove = scanner.nextLine();
-        return nameToRemove;
+    public String inputRemovedDoneeID() {
+        System.out.print("Enter the ID of the Donee to remove: ");
+        String IDToRemove = scanner.nextLine();
+        return IDToRemove;
     }
 
     public String inputDoneeTypeFilter() {
@@ -164,19 +164,23 @@ public class DoneeMaintenanceUI {
         return doneeIdUpdate;
     }
 
-    public int getUpdateDoneeChoice() {
-        // Display update menu
-        System.out.println("Select the field to update:");
-        System.out.println("1. Name");
-        System.out.println("2. Address");
-        System.out.println("3. Phone Number");
-        System.out.println("4. Email");
-        System.out.println("5. Donee Type");
-        System.out.println("6. Organization Name (if applicable)");
-        System.out.println("0. Finish Updating");
+    public String getUpdateDoneeChoice() {
+        System.out.println();
+        printDash(40);
+        System.out.println("\n|           Update Donee Details       |");
+        printDash(40);
+        System.out.println();
+        System.out.println("| 1. | Update Name                     |");
+        System.out.println("| 2. | Update Address                  |");
+        System.out.println("| 3. | Update Phone Number             |");
+        System.out.println("| 4. | Update Email                    |");
+        System.out.println("| 5. | Update Donee Type               |");
+        System.out.println("| 6. | Update Organization Name        |");
+        System.out.println("| 0. | Finish Updating                 |");
+        printDash(40);
+        System.out.println();
         System.out.print("Enter your choice: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+        String choice = scanner.nextLine();
         System.out.println();
         return choice;
     }
@@ -197,6 +201,7 @@ public class DoneeMaintenanceUI {
 
         // Print the donee details
         printRow(
+                donee.getId(),
                 donee.getName(),
                 donee.getAddress(),
                 donee.getPhoneNumber(),
@@ -209,27 +214,29 @@ public class DoneeMaintenanceUI {
     }
 
     public void printHeader() {
+        int idWidth = 6;
         int nameWidth = 15;
         int addressWidth = 40;
         int phoneNumberWidth = 15;
         int emailWidth = 25;
         int doneeTypeWidth = 15;
         int organizationNameWidth = 20;
-        int totalWidth = nameWidth + addressWidth + phoneNumberWidth + emailWidth + doneeTypeWidth + organizationNameWidth;
-        System.out.printf("%-" + nameWidth + "s%-" + addressWidth + "s%-" + phoneNumberWidth + "s%-" + emailWidth + "s%-" + doneeTypeWidth + "s%-" + organizationNameWidth + "s%n",
-                "Name", "Address", "Phone Number", "Email", "Donee Type", "Organization Name");
+        int totalWidth = idWidth + nameWidth + addressWidth + phoneNumberWidth + emailWidth + doneeTypeWidth + organizationNameWidth;
+        System.out.printf("%-" + idWidth + "s%-" + nameWidth + "s%-" + addressWidth + "s%-" + phoneNumberWidth + "s%-" + emailWidth + "s%-" + doneeTypeWidth + "s%-" + organizationNameWidth + "s%n",
+                "ID", "Name", "Address", "Phone Number", "Email", "Donee Type", "Organization Name");
         System.out.println("-".repeat(totalWidth));
     }
 
-    public void printRow(String name, String address, String phoneNumber, String email, String doneeType, String organizationName) {
+    public void printRow(String id, String name, String address, String phoneNumber, String email, String doneeType, String organizationName) {
+        int idWidth = 6;
         int nameWidth = 15;
         int addressWidth = 40;
         int phoneNumberWidth = 15;
         int emailWidth = 25;
         int doneeTypeWidth = 15;
         int organizationNameWidth = 20;
-        System.out.printf("%-" + nameWidth + "s%-" + addressWidth + "s%-" + phoneNumberWidth + "s%-" + emailWidth + "s%-" + doneeTypeWidth + "s%-" + organizationNameWidth + "s%n",
-                name, address, phoneNumber, email, doneeType, organizationName);
+        System.out.printf("%-" + idWidth + "s%-" + nameWidth + "s%-" + addressWidth + "s%-" + phoneNumberWidth + "s%-" + emailWidth + "s%-" + doneeTypeWidth + "s%-" + organizationNameWidth + "s%n",
+                id, name, address, phoneNumber, email, doneeType, organizationName);
     }
 
 }
