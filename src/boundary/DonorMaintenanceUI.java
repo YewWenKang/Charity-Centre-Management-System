@@ -45,7 +45,9 @@ public class DonorMaintenanceUI {
                     showReportMenu();
                     break;
                 case 8:
+                    MainUI Main = new MainUI();
                     System.out.println("Exiting Donor Maintenance System.");
+                    Main.displayMenu();
                     break;
                 default:
                     System.out.println("Invalid choice. Please try again.");
