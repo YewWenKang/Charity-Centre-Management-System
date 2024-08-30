@@ -70,6 +70,7 @@ public class DoneeMaintenance {
         DoneeDAO.saveToFile(FILE_NAME, doneeList, headers);
     }
 
+    //Handling the Donee registration input and also validation
     public Donee inputDoneeDetails() {
         doneeUI.printBox("Donee Registration");
         String doneeId = generateDoneeId();
@@ -95,12 +96,13 @@ public class DoneeMaintenance {
         // Input and validation for Donee Type
         doneeType = validateDoneeType();
 
-        //OrganizationName validate
+        //Input and validation for Organization name if the doneeType is Organization
         doneeOrganizationName = validateOrganizationName(doneeType);
 
         return new Donee(doneeId, doneeName, doneeAddress, doneePhoneNumber, doneeEmail, doneeType, doneeOrganizationName);
     }
 
+    //Use to generate Donee ID by following the format DE000
     private String generateDoneeId() {
         String prefix = "DE";
         String numericPart = String.format("%03d", nextId);
@@ -145,7 +147,7 @@ public class DoneeMaintenance {
         }
     }
 
-    //Choice 3
+    //Choice 3 Update Donee Details
     public void updateDoneeDetails() {
         // Display all donees
         printAllDonees();
@@ -224,23 +226,7 @@ public class DoneeMaintenance {
         System.out.println("Donee with ID " + idToUpdate + " not found.");
     }
 
-    public String validateUpdateDoneeChoice() {
-        do {
-            String updateDoneeChoice = doneeUI.getUpdateDoneeChoice();
-            if (ValidationUI.isDigit(updateDoneeChoice)) {
-                if (Integer.parseInt(updateDoneeChoice) >= 0 && Integer.parseInt(updateDoneeChoice) <= 6) {
-                    return updateDoneeChoice;
-                }
-
-            } else {
-                MessageUI.displayInvalidChoiceMessage();
-                System.out.println();
-            }
-        } while (true);
-
-    }
-
-    //choice 4 
+    //choice 4 Search Donee by ID , and allow the donee to update details
     public void searchDoneeDetails() {
         String idToSearch = doneeUI.inputDoneeIdToSearch();
         Donee target = new Donee(idToSearch, "", "", "", "", "", ""); // Create Donee with the given ID
@@ -328,6 +314,342 @@ public class DoneeMaintenance {
         }
     }
 
+    //choice 5 Menu for distribution
+    public void aidMenu() {
+        String aidChoice;
+        do {
+            Donation.DonationType donationType = null;
+            aidChoice = doneeUI.getDonationMenuChoice();
+            switch (aidChoice) {
+                case "1":
+                    donationType = Donation.DonationType.FOOD;
+                    break;
+                case "2":
+                    donationType = Donation.DonationType.DAILY_EXPENSES;
+                    break;
+                case "3":
+                    donationType = Donation.DonationType.CASH;
+                    break;
+                case "4":
+                    manager.printAvailableDonations();
+                    aidChoice = "";
+                    break;
+                case "0":
+                    break;
+                default:
+                    MessageUI.displayInvalidChoiceMessage();
+                    break;
+            }
+            if (donationType != null) {
+                String doneeID = doneeUI.inputDoneeID();
+                Donee target = new Donee(doneeID, "", "", "", "", "", ""); // Create Donee with the given ID
+                double doubleAmount;
+
+                // Perform the linear search
+                Donee result = doneeList.linearSearch(target);
+                if (result != null) {
+                    doubleAmount = validateDistributionAmount();
+
+                    manager.distributeDonation(result.getId(), doubleAmount, new Date(), donationType);
+
+                }
+            }
+
+        } while (!aidChoice.equals("0"));
+
+    }
+
+    //choice 6 Filter Donee by Type or Address or No filter
+    public void filterDonees() {
+        String type = doneeUI.inputDoneeTypeFilter();
+        String location = doneeUI.inputDoneeAddressFilter();
+
+        // If both filters are empty, print all donees without filtering
+        if (type.isEmpty() && location.isEmpty()) {
+            System.out.println("No filters applied. Displaying all donees:");
+            System.out.println();
+            doneeUI.printHeader();
+            for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
+                Donee donee = doneeList.getEntry(i);
+                doneeUI.printDoneeDetailsRow(donee);
+            }
+            return; // Exit the method early
+        }
+
+        // Filter donees based on the provided criteria
+        System.out.println();
+        System.out.println();
+        System.out.println("Filters Applied.");
+        if (!type.isEmpty()) {
+            System.out.println("Donee Type : " + type);
+        }
+        if (!location.isEmpty()) {
+            System.out.println("Location : " + location);
+        }
+        System.out.println();
+        doneeUI.printHeader();
+        for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
+            Donee donee = doneeList.getEntry(i);
+            boolean matchesType = type.isEmpty() || donee.getDoneeType().equalsIgnoreCase(type);
+            boolean matchesLocation = location.isEmpty() || donee.getAddress().toLowerCase().contains(location.toLowerCase());
+
+            if (matchesType && matchesLocation) {
+                doneeUI.printDoneeDetailsRow(donee);
+            }
+        }
+    }
+
+    //choice 7 Report 
+    //Donee Summary Report
+    public void generateDoneeSummaryReport() {
+        int totalDonees = doneeList.getNumberOfEntries();
+        int organizationCount = 0;
+        int individualCount = 0;
+
+        for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
+            Donee donee = doneeList.getEntry(i);
+            if (donee.getDoneeType().equalsIgnoreCase("Organization")) {
+                organizationCount++;
+            } else if (donee.getDoneeType().equalsIgnoreCase("Individual")) {
+                individualCount++;
+            }
+        }
+
+        // Print the summary report
+        System.out.println("Donee Summary Report:");
+        System.out.println("-----------------------------------------------------");
+        System.out.printf("| %-30s | %-16s |\n", "Donee Type", "Total Amount");
+        System.out.println("|--------------------------------|------------------|");
+        System.out.printf("| %-30s | %-16d |\n", "Total Organizations", organizationCount);
+        System.out.printf("| %-30s | %-16d |\n", "Total Individuals", individualCount);
+        System.out.println("|---------------------------------------------------|");
+
+        System.out.printf("Total Donees registered : " + totalDonees);
+        System.out.println();
+        System.out.println();
+    }
+
+    //Distribution Summary Report
+    public void generateDistributionSummaryReport() {
+        double totalFoodAmount = 0;
+        double totalCashAmount = 0;
+        double totalDailyExpensesAmount = 0;
+
+        for (int i = 1; i <= manager.distributionList.getNumberOfEntries(); i++) {
+            Distribution distribution = manager.distributionList.getEntry(i);
+            if (distribution.getType().equals("CASH")) {
+                totalCashAmount += distribution.getDistributedAmount();
+            } else if (distribution.getType().equals("DAILY_EXPENSES")) {
+                totalDailyExpensesAmount += distribution.getDistributedAmount();
+            } else if (distribution.getType().equals("FOOD")) {
+                totalFoodAmount += distribution.getDistributedAmount();
+            }
+        }
+
+        // Print the summary report
+        System.out.println("\n\n-----------------------------------------------------");
+        System.out.printf("| %-30s | %-16s |\n", "Distribution Type", "Total Amount");
+        System.out.println("|--------------------------------|------------------|");
+        System.out.printf("| %-30s | RM %-13.2f |\n", "Cash", totalCashAmount);
+        System.out.printf("| %-30s | RM %-13.2f |\n", "Food", totalFoodAmount);
+        System.out.printf("| %-30s | RM %-13.2f |\n", "Daily Expenses", totalDailyExpensesAmount);
+        System.out.println("|---------------------------------------------------|");
+    }
+
+    //Distribution report by each donee
+    public void distributionReportByDonee() {
+        String donationFilePath = "donationDistribution.csv";
+        String doneeFilePath = "doneeData.csv";
+
+        // Arrays to hold donee data
+        String[] doneeIDs = new String[100]; // Initial size
+        String[] doneeNames = new String[100];
+        double[] foodAmounts = new double[100];
+        double[] cashAmounts = new double[100];
+        double[] dailyExpensesAmounts = new double[100];
+        double[] totalAmounts = new double[100];
+        int doneeCount = 0;
+
+        // Read donee data
+        try (BufferedReader br = new BufferedReader(new FileReader(doneeFilePath))) {
+            String line;
+            // Skip header line
+            br.readLine();
+
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                String id = values[0];
+                String name = values[1];
+
+                // Store donee data in arrays
+                doneeIDs[doneeCount] = id;
+                doneeNames[doneeCount] = name;
+                doneeCount++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Read donation distribution data and aggregate amounts
+        try (BufferedReader br = new BufferedReader(new FileReader(donationFilePath))) {
+            String line;
+            // Skip header line
+            br.readLine();
+
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                String recipientID = values[2];
+                double distributedAmount = Double.parseDouble(values[3]);
+                String type = values[5];
+
+                // Find index of recipientID in donee arrays
+                int index = findIndex(doneeIDs, doneeCount, recipientID);
+                if (index != -1) {
+                    switch (type) {
+                        case "FOOD":
+                            foodAmounts[index] += distributedAmount;
+                            break;
+                        case "CASH":
+                            cashAmounts[index] += distributedAmount;
+                            break;
+                        case "DAILY_EXPENSES":
+                            dailyExpensesAmounts[index] += distributedAmount;
+                            break;
+                    }
+                    // Update total amount last
+                    totalAmounts[index] += distributedAmount;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Print the report
+        System.out.println();
+        System.out.println();
+        System.out.println("Donation Distribution Summary Report:");
+        System.out.println("------------------------------------------------------------------------------------------------------");
+        System.out.printf("| %-8s | %-20s | %-8s | %-8s | %-14s | %-25s |\n", "Donee ID", "Name", "FOOD", "CASH", "DAILY_EXPENSES", "Total Distributed Amount");
+        System.out.println("------------------------------------------------------------------------------------------------------");
+
+        for (int i = 0; i < doneeCount; i++) {
+            System.out.printf("| %-8s | %-20s | %-8.2f | %-8.2f | %-14.2f | %-25.2f |\n",
+                    doneeIDs[i], doneeNames[i], foodAmounts[i], cashAmounts[i], dailyExpensesAmounts[i], totalAmounts[i]);
+        }
+
+        System.out.println("|----------------------------------------------------------------------------------------------------|");
+    }
+
+    // Find the index of the doneeID in the array (Use in Distribution Report by each Donee)
+    private static int findIndex(String[] array, int size, String key) {
+        for (int i = 0; i < size; i++) {
+            if (array[i].equals(key)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    //Show all donee in List
+    public void printAllDonees() {
+        System.out.println();
+        doneeUI.printHeader();
+        for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
+            Donee donee = doneeList.getEntry(i);
+            doneeUI.printDoneeDetailsRow(donee);
+        }
+        System.out.println();
+    }
+
+    //Use to check what is the next ID
+    private int calculateNextId() {
+        int maxId = 0;
+        for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
+            Donee donee = doneeList.getEntry(i);
+            int currentId = Integer.parseInt(donee.getId().substring(2)); // Extract numeric part
+            if (currentId > maxId) {
+                maxId = currentId;
+            }
+        }
+        return maxId + 1; // Next available ID
+    }
+
+    //Donee Main Function Call
+    public void runDoneeMaintenance() {
+        String choice = "";
+        do {
+            choice = doneeUI.getMenuChoice();
+
+            switch (choice) {
+                case "0":
+                    MessageUI.displayExitMessage();
+                    saveDoneeData();
+                    break;
+                case "1":
+                    registerNewDonee();
+                    if (!doneeList.isEmpty()) {
+                        doneeUI.printDoneeDetails(doneeList.getEntry(doneeList.getNumberOfEntries()));
+                    } else {
+                        System.out.println("No donees to display.");
+                    }
+                    break;
+                case "2":
+                    printAllDonees();
+                    removeDonee();
+                    break;
+                case "3":
+                    updateDoneeDetails();
+                    break;
+                case "4":
+                    searchDoneeDetails();
+
+                    break;
+                case "5":
+                    aidMenu();
+                    break;
+
+                case "6":
+                    filterDonees();
+                    break;
+                case "7":
+                    String reportChoice;
+                    do {
+                        reportChoice = doneeUI.getReportMenuChoice();;
+                        switch (reportChoice) {
+                            case "1":
+                                generateDoneeSummaryReport();
+                                break;
+                            case "2":
+                                distributionReportByDonee();
+                                generateDistributionSummaryReport();
+
+                                break;
+                            case "0":
+                                break;
+                            default:
+                                MessageUI.displayInvalidChoiceMessage();
+                        }
+                    } while (!reportChoice.equals("0"));
+
+                    break;
+                case "8":
+                    undo();
+                    break;
+                case "9":
+                    redo();
+                    break;
+                default:
+                    MessageUI.displayInvalidChoiceMessage();
+                    if (!ValidationUI.isDigit(choice)) {
+                        MessageUI.displayDigitOnlyMessage();
+                    } else {
+                        System.out.println("Please enter choice within 0 to 9.");
+                    }
+            }
+        } while (!choice.equals("0"));
+    }
+
+    //Validation Part
     public String validateName() {
         String name;
         // Input and validation for Donee Name
@@ -423,6 +745,7 @@ public class DoneeMaintenance {
         return organizationName;
     }
 
+    //Validation Use in aid menu
     public double validateDistributionAmount() {
         double doubleAmount;
         do {
@@ -437,334 +760,24 @@ public class DoneeMaintenance {
         return doubleAmount;
     }
 
-    //choice 5
-    public void aidMenu() {
-        String aidChoice;
+    //Validation Use in choice 2
+    public String validateUpdateDoneeChoice() {
         do {
-            Donation.DonationType donationType = null;
-            aidChoice = doneeUI.getDonationMenuChoice();
-            switch (aidChoice) {
-                case "1":
-                    donationType = Donation.DonationType.FOOD;
-                    break;
-                case "2":
-                    donationType = Donation.DonationType.DAILY_EXPENSES;
-                    break;
-                case "3":
-                    donationType = Donation.DonationType.CASH;
-                    break;
-                case "4":
-                    manager.printAvailableDonations();
-                    aidChoice = "";
-                    break;
-                default:
-                    MessageUI.displayInvalidChoiceMessage();
-                    break;
-            }
-            if (donationType != null) {
-                String doneeID = doneeUI.inputDoneeID();
-                Donee target = new Donee(doneeID, "", "", "", "", "", ""); // Create Donee with the given ID
-                double doubleAmount;
-
-                // Perform the linear search
-                Donee result = doneeList.linearSearch(target);
-                if (result != null) {
-                    doubleAmount = validateDistributionAmount();
-
-                    manager.distributeDonation(result.getId(), doubleAmount, new Date(), donationType);
-
+            String updateDoneeChoice = doneeUI.getUpdateDoneeChoice();
+            if (ValidationUI.isDigit(updateDoneeChoice)) {
+                if (Integer.parseInt(updateDoneeChoice) >= 0 && Integer.parseInt(updateDoneeChoice) <= 6) {
+                    return updateDoneeChoice;
                 }
-            }
 
-        } while (!aidChoice.equals("0"));
+            } else {
+                MessageUI.displayInvalidChoiceMessage();
+                System.out.println();
+            }
+        } while (true);
 
     }
 
-    //choice 6
-    public void filterDonees() {
-        String type = doneeUI.inputDoneeTypeFilter();
-        String location = doneeUI.inputDoneeAddressFilter();
-
-        // If both filters are empty, print all donees without filtering
-        if (type.isEmpty() && location.isEmpty()) {
-            System.out.println("No filters applied. Displaying all donees:");
-            System.out.println();
-            doneeUI.printHeader();
-            for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
-                Donee donee = doneeList.getEntry(i);
-                doneeUI.printDoneeDetailsRow(donee);
-            }
-            return; // Exit the method early
-        }
-
-        // Filter donees based on the provided criteria
-        System.out.println();
-        System.out.println();
-        System.out.println("Filters Applied.");
-        if (!type.isEmpty()) {
-            System.out.println("Donee Type : " + type);
-        }
-        if (!location.isEmpty()) {
-            System.out.println("Location : " + location);
-        }
-        System.out.println();
-        doneeUI.printHeader();
-        for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
-            Donee donee = doneeList.getEntry(i);
-            boolean matchesType = type.isEmpty() || donee.getDoneeType().equalsIgnoreCase(type);
-            boolean matchesLocation = location.isEmpty() || donee.getAddress().toLowerCase().contains(location.toLowerCase());
-
-            if (matchesType && matchesLocation) {
-                doneeUI.printDoneeDetailsRow(donee);
-            }
-        }
-    }
-
-    //choice 7
-    public void generateDoneeSummaryReport() {
-        int totalDonees = doneeList.getNumberOfEntries();
-        int organizationCount = 0;
-        int individualCount = 0;
-
-        for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
-            Donee donee = doneeList.getEntry(i);
-            if (donee.getDoneeType().equalsIgnoreCase("Organization")) {
-                organizationCount++;
-            } else if (donee.getDoneeType().equalsIgnoreCase("Individual")) {
-                individualCount++;
-            }
-        }
-
-        // Print the summary report
-        System.out.println("Donee Summary Report:");
-        System.out.println("-----------------------------------------------------");
-        System.out.printf("| %-30s | %-16s |\n", "Donee Type", "Total Amount");
-        System.out.println("|--------------------------------|------------------|");
-        System.out.printf("| %-30s | %-16d |\n", "Total Organizations", organizationCount);
-        System.out.printf("| %-30s | %-16d |\n", "Total Individuals", individualCount);
-        System.out.println("|---------------------------------------------------|");
-
-        System.out.printf("Total Donees registered : " + totalDonees);
-        System.out.println();
-        System.out.println();
-    }
-
-    public void generateDistributionSummaryReport() {
-        double totalFoodAmount = 0;
-        double totalCashAmount = 0;
-        double totalDailyExpensesAmount = 0;
-
-        for (int i = 1; i <= manager.distributionList.getNumberOfEntries(); i++) {
-            Distribution distribution = manager.distributionList.getEntry(i);
-            if (distribution.getType().equals("CASH")) {
-                totalCashAmount += distribution.getDistributedAmount();
-            } else if (distribution.getType().equals("DAILY_EXPENSES")) {
-                totalDailyExpensesAmount += distribution.getDistributedAmount();
-            } else if (distribution.getType().equals("FOOD")) {
-                totalFoodAmount += distribution.getDistributedAmount();
-            }
-        }
-
-        // Print the summary report
-        System.out.println("\n\n-----------------------------------------------------");
-        System.out.printf("| %-30s | %-16s |\n", "Distribution Type", "Total Amount");
-        System.out.println("|--------------------------------|------------------|");
-        System.out.printf("| %-30s | RM %-13.2f |\n", "Cash", totalCashAmount);
-        System.out.printf("| %-30s | RM %-13.2f |\n", "Food", totalFoodAmount);
-        System.out.printf("| %-30s | RM %-13.2f |\n", "Daily Expenses", totalDailyExpensesAmount);
-        System.out.println("|---------------------------------------------------|");
-    }
-
-    public void distributionReportByDonee() {
-        String donationFilePath = "donationDistribution.csv";
-        String doneeFilePath = "doneeData.csv";
-
-        // Arrays to hold donee data
-        String[] doneeIDs = new String[100]; // Initial size
-        String[] doneeNames = new String[100];
-        double[] foodAmounts = new double[100];
-        double[] cashAmounts = new double[100];
-        double[] dailyExpensesAmounts = new double[100];
-        double[] totalAmounts = new double[100];
-        int doneeCount = 0;
-
-        // Read donee data
-        try (BufferedReader br = new BufferedReader(new FileReader(doneeFilePath))) {
-            String line;
-            // Skip header line
-            br.readLine();
-
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split(",");
-                String id = values[0];
-                String name = values[1];
-
-                // Store donee data in arrays
-                doneeIDs[doneeCount] = id;
-                doneeNames[doneeCount] = name;
-                doneeCount++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Read donation distribution data and aggregate amounts
-        try (BufferedReader br = new BufferedReader(new FileReader(donationFilePath))) {
-            String line;
-            // Skip header line
-            br.readLine();
-
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split(",");
-                String recipientID = values[2];
-                double distributedAmount = Double.parseDouble(values[3]);
-                String type = values[5];
-
-                // Find index of recipientID in donee arrays
-                int index = findIndex(doneeIDs, doneeCount, recipientID);
-                if (index != -1) {
-                    switch (type) {
-                        case "FOOD":
-                            foodAmounts[index] += distributedAmount;
-                            break;
-                        case "CASH":
-                            cashAmounts[index] += distributedAmount;
-                            break;
-                        case "DAILY_EXPENSES":
-                            dailyExpensesAmounts[index] += distributedAmount;
-                            break;
-                    }
-                    // Update total amount last
-                    totalAmounts[index] += distributedAmount;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Print the report
-        System.out.println();
-        System.out.println();
-        System.out.println("Donation Distribution Summary Report:");
-        System.out.println("------------------------------------------------------------------------------------------------------");
-        System.out.printf("| %-8s | %-20s | %-8s | %-8s | %-14s | %-25s |\n", "Donee ID", "Name", "FOOD", "CASH", "DAILY_EXPENSES", "Total Distributed Amount");
-        System.out.println("------------------------------------------------------------------------------------------------------");
-
-        for (int i = 0; i < doneeCount; i++) {
-            System.out.printf("| %-8s | %-20s | %-8.2f | %-8.2f | %-14.2f | %-25.2f |\n",
-                    doneeIDs[i], doneeNames[i], foodAmounts[i], cashAmounts[i], dailyExpensesAmounts[i], totalAmounts[i]);
-        }
-
-        System.out.println("|----------------------------------------------------------------------------------------------------|");
-    }
-
-    // Find the index of the doneeID in the array
-    private static int findIndex(String[] array, int size, String key) {
-        for (int i = 0; i < size; i++) {
-            if (array[i].equals(key)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public void printAllDonees() {
-        System.out.println();
-        doneeUI.printHeader();
-        for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
-            Donee donee = doneeList.getEntry(i);
-            doneeUI.printDoneeDetailsRow(donee);
-        }
-        System.out.println();
-    }
-
-    private int calculateNextId() {
-        int maxId = 0;
-        for (int i = 1; i <= doneeList.getNumberOfEntries(); i++) {
-            Donee donee = doneeList.getEntry(i);
-            int currentId = Integer.parseInt(donee.getId().substring(2)); // Extract numeric part
-            if (currentId > maxId) {
-                maxId = currentId;
-            }
-        }
-        return maxId + 1; // Next available ID
-    }
-
-    public void runDoneeMaintenance() {
-        String choice = "";
-        do {
-            choice = doneeUI.getMenuChoice();
-
-            switch (choice) {
-                case "0":
-                    MessageUI.displayExitMessage();
-                    saveDoneeData();
-                    break;
-                case "1":
-                    registerNewDonee();
-                    if (!doneeList.isEmpty()) {
-                        doneeUI.printDoneeDetails(doneeList.getEntry(doneeList.getNumberOfEntries()));
-                    } else {
-                        System.out.println("No donees to display.");
-                    }
-                    break;
-                case "2":
-                    printAllDonees();
-                    removeDonee();
-                    break;
-                case "3":
-                    updateDoneeDetails();
-                    break;
-                case "4":
-                    searchDoneeDetails();
-
-                    break;
-                case "5":
-                    aidMenu();
-                    break;
-
-                case "6":
-                    filterDonees();
-                    break;
-                case "7":
-                    String reportChoice;
-                    do {
-                        reportChoice = doneeUI.getReportMenuChoice();;
-                        switch (reportChoice) {
-                            case "1":
-                                generateDoneeSummaryReport();
-                                break;
-                            case "2":
-                                distributionReportByDonee();
-                                generateDistributionSummaryReport();
-
-                                break;
-                            case "0":
-                                break;
-                            default:
-                                MessageUI.displayInvalidChoiceMessage();
-                        }
-                    } while (!reportChoice.equals("0"));
-
-                    break;
-                case "8":
-                    undo();
-                    break;
-                case "9":
-                    redo();
-                    break;
-                default:
-                    MessageUI.displayInvalidChoiceMessage();
-                    if (!ValidationUI.isDigit(choice)) {
-                        MessageUI.displayDigitOnlyMessage();
-                    } else {
-                        System.out.println("Please enter choice within 0 to 7.");
-                    }
-            }
-        } while (!choice.equals("0"));
-    }
-
-    // Command interface for undo/redo operations
+    // Command interface to ensure if a new command is added, they implementing the three core methods
     public interface Command {
 
         void execute();
@@ -774,7 +787,7 @@ public class DoneeMaintenance {
         void redo();
     }
 
-// Example command implementation for adding a Donee
+// Command implementation for adding a Donee
     public class AddDoneeCommand implements Command {
 
         private ListInterface<Donee> doneeList;
@@ -803,7 +816,7 @@ public class DoneeMaintenance {
         }
     }
 
-// Example command implementation for removing a Donee
+// Command implementation for removing a Donee
     public class RemoveDoneeCommand implements Command {
 
         private ListInterface<Donee> doneeList;
@@ -832,6 +845,7 @@ public class DoneeMaintenance {
         }
     }
 
+    // Command implementation for removing a Donee
     public class UpdateDoneeCommand implements Command {
 
         private ListInterface<Donee> doneeList;
@@ -874,6 +888,7 @@ public class DoneeMaintenance {
         }
     }
 
+    //Undo use in Main
     public void undo() {
         if (!undoStack.isEmpty()) {
             Command command = undoStack.pop();
@@ -884,6 +899,7 @@ public class DoneeMaintenance {
         }
     }
 
+    //Redo use in Main
     public void redo() {
         if (!redoStack.isEmpty()) {
             Command command = redoStack.pop();
@@ -894,11 +910,13 @@ public class DoneeMaintenance {
         }
     }
 
+    //Use to manage the distribution
     public static class DonationManager {
 
         private LinkedList<Donation> donationList;
         private LinkedList<Distribution> distributionList;
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        private DoneeMaintenanceUI doneeUI = new DoneeMaintenanceUI();
 
         public DonationManager() throws ParseException {
             this.donationList = new LinkedList<>();
@@ -974,21 +992,21 @@ public class DoneeMaintenance {
             }
         }
 
+        //Distribute the donation
         public boolean distributeDonation(String doneeID, double distributedAmount, Date date, Donation.DonationType donationType) {
             LinkedList<Donation> eligibleDonations = new LinkedList<>();
             HashMapInterface<String, Double> donationDistributedMap = new HashMapImplementation<>();
             double totalAvailableAmount = 0.0;
 
-            // Step 1: Populate the HashMap with total distributed amounts for each donationID
+            // total distributed amounts for each donation is put into map
             for (Distribution distribution : distributionList) {
                 String donationID = distribution.getDonationID();
                 double amount = distribution.getDistributedAmount();
 
-
                 donationDistributedMap.put(donationID, donationDistributedMap.getOrDefault(donationID, 0.0) + amount);
             }
 
-            // Step 2: Filter donations by the specified type and calculate total available amounts
+            // filter donations by the donation type and calculate total available amounts
             for (Donation donation : donationList) {
                 if (donation.getDonationType().equals(donationType)) {
                     double totalDistributedAmount = donationDistributedMap.getOrDefault(donation.getDonationId(), 0.0);
@@ -1001,13 +1019,16 @@ public class DoneeMaintenance {
                 }
             }
 
-            // Step 3: Check if the total available amount is sufficient
+            // Check if the total available amount for the request donation type is sufficient
             if (totalAvailableAmount < distributedAmount) {
                 System.out.println("Error: The requested amount exceeds the total available amount for the specified donation type.");
                 return false;
             }
 
-            // Step 4: Distribute the amount across eligible donations
+            System.out.println("Distribution successfully created.");
+            doneeUI.printBox("Distribution Details");
+
+            // Distribute the amount across eligible donations
             double remainingAmount = distributedAmount;
             for (Donation donation : eligibleDonations) {
                 double availableAmount = donation.getAmount();
@@ -1019,28 +1040,30 @@ public class DoneeMaintenance {
                     // Add the new distribution to the distribution list
                     distributionList.add(newDistribution);
 
-                    // Save the updated distribution data
+                    // Save the updated distribution data into file when it is last one.
                     saveDistributionData();
 
-                    System.out.println("Distribution successfully created.");
                     System.out.println(distributionList.getEntry(distributionList.getNumberOfEntries()));
                     return true;
                 } else {
                     // Create a new Distribution entry with the maximum available amount
+                    // So each donation of amount can be totally distributed out
                     String distributionID = generateDistributionID();
                     Distribution newDistribution = new Distribution(distributionID, donation.getDonationId(), doneeID, availableAmount, dateFormat.format(date), donationType.name());
 
                     // Add the new distribution to the distribution list
                     distributionList.add(newDistribution);
+                    System.out.println(distributionList.getEntry(distributionList.getNumberOfEntries()));
 
                     // Update the remaining amount to be distributed
                     remainingAmount -= availableAmount;
                 }
             }
 
-            return true; // This line will never be reached due to the totalAvailableAmount check
+            return true;
         }
 
+        //Generate distributionID start with DIST
         private String generateDistributionID() {
             return "DIST" + (distributionList.size() + 1);
         }
@@ -1077,9 +1100,8 @@ public class DoneeMaintenance {
 
         // Method to print available donations based on the remaining amount
         public void printAvailableDonations() {
-            System.out.println("Available Donations:");
 
-            // Step 1: Calculate total distributed amounts using a map
+            // Calculate total distributed amounts using a map
             HashMapInterface<String, Double> distributedAmountsMap = new HashMapImplementation<>();
 
             for (Distribution distribution : distributionList) {
@@ -1089,16 +1111,24 @@ public class DoneeMaintenance {
                 );
             }
 
-            // Step 2: Print donations with available amounts
+            // Print header
+            doneeUI.printBox("Available Donations");
+            System.out.println();
+            System.out.printf("%-15s %-25s %-20s %-30s%n", "Donation ID", "Available Amount(RM)", "Donation Type", "Notes");
+            doneeUI.printDash(66);
+            System.out.println();
+
+            // Print donations with available amounts
             for (Donation donation : donationList) {
                 double totalDistributedAmount = distributedAmountsMap.getOrDefault(donation.getDonationId(), 0.0);
                 double availableAmount = donation.getAmount() - totalDistributedAmount;
 
                 if (availableAmount > 0) {
-                    System.out.println("Donation ID: " + donation.getDonationId()
-                            + ", Available Amount: " + availableAmount
-                            + ", Donation Type: " + donation.getDonationType()
-                            + ", Notes: " + donation.getNotes());
+                    System.out.printf("%-15s %-25.2f %-20s %-30s%n",
+                            donation.getDonationId(),
+                            availableAmount,
+                            donation.getDonationType(),
+                            donation.getNotes());
                 }
             }
         }

@@ -16,7 +16,7 @@ public class DoneeMaintenanceUI {
         System.out.println(border);
     }
 
-    private void printDash(int amount) {
+    public void printDash(int amount) {
         String dash = "-".repeat(amount);
         System.out.print(dash);
     }
