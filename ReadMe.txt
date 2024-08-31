@@ -1,3 +1,45 @@
+===============================
+Donee Maintenance System
+===============================
+1. Create Donee
+	- When entering the Register as a new donee choice, the user needs to input all the donee details such as donee name, address, phone number, email, donee type(Organization /  Individual), and also the organization name if applicable. 
+	- After the new donee is registered, the donee details will be shown on screen, and return back to the main menu screen.
+2. Remove donee
+	- When entering the Remove Donee choice, the full donee list will be displayed on screen to let the user indicate which donee that want to be removed. The user need to input the correct done ID to perform the remove action. 
+	- If the donee id is correct it will show the donee is being removed, if the donee id is incorrect it will show donee not found.
+3. Update donee details
+	- When entering Update Current Donee Details choice, it will show the full donee list and users need to input the correct donee ID that they wish to modify.
+	- When the donee ID inputted is correct, it will enter a Update Donee Details Menu with the option to update name, address, phone number, email, donee type(Organization/Individual), organization name (if applicable), and also an exit option to complete the updating section.
+	- The donee details will only be updated after the user chooses the Finish Updating choice.
+4. Search Donee
+	- When entering the Search Donee choice, users need to input the donee id that they want to search, if the donee id is found, it will display the donee details of the searched donee id.
+	- It also allows the user to update these donee details if they wish, and a Update Donee Details Menu with the choice of updating name, address, phone number, email, donee type, organization name(if applicable) and also finish updating.
+5. Applying Aid
+	- When entering the Aid Menu, it allows the user to apply food aid, daily expenses aid, cash aid. And also the user can choose to display all the available donations that can be distributed to the donee.
+	- If the user want to apply the aid, they need to select which type of aid they want to apply, then they need to input the donee ID, if the donee is found, then will proceed to the input amount they need (in RM), and the distribution details will be shown to the user.
+	- If the input amount exceeds the total available amount, it will not be distributed.
+6. Filter Donee
+	- When selecting the Filter Donee choice, it will ask the user to enter the type of donee(Organization / Individual) to filter, the user can leave this empty if they don't want to apply the filter about donee type. And also asking the next filter, which is location, the user can input the location that they want to show (Eg : Kuala Lumpur) and it will apply the filter.
+	- If both the filter is input, it will show the donee details that fulfill both of the filters.
+	- If none of the filters is input, it will show all the donee details.
+	- It also can work with either one of the filter is apply
+7. Generate Report
+	- When selecting the Generate Report choice, it will enter the Report Menu.
+	- There are two types of summary report that the user can view, donee summary report and distribution summary report.
+	- Donee summary report will show the total number of registered donee for each type(Organization and Individual) in a table, and also show the total of current registered donee. 
+	- Distribution summary report will show two tables, the first tables is showing the donee , and total distributed amount of each type of aid that the specific donee received, and also the total distributed amount for each donee. The second tables will show the total distributed amount for each distribution type of the whole distribution list.
+8. Undo Last Action
+	- When the user selects the Undo Last Action choice, it will undo the last action(Add Donee ,Remove Donee,Update Donee Details).
+	- If there is an action to undo, it will perform the undo and show the "Add command has been undo." if the last action is add action. It can be the add, remove or update depending on what is the last action.
+	- If there is no action to undo, it will show "No actions to undo".
+9. Redo Last Action
+	- When the user selects the Redo Last Action choice, it will redo the last action that has been undo.
+	- If there is an action to undo, it will perform the undo and show the "Add command has been redo." if the last undo action is add action. It can be the add, remove or update 	depending on what is the last undo action.
+	- If there is no action to undo, it will show "No actions to redo".
+
+
+
+
 Volunteer and Event Management System
 Overview
 
