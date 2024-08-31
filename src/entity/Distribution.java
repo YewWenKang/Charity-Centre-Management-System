@@ -47,13 +47,12 @@ public class Distribution {
     public String toString() {
         return String.format(
                 "%n"
-                + "    Distribution ID= %s%n"
-                + "    Donation ID= %s%n"
-                + "    Donee ID= %s%n"
-                + "    Received Amount= RM%.2f%n"
-                + "    Issued Date= %s%n"
-                + "    Aid Type= %s%n"
-                + "}",
+                + " Distribution ID= %s%n"
+                + " Donation ID= %s%n"
+                + " Donee ID= %s%n"
+                + " Received Amount= RM%.2f%n"
+                + " Issued Date= %s%n"
+                + " Aid Type= %s%n",
                 distributionID,
                 donationID,
                 doneeID,

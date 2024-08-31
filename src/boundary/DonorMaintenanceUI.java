@@ -16,6 +16,7 @@ public class DonorMaintenanceUI {
         donorMaintenance = new DonorMaintenance();
     }
 
+<<<<<<< HEAD
 public void start() {
     int choice = -1; // Initial value outside of valid range
 
@@ -36,6 +37,43 @@ public void start() {
             } else {
                 System.err.println("Invalid input. Please enter a number.");
                 scanner.nextLine(); // Consume invalid input
+=======
+    public void start() {
+        int choice;
+        do {
+            showMenu();
+            choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+            switch (choice) {
+                case 1:
+                    addDonor();
+                    break;
+                case 2:
+                    updateDonor();
+                    break;
+                case 3:
+                    deleteDonor();
+                    break;
+                case 4:
+                    viewAllDonors();
+                    break;
+                case 5:
+                    searchDonors();
+                    break;
+                case 6:
+                    filterDonors();
+                    break;
+                case 7:
+                    showReportMenu();
+                    break;
+                case 8:
+                    MainUI Main = new MainUI();
+                    System.out.println("Exiting Donor Maintenance System.");
+                    Main.displayMenu();
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+>>>>>>> 769f13fe2f2294131ec2eff7af8f8e4f0f4d8dcc
             }
         }
 

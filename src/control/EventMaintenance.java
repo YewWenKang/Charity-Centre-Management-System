@@ -30,7 +30,6 @@ public class EventMaintenance {
             // Add the volunteer to the list of assigned volunteers (in memory)
             assignedVolunteers.add(volunteer);
 
-            System.out.println("Volunteer " + volunteer.getName() + " has been assigned to event " + event.geteventName() + ".");
         } else {
             System.out.println("Volunteer " + volunteer.getName() + " is already assigned to event " + event.geteventName() + ".");
         }
@@ -49,7 +48,7 @@ public class EventMaintenance {
     // Method to save the assigned volunteer to Event.csv
     private void saveAssignedVolunteerToEvent(Volunteer volunteer, Event event) {
         if (isVolunteerAlreadyAssigned(volunteer, event)) {
-            System.out.println("Volunteer " + volunteer.getName() + " is already assigned to the event '"
+            System.out.println("Volunteer " + volunteer.getName() + " have been assigned to the event '"
                     + event.geteventName() + "'.");
             return; // Exit the method if the volunteer is already assigned
         }

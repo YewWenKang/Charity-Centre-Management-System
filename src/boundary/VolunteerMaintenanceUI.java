@@ -18,7 +18,7 @@ public class VolunteerMaintenanceUI {
 
         while (choice < 0 || choice > 8) {
             System.out.println("=====================================");
-            System.out.println("       Volunteer Registration Menu   ");
+            System.out.println("       Volunteer Management Menu   ");
             System.out.println("=====================================");
             System.out.println("| 1. Register as New Volunteer       |");
             System.out.println("| 2. Remove Existing Volunteer       |");
@@ -38,10 +38,10 @@ public class VolunteerMaintenanceUI {
                 choice = Integer.parseInt(input);
 
                 if (choice < 0 || choice > 8) {
-                    System.out.println("Invalid choice. Please enter a number between 0 and 8.");
+                    System.err.println("Invalid choice. Please enter a number between 0 and 8.");
                 }
             } else {
-                System.out.println("Invalid input. Please enter a numeric value between 0 and 8.");
+                System.err.println("Invalid input. Please enter a numeric value between 0 and 8.");
             }
         }
 
@@ -100,7 +100,7 @@ public class VolunteerMaintenanceUI {
                 }
 
                 if (exists) {
-                    System.out.println("Volunteer Id already exists. Please enter a different Id.");
+                    System.err.println("Volunteer Id already exists. Please enter a different Id.");
                 } else {
                     break;
                 }
@@ -122,7 +122,7 @@ public class VolunteerMaintenanceUI {
             if (name.matches("[a-zA-Z]+([\\s][a-zA-Z]+)*")) {
                 break; // Exit loop if name is valid
             } else {
-                System.out.println("Invalid name. Please enter only alphabetic characters and spaces.");
+                System.err.println("Invalid name. Please enter only alphabetic characters and spaces.");
             }
         }
 
@@ -142,7 +142,7 @@ public class VolunteerMaintenanceUI {
             if (address.matches("[a-zA-Z0-9\\s,.'-]+")) {
                 break; // Exit loop if address is valid
             } else {
-                System.out.println("Invalid address. Please enter a valid address.");
+                System.err.println("Invalid address. Please enter a valid address.");
             }
         }
 
@@ -173,7 +173,7 @@ public class VolunteerMaintenanceUI {
             }
 
             if (isDuplicate) {
-                System.out.println("This phone number already exists. Please enter a different phone number.");
+                System.err.println("This phone number already exists. Please enter a different phone number.");
             } else {
                 break; // No duplicates, valid phone number
             }
@@ -211,7 +211,7 @@ public class VolunteerMaintenanceUI {
             }
 
             if (isDuplicate) {
-                System.out.println("This email already exists. Please enter a different email.");
+                System.err.println("This email already exists. Please enter a different email.");
             } else {
                 break; // No duplicates and valid email format
             }
@@ -232,7 +232,7 @@ public class VolunteerMaintenanceUI {
                 break; // Break the loop if input is valid
             } catch (NumberFormatException e) {
                 // Handle invalid input
-                System.out.println("Invalid input. Please enter a numeric index.");
+                System.err.println("Invalid input. Please enter a numeric index.");
             }
         }
 
@@ -248,7 +248,7 @@ public class VolunteerMaintenanceUI {
             if (VolunteerId.startsWith("V")) {
                 break;
             } else {
-                System.out.println("Invalid Volunteer Id. Please enter an Id starting with 'V'.");
+                System.err.println("Invalid Volunteer Id. Please enter an Id starting with 'V'.");
             }
         }
         return VolunteerId;
@@ -266,7 +266,7 @@ public class VolunteerMaintenanceUI {
             if (input.equals("yes") || input.equals("no")) {
                 break; // Valid input, exit the loop
             } else {
-                System.out.println("Invalid input. Please enter 'yes' or 'no'.");
+                System.err.println("Invalid input. Please enter 'yes' or 'no'.");
             }
         }
 
@@ -296,7 +296,7 @@ public class VolunteerMaintenanceUI {
                     return "Non-Experienced";
                 }
             } else {
-                System.out.println("Invalid input. Please enter 1 or 2.");
+                System.err.println("Invalid input. Please enter 1 or 2.");
             }
         }
     }
@@ -334,7 +334,7 @@ public class VolunteerMaintenanceUI {
             if (eventId.equals("E001") || eventId.equals("E002") || eventId.equals("E003")) {
                 break; // Valid event ID, exit the loop
             } else {
-                System.out.println("Invalid event ID. Please enter a valid event ID.");
+                System.err.println("Invalid event ID. Please enter a valid event ID.");
             }
         }
 
