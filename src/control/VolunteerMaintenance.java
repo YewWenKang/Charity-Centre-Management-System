@@ -370,20 +370,32 @@ public class VolunteerMaintenance {
     // Checks if a volunteer is already assigned to an event in the Event.csv file
     private boolean isVolunteerAssignedToEventInFile(String volunteerId, String eventId) {
         String fileName = "Event.csv";
-        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+        File file = new File(fileName);
+    
+        // Check if the file exists before attempting to read
+        if (!file.exists()) {
+            System.out.println("The Event.csv file does not exist.");
+            return false;
+        }
+    
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
-            boolean skipHeader = true; // To skip the header line
-
+            boolean skipHeader = true;
+    
             while ((line = br.readLine()) != null) {
+                // Skip the header line
                 if (skipHeader) {
                     skipHeader = false;
-                    continue; // Skip the header line
+                    continue;
                 }
-
+    
+                // Split the CSV line by comma
                 String[] fields = line.split(",");
                 if (fields.length >= 4) {
-                    String csvVolunteerId = fields[2];
-                    String csvEventId = fields[0];
+                    String csvVolunteerId = fields[2].trim();
+                    String csvEventId = fields[0].trim();
+    
+                    // Check if volunteer and event IDs match
                     if (csvVolunteerId.equals(volunteerId) && csvEventId.equals(eventId)) {
                         return true; // Volunteer is already assigned to the event
                     }
@@ -393,25 +405,25 @@ public class VolunteerMaintenance {
             System.out.println("Error reading the Event.csv file: " + e.getMessage());
             e.printStackTrace();
         }
-
+    
         return false; // Volunteer is not assigned to the event
     }
     // Write the volunteer's details to the Event.csv file
     private void writeVolunteerToEventCSV(Volunteer volunteer, Event event) {
         String fileName = "Event.csv";
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
-            // Check if the file is empty
-            File file = new File(fileName);
-            boolean isNewFile = !file.exists() || file.length() == 0;
-
-            // Write the header if it's a new file
-            if (isNewFile) {
+        File file = new File(fileName);
+    
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
+            // Write the header if the file is new or empty
+            if (!file.exists() || file.length() == 0) {
                 writer.write("EventId,EventName,VolunteerId,VolunteerName");
                 writer.newLine();
             }
-
+    
+            // Write the event and volunteer details to the file
             writer.write(event.geteventId() + "," + event.geteventName() + "," + volunteer.getVolunteerId() + "," + volunteer.getName());
             writer.newLine();
+    
         } catch (IOException e) {
             System.out.println("Error writing to the Event.csv file: " + e.getMessage());
             e.printStackTrace();
@@ -459,11 +471,11 @@ public class VolunteerMaintenance {
         if (volunteers.isEmpty()) {
             System.out.println("No volunteers found for the event: " + eventName);
         } else {
-            System.out.printf("| %-15s | %-25s |\n", "Volunteer ID", "Name");
+            System.out.printf("| %-13s | %-23s |\n", "Volunteer ID", "Name");
             System.out.println("-------------------------------------------");
     
             for (Volunteer volunteer : volunteers) {
-                System.out.printf("| %-15s | %-25s |\n", volunteer.getVolunteerId(), volunteer.getName());
+                System.out.printf("| %-13s | %-23s |\n", volunteer.getVolunteerId(), volunteer.getName());
             }
             
             System.out.println("===========================================\n");
