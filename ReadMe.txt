@@ -1,4 +1,4 @@
-    Volunteer and Event Management System
+Volunteer and Event Management System
 Overview
 
 The Volunteer and Event Management System is a Java-based application designed to streamline the management of volunteers and events. The system is built to handle various tasks, such as registering volunteers, assigning them to events, and maintaining a record of these activities. This program is particularly useful for organizations that rely heavily on volunteers and need an efficient way to manage them.
@@ -22,7 +22,8 @@ The EventMaintenance class also uses a linked list to manage the volunteers assi
 
 Reporting:
 
-Generate Volunteer Reports: Create summary reports displaying the number of experienced and non-experienced volunteers within the system, providing insights into the volunteer pool.
+Generate Volunteer Reports: Create summary reports displaying the number of experienced and 
+non-experienced volunteers within the system, providing insights into the volunteer pool.
 
 Data Persistence:
 
@@ -42,11 +43,11 @@ Java Development Kit (JDK) 8 or later
 Any Java-compatible IDE (e.g., Eclipse, IntelliJ IDEA)
 CSV Libraries: The system leverages Java’s standard I/O libraries for reading and writing CSV files.
 
-How to Run
+How to Run:
 Compile and run the VolunteerMaintenance class in your Java IDE.
 Follow the menu prompts to perform various operations, such as registering new volunteers, deleting existing volunteers, searching for volunteers, filtering volunteers, listing all volunteers, assigning volunteers to events, and generating summary reports.
 
-How to Use
+How to Use:
 Upon launching the application, you will be presented with the main menu that allows you to perform various operations. Below is a quick guide on how to interact with the system:
 Main Menu Options
 Register a New Volunteer: Enter the volunteer's details (name, phone, email, address, and experience level). A unique volunteer ID is generated, and the data is stored in the CSV file.
@@ -61,48 +62,165 @@ Generate Volunteer Report: Outputs a summary report showing the count of experie
 Example Workflow
 Scenario: Registering Volunteers and Assigning Them to Events
 
-Step 1 : select the volunteer management
 
+Step 1 : select the volunteer management
+=====================================
+       Volunteer Management Menu
+=====================================
+| 1. Register as New Volunteer       |
+| 2. Remove Existing Volunteer       |
+| 3. Search Volunteer                |
+| 4. Filter Volunteers               |
+| 5. List All Volunteers             |
+| 6. Add Volunteer to Event          |
+| 7. Search Volunteer from Event     |
+| 8. Generate report                 |
+| 0. Quit                            |
+=====================================
+Please enter your choice:
 The user runs the application and is greeted with the volunteer management main menu.
+
 
 Step 2: Register a New Volunteer
 The user chooses option 1 to register a new volunteer. The system prompts the user for the volunteer's details.
 
-The system registers the volunteer. The user registers a second volunteer:
+=================================================================
+||     Is the volunteer experienced? (Yes/No): Yes             ||
+||     Enter your name: John Doe                               ||
+||     Enter your phone number (10 or 11 digits): 5551234567   ||
+||     Enter your email: john.doe@example.com                  ||
+||     Enter your address: 123 Elm Street                      ||
+||     Volunteer registered successfully!                      ||
+=================================================================
 
+The system registers the volunteer. 
+
+The user registers a second volunteer 
+
+=================================================================
+||     Is the volunteer experienced? (Yes/No): No              ||
+||     Enter your name: Jane Smith                             ||
+||     Enter your phone number (10 or 11 digits): 5559876543   ||
+||     Enter your email: jane.smith@example.com                ||
+||     Enter your address: 456 Oak Avenue                      ||
+||     Volunteer registered successfully!                      ||
+=================================================================
 The system validates the input and successfully registers the new volunteer.
-Step 3: Remove an Existing Volunteer
-The user wanted to remove a  volunteer from the file. 
 
+
+Step 3: Remove an Existing Volunteer
+The user wanted to remove a  volunteer from the file.
+======================================================
+||     Enter your Volunteer Id: V002                ||
+||     Volunteer V002 has been deleted successfully.||
+======================================================
 A confirmation message Volunteer V002 has been deleted from the volunteer files.
+
+
 Step 4: Search for a Volunteer
+==============================================
+||Enter the Volunteer ID to search: V001    ||
+==============================================
 The system displays the details of the volunteer with ID V001:
+=====================================
+           Volunteer Details
+=====================================
+Volunteer ID  : V001
+Name          : John Doe
+Phone Number  : 5551234567
+Email         : john.doe@example.com
+Address       : 123 Elm Street
+=====================================
+
 
 Step 5: Filter Volunteers
 The user wants to filter volunteers by experience. They choose option 4.
 
+-------------------------------------------------
+         VOLUNTEER FILTER MENU
+-------------------------------------------------
+  1. Filter by Experienced Volunteers
+  2. Filter by Non-Experienced Volunteers
+-------------------------------------------------
+Select an option (1 or 2): 1
 The system displays a list of experienced volunteers.
-If no found will give a message 
 
-If found will print the volunteer out 
+If no found will give a message :
+=====================================
+||  No volunteers found for type:  ||
+=====================================
+
+If found will print the volunteer out :
+=====================================
+            Volunteers List
+=====================================
+Volunteer ID  : V001
+Name          : John Doe
+Phone Number  : 5551234567
+Email         : john.doe@example.com
+Address       : 123 Elm Street
+-------------------------------------
+
 
 Step 6: List All Volunteers
 The user wants to view a list of all registered volunteers. They choose option 5.
+=====================================
+            Volunteers List
+=====================================
+Volunteer ID  : V001
+Name          : John Doe
+Phone Number  : 5551234567
+Email         : john.doe@example.com
+Address       : 123 Elm Street
+-------------------------------------
+
 
 Step 7: Add Volunteer to an Event
 The user chooses option 6 to assign the registered volunteer to an event.
 
+====================================================================
+||     Enter Volunteer Id: V001                                    ||
+||     Volunteer with ID V001 is already assigned to the event."   ||
+=====================================================================
+
+
 Step 8: Search Volunteer in an Event
 The user wants to search for a volunteer within a specific event. They choose option 7.
-
 The system confirms that the volunteer is participating in the specified event.
+
+=====================================
+           Event Participation
+=====================================
+Volunteer ID  : V001
+Event ID      : E001
+Event Name    : Community Clean-Up
+=====================================
+
+
 Step 9: Generate Report
 The user wants to generate a summary report of all registered volunteers. They choose option 8 from the main menu.
-
+-------------------------------------------------
+         VOLUNTEER SUMMARY REPORT MENU
+-------------------------------------------------
+  1. Summary of Registered Volunteers
+  2. View Volunteer Data File (VolunteerData.csv)
+-------------------------------------------------
+Select an option (1 or 2): 1
 
 For option 1 : summary of registered volunteer it will calculate the total number of volunteers 
 
-For option 2 it will open the VolunteerData.csv file in the user personal computer
+===========================================
+       Volunteer Summary Report
+==========================================|
+| Volunteer Type     ||     Total Count   |
+|-----------------------------------------|
+| Experienced Volunteers      ||  0       |
+| Non-Experienced Volunteers  ||  2       |
+|-----------------------------||----------|
+|Total Volunteers Registered  ||  2       |
+===========================================
+For option 2 : it will open the VolunteerData.csv file in the user personal computer
+
 
 Files and Folders
 VolunteerMaintenance.java: The main Java class that contains the volunteer management system's logic.
@@ -114,13 +232,7 @@ FileDao.java: The Java class that provides data access object (DAO) functionalit
 LinkedList.java: The Java class that implements a linked list data structure.
 VolunteerData.csv: The CSV file that stores volunteer data.
 Event.csv: The CSV file that stores event data.
-CSV File Formats
-The system stores volunteer and event data in CSV files. Here are the formats:
-VolunteerData.csv
-Stores volunteer information:
 
-Event.csv
-Records volunteer assignments to events:
 
 Methods and Functions
 registerNewVolunteer(): Registers a new volunteer and saves them to the list and CSV file.
@@ -131,15 +243,18 @@ listAllVolunteers(): Lists all volunteers.
 assignVolunteerEvent(): Assigns a volunteer to an event if they are not already assigned.
 generateSummaryReport(): Generates a summary report of all volunteers, categorized by experience level.
 generateSummaryvolunteerReport(): Generates a summary report of the total number of volunteers, categorized by their experience level.
+
 Future Enhancements
-Potential Upgrades:
-Volunteer Skills and Availability: Add additional fields to capture volunteer skills and availability, improving event assignment suitability.
+Potential Upgrades:Volunteer Skills and Availability: Add additional fields to capture volunteer skills and availability, improving event assignment suitability.
 Event Scheduling and Management: Extend the Event entity to include event dates, locations, and other relevant information, providing better control over event scheduling.
 Database Integration: Transition from CSV-based storage to a relational database (e.g., MySQL, PostgreSQL) for enhanced scalability and performance.
 Graphical User Interface (GUI): Replace the console-based interface with a more user-friendly GUI using JavaFX or Swing.
+
 License
 This project is licensed under the MIT License. Feel free to use, modify, and distribute the system within the terms of this license.
+
 Contributions
 Contributions are welcome! If you find bugs or have feature suggestions, please submit an issue or open a pull request.
+
 Author
 Developed by TAN HAN SHEN. Feel free to reach out for any suggestions, improvements, or collaboration opportunities.

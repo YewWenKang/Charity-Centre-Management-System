@@ -21,7 +21,6 @@ public class Main {
                     DonationMaintenanceUI donationUI = new DonationMaintenanceUI(donationMaintenance);
                     donationUI.displayMenu();
                     break;
-
                 case 2:
                     DonorMaintenanceUI donorUI = new DonorMaintenanceUI();
                     donorUI.start();
