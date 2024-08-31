@@ -10,6 +10,7 @@ import DAO.FileDao;
 import boundary.DonorMaintenanceUI;
 import entity.Donor;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Comparator;
@@ -82,29 +83,33 @@ public class DonorMaintenance {
     }
 
     // Method to read existing donor IDs from the CSV file
-    private DictionaryInterface<Integer, Void> getExistingDonorIds() {
-        DictionaryInterface<Integer, Void> existingIds = new HashedDictionary<>();
-        Pattern pattern = Pattern.compile("DA(\\d{3})");
+private DictionaryInterface<Integer, Void> getExistingDonorIds() {
+    DictionaryInterface<Integer, Void> existingIds = new HashedDictionary<>();
+    Pattern pattern = Pattern.compile("DA(\\d{3})");
 
-        try (BufferedReader br = new BufferedReader(new FileReader(CSV_FILE_NAME))) {
-            String line;
-            boolean firstLine = true;
-            while ((line = br.readLine()) != null) {
-                if (firstLine) {
-                    firstLine = false; // Skip the header line
-                    continue;
-                }
-                Matcher matcher = pattern.matcher(line);
-                if (matcher.find()) {
-                    int id = Integer.parseInt(matcher.group(1));
-                    existingIds.add(id, null); // Add ID to dictionary with null value
-                }
+    try (BufferedReader br = new BufferedReader(new FileReader(CSV_FILE_NAME))) {
+        String line;
+        boolean firstLine = true;
+        while ((line = br.readLine()) != null) {
+            if (firstLine) {
+                firstLine = false; // Skip the header line
+                continue;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            Matcher matcher = pattern.matcher(line);
+            if (matcher.find()) {
+                int id = Integer.parseInt(matcher.group(1));
+                existingIds.add(id, null); // Add ID to dictionary with null value
+            }
         }
-        return existingIds;
+    } catch (FileNotFoundException e) {
+        System.err.println("File not found: " + CSV_FILE_NAME);
+        e.printStackTrace();
+    } catch (IOException e) {
+        e.printStackTrace();
     }
+    return existingIds;
+}
+
 
     public boolean addDonor(String donorId, String name, String contactNumber, String email, String address,
             String donorType, String donationPreference, String donorTimes, String totalAmount) {
