@@ -1,3 +1,4 @@
+//Author : Yew Wen Kang
 package control;
 
 import ADT.LinkedStack;
@@ -24,6 +25,7 @@ import java.util.Date;
 import java.util.Scanner;
 import ADT.HashMapImplementation;
 import ADT.HashMapInterface;
+import javax.print.PrintException;
 
 public class DoneeMaintenance {
 
@@ -352,6 +354,8 @@ public class DoneeMaintenance {
 
                     manager.distributeDonation(result.getId(), doubleAmount, new Date(), donationType);
 
+                } else {
+                    System.out.println("\nDonee not found!");
                 }
             }
 
@@ -520,6 +524,8 @@ public class DoneeMaintenance {
                     totalAmounts[index] += distributedAmount;
                 }
             }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -806,12 +812,12 @@ public class DoneeMaintenance {
         @Override
         public void undo() {
             doneeList.remove(donee);
-            System.out.println("Add command have been undo.");
+            System.out.println("Add command has been undo.");
         }
 
         @Override
         public void redo() {
-            System.out.println("Add command have been redo.");
+            System.out.println("Add command has been redo.");
             doneeList.add(donee);
         }
     }
@@ -835,13 +841,13 @@ public class DoneeMaintenance {
         @Override
         public void undo() {
             doneeList.add(donee);
-            System.out.println("Remove command have been undo.");
+            System.out.println("Remove command has been undo.");
         }
 
         @Override
         public void redo() {
             doneeList.remove(donee);
-            System.out.println("Remove command have been undo.");
+            System.out.println("Remove command has been undo.");
         }
     }
 
@@ -862,14 +868,14 @@ public class DoneeMaintenance {
         public void execute() {
             // Apply the update
             updateDonee(updatedDonee);
-            System.out.println("Update command have been undo.");
+            System.out.println("Update command has been undo.");
         }
 
         @Override
         public void undo() {
             // Revert to the original state
             updateDonee(originalDonee);
-            System.out.println("Update command have been undo.");
+            System.out.println("Update command has been undo.");
         }
 
         @Override
@@ -965,7 +971,24 @@ public class DoneeMaintenance {
 
         // Method to load distributions from donationDistribution.csv
         public void loadDistributions() throws ParseException {
-            try (Scanner scanner = new Scanner(new File("donationDistribution.csv"))) {
+            File file = new File("donationDistribution.csv");
+
+            // Check if the file exists; if not, create an empty file
+            if (!file.exists()) {
+                System.out.println("File not found. An empty file has been created: " + file.getName());
+
+                try {
+                    file.createNewFile(); // Creates an empty file
+                    distributionList = new LinkedList<>(); // Initialize an empty distribution list
+                    return; // Exit the method since there is nothing to load
+                } catch (IOException e) {
+                    System.err.println("Error creating file: " + e.getMessage());
+                    return; // Exit the method if there's an error creating the file
+                }
+            }
+
+            // File exists; proceed to load the data
+            try (Scanner scanner = new Scanner(file)) {
                 // Skip the header line
                 if (scanner.hasNextLine()) {
                     scanner.nextLine();
@@ -988,7 +1011,7 @@ public class DoneeMaintenance {
                     distributionList.add(new Distribution(distributionID, donationID, doneeID, distributedAmount, dateFormat.format(date), type));
                 }
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                e.printStackTrace(); // This should no longer occur due to the file existence check
             }
         }
 

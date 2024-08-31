@@ -58,7 +58,7 @@ public class DoneeDAO {
 
             // Check if file is empty (i.e., only contains header)
             if (header == null) {
-                System.out.println("The file is empty.");
+                System.out.println("The file doneeData.csv is empty.");
                 return;
             }
 
