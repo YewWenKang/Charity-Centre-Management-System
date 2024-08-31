@@ -104,26 +104,28 @@ public class Donation {
     @Override
     public String toString() {
         return String.format(
-                "╔══════════════════════════════════════════╗%n" +
-                        "║               Donation Details           ║%n" +
-                        "╠══════════════════════════════════════════╣%n" +
-                        "║ Donation ID     : %-23s ║%n" +
-                        "║ Donor ID        : %-23s ║%n" +
-                        "║ Amount (RM)     : %-23.2f ║%n" +
-                        "║ Date            : %-23s ║%n" +
-                        "║ Payment Method  : %-23s ║%n" +
-                        "║ Receipt Number  : %-23s ║%n" +
-                        "║ Donation Type   : %-23s ║%n" +
-                        "║ Notes           : %-23s ║%n" +
-                        "╚══════════════════════════════════════════╝",
-                donationId,
-                donorId,
-                amount,
-                new SimpleDateFormat("yyyy-MM-dd").format(date), // Format the date as needed
-                paymentMethod,
-                receiptNumber,
-                donationType,
-                notes);
+            "╔══════════════════════════════════════════╗%n" +
+            "║               Donation Details           ║%n" +
+            "╠══════════════════════════════════════════╣%n" +
+            "║ Donation ID     : %-23s ║%n" +
+            "║ Donor ID        : %-23s ║%n" +
+            "║ Amount (RM)     : %-23.2f ║%n" +
+            "║ Date            : %-23s ║%n" +
+            "║ Payment Method  : %-23s ║%n" +
+            "║ Receipt Number  : %-23s ║%n" +
+            "║ Donation Type   : %-23s ║%n" +
+            "║ Notes           : %-23s ║%n" +
+            "╚══════════════════════════════════════════╝",
+            donationId,
+            donorId,
+            amount,
+            new SimpleDateFormat("yyyy-MM-dd").format(date),
+            paymentMethod,
+            receiptNumber,
+            donationType,
+            notes
+        );
     }
+    
 
 }

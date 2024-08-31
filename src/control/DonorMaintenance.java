@@ -129,7 +129,6 @@ public class DonorMaintenance {
         emails.add(email); // Update the set with the new email
         saveDonorsToCSV();
         System.out.println("Donor added: " + donor);
-        System.out.println("\nDonor added successfully!");
         return true;
     }
 
@@ -353,9 +352,15 @@ public class DonorMaintenance {
             System.out.println("No donors found with the specified criteria.");
         } else {
             System.out.println("\n--- Filtered Donors ---");
-            System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
+            System.out.println("-------------------------------------------------------------"
+                    + "------------------------------------------------------------------------------");
+            System.out.printf("%-10s %-20s %-15s %-25s %-20s %-15s %-15s %-15s%n",
                     "Donor ID", "Name", "Contact No.", "Email", "Address",
-                    "Donor Type", "Donor Times", "Total Amount (RM)");
+                    "Donor Type", "Donation Times", "Total Amount (RM)");
+            System.out.println("-------------------------------------------------------------"
+                    + "-----------------------------------------------------------------------------");
+
+        
             
             for (TreeMapInterface.CustomEntry<String, Donor> entry : filteredDonors.entries()) {
                 Donor donor = entry.getValue();
@@ -410,7 +415,7 @@ public class DonorMaintenance {
             try {
                 totalAmount = Double.parseDouble(donor.getTotalAmount());
             } catch (NumberFormatException e) {
-                System.out.println("Invalid total amount for donor " + donor.getDonorId());
+                System.err.println("Invalid total amount for donor " + donor.getDonorId());
                 continue;
             }
             if (totalAmount >= minAmount && totalAmount <= maxAmount) {
@@ -430,14 +435,14 @@ public class DonorMaintenance {
                 if (donor != null) {
                     validDonors.add(donor);
                 } else {
-                    System.out.println("Warning: Null donor found at index " + i);
+                    System.err.println("Warning: Null donor found at index " + i);
                 }
             }
             fileDao.writeDataToCSV(FILE_NAME, headers, validDonors, this::mapDonorToRow);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error saving donors to CSV: " + e.getMessage());
+            System.err.println("Error saving donors to CSV: " + e.getMessage());
             return false;
         }
     }
@@ -519,29 +524,26 @@ public class DonorMaintenance {
                 }))
                 .orElse(null);
 
-        // Print summary with creative formatting
-        System.out.println("\n" + "-".repeat(50));
-        System.out.println("              Donor Summary Report");
-        System.out.println("-".repeat(50));
-        System.out.println();
-
-        System.out.printf("Total Number of Donors     : %d%n", totalDonors);
-        System.out.printf("Number of Unique Donor Types: %d%n", totalDonorTypes);
-        System.out.printf("Total Amount Donated (RM)  : %.2f%n", totalAmountDonated);
-        System.out.printf("Highest Number of Donations : %d%n", highestDonationTimes);
-
-        System.out.println();
-
-        if (topDonor != null) {
-            System.out.println("Top Donor:");
-            System.out.println("  Name                : " + topDonor.getName());
-            System.out.printf("  Total Amount (RM)   : %.2f%n", Double.parseDouble(topDonor.getTotalAmount()));
-        } else {
-            System.out.println("No donors found.");
-        }
-
-        System.out.println();
-        System.out.println("-".repeat(50));
+                System.out.println("\n" + "-".repeat(50));
+                System.out.println("              Donor Summary Report");
+                System.out.println("-".repeat(50) + "\n");
+                
+                System.out.printf("%-30s : %d%n", "Total Number of Donors", totalDonors);
+                System.out.printf("%-30s : %d%n", "Number of Unique Donor Types", totalDonorTypes);
+                System.out.printf("%-30s : RM %.2f%n", "Total Amount Donated", totalAmountDonated);
+                System.out.printf("%-30s : %d%n", "Highest Number of Donations", highestDonationTimes);
+                
+                System.out.println();
+                
+                if (topDonor != null) {
+                    System.out.println("Top Donor:");
+                    System.out.printf("  %-20s : %s%n", "Name", topDonor.getName());
+                    System.out.printf("  %-20s : RM %.2f%n", "Total Amount", Double.parseDouble(topDonor.getTotalAmount()));
+                } else {
+                    System.out.println("No donors found.");
+                }
+                
+                System.out.println("\n" + "-".repeat(50));
     }
 
     public static void main(String[] args) {

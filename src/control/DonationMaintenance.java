@@ -36,8 +36,8 @@ public class DonationMaintenance {
         donationHashMap = new HashedDictionary<>();
         donationTreeMap = new TreeMapImplementation<>();
         donationLinkedList = new LinkedList<>();
-        this.donationCounter = loadHighestDonationCounter(); // Implement this method to return the correct value
-        createDonationCSV(); // Check for CSV file creation
+        this.donationCounter = loadHighestDonationCounter();
+        createDonationCSV();
     }
 
     // Method to create Donation CSV file with headers if it doesn't exist
@@ -55,13 +55,12 @@ public class DonationMaintenance {
     }
 
     private int loadHighestDonationCounter() {
-        // This is a simplified example; adapt it to your actual CSV reading logic
         int maxCounter = 0;
         try (BufferedReader br = new BufferedReader(new FileReader(DONATION_CSV_PATH))) {
             String line;
             while ((line = br.readLine()) != null) {
-                // Assuming ID format "DOxxx", extract the numeric part
-                String id = line.split(",")[0]; // Adjust based on your CSV structure
+
+                String id = line.split(",")[0];
                 if (id.startsWith("DO")) {
                     int idNumber = Integer.parseInt(id.substring(2));
                     if (idNumber > maxCounter) {
@@ -80,10 +79,9 @@ public class DonationMaintenance {
         return String.format("DO%03d", donationCounter);
     }
 
-    // Method to generate random receipt number (RNxxx)
     public String generateReceiptNumber() {
         Random random = new Random();
-        int number = random.nextInt(1000); // Generate a number between 0 and 999
+        int number = random.nextInt(1000);
         return String.format("RN%03d", number);
     }
 
@@ -302,7 +300,7 @@ public class DonationMaintenance {
     }
 
     // ------------------------------------------------------------------------------------------------
-    //sort part
+    // sort part
 
     private ListInterface<Donation> mergeSort(ListInterface<Donation> list, Comparator<Donation> comparator) {
         if (list.size() <= 1) {
@@ -441,8 +439,9 @@ public class DonationMaintenance {
     // Method to find donations by Date Range
     public ListInterface<Donation> getDonationsByDateRange(Date startDate, Date endDate) {
         ListInterface<Donation> result = new LinkedList<>();
-        
-        // Assuming TreeMapInterface has a method entries() returning CustomEntry<Date, ListInterface<Donation>>
+
+        // Assuming TreeMapInterface has a method entries() returning CustomEntry<Date,
+        // ListInterface<Donation>>
         for (TreeMapInterface.CustomEntry<Date, ListInterface<Donation>> entry : donationTreeMap.entries()) {
             Date date = entry.getKey();
             if ((date.after(startDate) || date.equals(startDate)) &&
@@ -450,10 +449,9 @@ public class DonationMaintenance {
                 result.addAll(entry.getValue());
             }
         }
-        
+
         return result;
     }
-    
 
     // ------------------------------------------------------------------------------------------------
 
@@ -568,8 +566,17 @@ public class DonationMaintenance {
             donorDonationCounts.put(donorId, donorDonationCounts.getOrDefault(donorId, 0) + 1);
         }
 
-        System.out.println("\nTotal donation amounts to subtract: " + donorTotalAmounts);
-        System.out.println("Donation counts to subtract: " + donorDonationCounts);
+        // Print accumulated totals for debugging
+        System.out.println("\n--- Total Donations and Counts ---");
+        System.out.println("Donor ID   | Total Amount (RM) | Donation Count");
+        System.out.println("-----------------------------------------------");
+        for (HashMapInterface.Entry<String, Double> entry : donorTotalAmounts.entrySet()) {
+            String donorId = entry.getKey();
+            double totalAmountToSubtract = entry.getValue();
+            int donationCountToSubtract = donorDonationCounts.get(donorId);
+            System.out.printf("%-10s | %.2f            | %d%n", donorId, totalAmountToSubtract,
+                    donationCountToSubtract);
+        }
 
         // Clear all entries from the data structures
         donationHashMap.clear();
@@ -584,11 +591,10 @@ public class DonationMaintenance {
             String donorId = entry.getKey();
             double totalAmountToSubtract = entry.getValue();
             int donationCountToSubtract = donorDonationCounts.get(donorId);
-        
+
             // Update donor details
             clearDetails(donorId, totalAmountToSubtract, donationCountToSubtract);
         }
-        
     }
 
     private void clearDetails(String donorId, double totalAmountToSubtract, int donationCountToSubtract) {
@@ -626,8 +632,8 @@ public class DonationMaintenance {
             headers.add("Total Amount(RM)");
 
             fileDao.writeDataToCSV("donorData.csv", headers, donors, this::mapDonorToRow);
-            System.out.println("All donations cleared.");
             System.out.println("\nDonor details updated successfully for donor ID: " + donorId);
+            System.out.println("All donations cleared.");
         } else {
             System.out.println("Donor with ID " + donorId + " not found.");
         }
@@ -659,19 +665,25 @@ public class DonationMaintenance {
         int totalDonations = donationLinkedList.size();
         HashMapInterface<String, Integer> donorDonationCount = new HashMapImplementation<>();
         HashMapInterface<String, Double> donorDonationAmount = new HashMapImplementation<>();
-
+    
+        // Calculate total amounts and donations for each donor
         for (int i = 0; i < donationLinkedList.size(); i++) {
             Donation donation = donationLinkedList.get(i);
             double amount = donation.getAmount();
             totalAmountDonated += amount;
-
+    
             String donorId = donation.getDonorId();
-            donorDonationCount.put(donorId, donorDonationCount.getOrDefault(donorId, 0) + 1);
-            donorDonationAmount.put(donorId, donorDonationAmount.getOrDefault(donorId, 0.0) + amount);
+            
+            // Ensure getOrDefault and put methods work properly in your custom map implementation
+            int currentCount = donorDonationCount.containsKey(donorId) ? donorDonationCount.get(donorId) : 0;
+            donorDonationCount.put(donorId, currentCount + 1);
+            
+            double currentAmount = donorDonationAmount.containsKey(donorId) ? donorDonationAmount.get(donorId) : 0.0;
+            donorDonationAmount.put(donorId, currentAmount + amount);
         }
-
+    
         double averageDonationAmount = (totalDonations > 0) ? totalAmountDonated / totalDonations : 0;
-
+    
         // Displaying the summary report
         System.out.println("\n==============================");
         System.out.println("  Donation Summary Report");
@@ -682,16 +694,22 @@ public class DonationMaintenance {
         System.out.println("==============================");
         System.out.println(" Donations by Donor:");
         System.out.println("==============================");
-
-        for (String donorId : donorDonationCount.keySet()) {
+    
+        // Correct iteration over the custom HashMapInterface
+        for (HashMapInterface.Entry<String, Integer> entry : donorDonationCount.entrySet()) {
+            String donorId = entry.getKey();
+            int totalDonorDonations = entry.getValue();
+            double totalDonorAmount = donorDonationAmount.get(donorId);
+    
             System.out.printf(" Donor ID: %s | Total Donations: %d | Total Amount: RM %.2f%n",
-                    donorId, donorDonationCount.get(donorId), donorDonationAmount.get(donorId));
+                    donorId, totalDonorDonations, totalDonorAmount);
         }
         System.out.println("==============================");
     }
+    
 
     // ------------------------------------------------------------------------------------------------
-    // Method to display donations 
+    // Method to display donations
     public void displayDonations() {
         System.out.println("Donations in HashMap:");
         for (String id : donationHashMap.getKeys()) {
@@ -705,7 +723,6 @@ public class DonationMaintenance {
                 System.out.println(donation);
             }
         }
-        
 
         System.out.println("Donations in LinkedList (by Insertion Order):");
         for (Donation donation : donationLinkedList) {

@@ -66,7 +66,7 @@ public class ValidationUI {
             } else if (choice.equals("n")) {
                 return false;
             } else {
-                System.out.println("Invalid input. Please enter 'y' for yes or 'n' for no.");
+                System.err.println("Invalid input. Please enter 'y' for yes or 'n' for no.");
             }
         }
     }

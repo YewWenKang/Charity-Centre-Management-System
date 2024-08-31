@@ -10,6 +10,7 @@ import java.util.Scanner;
 import utility.ValidationUI;
 
 public class DonationMaintenanceUI {
+
     private final Scanner scanner;
     private final DonationMaintenance donationMaintenance;
 
@@ -20,7 +21,6 @@ public class DonationMaintenanceUI {
 
     // Method to display the main menu
     public void displayMenu() {
-
         while (true) {
             System.out.println("\n=============================");
             System.out.println("  Donation Maintenance Menu");
@@ -32,10 +32,25 @@ public class DonationMaintenanceUI {
             System.out.println(" 5. Report");
             System.out.println(" 0. Exit");
             System.out.println("=============================");
-            System.out.print(" Enter your choice: ");
 
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            int choice = -1; // Initial value outside of valid range
+
+            // Validation loop for choice input
+            while (true) {
+                System.out.print(" Enter your choice: ");
+                if (scanner.hasNextInt()) {
+                    choice = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline
+                    if (choice >= 0 && choice <= 5) {
+                        break; // Valid choice, exit loop
+                    } else {
+                        System.err.println("Invalid choice. Please enter a number between 0 and 5.");
+                    }
+                } else {
+                    System.err.println("Invalid input. Please enter a number.");
+                    scanner.nextLine(); // Consume invalid input
+                }
+            }
 
             System.out.println(); // Add an empty line for spacing
 
@@ -56,16 +71,17 @@ public class DonationMaintenanceUI {
                     donationReport();
                     break;
                 case 0:
-                    System.out.println("Exiting menu...");
+                    System.err.println("Exiting menu...");
                     return;
                 default:
-                    System.out.println("❌ Invalid choice. Please try again.");
+                    // This case should not be reachable due to validation
+                    System.err.println("Invalid choice. Please try again.");
                     break;
             }
         }
     }
 
-    //-----------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------
     // Method to create a new donation with validation
     private void createDonation() {
         String donationId = donationMaintenance.generateDonationId();
@@ -81,8 +97,9 @@ public class DonationMaintenanceUI {
                 break;
             }
             System.out.println("Donor ID cannot be empty or not found in the system.");
-            if (!ValidationUI.retryOrExit())
+            if (!ValidationUI.retryOrExit()) {
                 return;
+            }
         }
 
         // Validate Amount
@@ -94,8 +111,9 @@ public class DonationMaintenanceUI {
                 break;
             }
             System.out.println("Amount cannot be empty and must be a valid number.");
-            if (!ValidationUI.retryOrExit())
+            if (!ValidationUI.retryOrExit()) {
                 return;
+            }
         }
 
         // Validate Date
@@ -103,11 +121,13 @@ public class DonationMaintenanceUI {
             System.out.print("Enter Date (yyyy-MM-dd): ");
             dateString = scanner.nextLine();
             date = donationMaintenance.parseDate(dateString);
-            if (date != null)
+            if (date != null) {
                 break;
+            }
             System.out.println("Invalid date format.");
-            if (!ValidationUI.retryOrExit())
+            if (!ValidationUI.retryOrExit()) {
                 return;
+            }
         }
 
         // Validate Payment Method
@@ -122,8 +142,9 @@ public class DonationMaintenanceUI {
                 System.out.println("Invalid Payment Method. Please enter 'online' or 'cash'.");
             }
 
-            if (!ValidationUI.retryOrExit())
+            if (!ValidationUI.retryOrExit()) {
                 return;
+            }
         }
 
         // Generate Receipt Number
@@ -133,13 +154,14 @@ public class DonationMaintenanceUI {
         while (true) {
             System.out.print("Enter Donation Type (FOOD, DAILY_EXPENSES, CASH): ");
             typeString = scanner.nextLine();
-            if (ValidationUI.isNotEmpty(typeString) &&
-                    typeString.matches("(?i)^(FOOD|DAILY_EXPENSES|CASH)$")) {
+            if (ValidationUI.isNotEmpty(typeString)
+                    && typeString.matches("(?i)^(FOOD|DAILY_EXPENSES|CASH)$")) {
                 break;
             }
             System.out.println("Donation Type is invalid! It must be one of: FOOD, DAILY_EXPENSES, CASH.");
-            if (!ValidationUI.retryOrExit())
+            if (!ValidationUI.retryOrExit()) {
                 return;
+            }
         }
         DonationType donationType = DonationType.valueOf(typeString.toUpperCase());
 
@@ -147,11 +169,13 @@ public class DonationMaintenanceUI {
         while (true) {
             System.out.print("Enter Notes: ");
             notes = scanner.nextLine();
-            if (ValidationUI.isNotEmpty(notes))
+            if (ValidationUI.isNotEmpty(notes)) {
                 break;
+            }
             System.out.println("Notes cannot be empty.");
-            if (!ValidationUI.retryOrExit())
+            if (!ValidationUI.retryOrExit()) {
                 return;
+            }
         }
 
         // Create the donation
@@ -161,8 +185,7 @@ public class DonationMaintenanceUI {
         System.out.println("Donation created: \n\n" + donation);
     }
 
-    //-----------------------------------------------------------------------------------------------
-
+    // -----------------------------------------------------------------------------------------------
     // view donation
     private void viewDonation() {
 
@@ -225,7 +248,6 @@ public class DonationMaintenanceUI {
     }
 
     // -----------------------------------------------------------------------------------------------
-
     public void filterDonation() {
         System.out.println("1. Filter by Donation Type");
         System.out.println("2. Filter by Date Range");
@@ -302,7 +324,6 @@ public class DonationMaintenanceUI {
     }
 
     // -----------------------------------------------------------------------------------------------
-
     // delete donation
     private void deleteDonation() {
         boolean validInput = false;
@@ -358,6 +379,7 @@ public class DonationMaintenanceUI {
         switch (choice) {
             case 1:
                 donationMaintenance.generateDonationSummaryReport();
+                displayMenu();
                 break;
             case 0:
                 return;
