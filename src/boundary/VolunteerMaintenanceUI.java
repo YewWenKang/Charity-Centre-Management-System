@@ -63,7 +63,7 @@ public class VolunteerMaintenanceUI {
 
     public void printVolunteerDetails(Volunteer Volunteer) {
 
-        System.out.println("=====================================");
+        System.out.println("\n =====================================");
         System.out.println("           Volunteer Details         ");
         System.out.println("=====================================");
         System.out.println("Volunteer ID  : " + Volunteer.getVolunteerId());

@@ -195,7 +195,7 @@ public class VolunteerMaintenance {
         if (newVolunteer != null) {
             VolunteerList.add(newVolunteer);
             writeVolunteerToCSV(newVolunteer);
-            System.out.println("Volunteer registered successfully!");
+            System.out.println("Volunteer registered successfully! \n");
         } else {
             System.out.println("Error: Unable to register new volunteer. Please try again.");
         }
