@@ -1,5 +1,6 @@
 package control;
 
+import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -7,9 +8,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.function.Function;
-import java.awt.Desktop;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import ADT.LinkedList;
 import ADT.ListInterface;
 import DAO.FileDao;
@@ -23,6 +24,7 @@ import utility.MessageUI;
  * @author TAN HAN SHEN
  */
 public class VolunteerMaintenance {
+    // Fields for managing volunteer data
     private final FileDao<Volunteer> fileDao;
     private static final String FILE_NAME = "VolunteerData.csv";
     private final ListInterface<String> headers;
@@ -30,6 +32,7 @@ public class VolunteerMaintenance {
     private VolunteerMaintenanceUI VolunteerUI = new VolunteerMaintenanceUI();
     private int nextId;
 
+    // Constructor initializes headers, loads volunteers from CSV, and sets the next ID
     public VolunteerMaintenance() {
         headers = new LinkedList<>();
         headers.add("ID");
@@ -44,7 +47,8 @@ public class VolunteerMaintenance {
         this.nextId = calculateNextId(); // Initialize nextId based on existing IDs
 
     }
-
+    
+    // Calculate the next available volunteer ID by finding the max existing ID and incrementing it
     private int calculateNextId() {
         int maxId = 0;
         for (int i = 1; i <= VolunteerList.getNumberOfEntries(); i++) {
@@ -58,6 +62,7 @@ public class VolunteerMaintenance {
     }
 
     // file code
+     // Map a row of data from the CSV to a Volunteer object
     private Volunteer mapRowToVolunteer(String[] row) {
 
         if (row.length < 6) {
@@ -75,6 +80,7 @@ public class VolunteerMaintenance {
         return volunteer;
     }
 
+    // Write volunteer data to a CSV file, either appending or creating new
     public <T> void writeDataToCSV(String fileName, ListInterface<String> headers, ListInterface<T> data,
             Function<T, ListInterface<String>> mapper) throws IOException {
         File file = new File(fileName);
@@ -95,7 +101,8 @@ public class VolunteerMaintenance {
             }
         }
     }
-
+    
+    // Save the list of volunteers to the CSV file
     public boolean saveVolunteersToCSV() {
         try {
             ListInterface<Volunteer> validVolunteers = new LinkedList<>();
@@ -116,6 +123,7 @@ public class VolunteerMaintenance {
         }
     }
 
+    // Map a Volunteer object to a row format for the CSV file
     private ListInterface<String> mapVolunteerToRow(Volunteer Volunteer) {
         ListInterface<String> row = new LinkedList<>();
         row.add(Volunteer.getVolunteerId());
@@ -127,6 +135,7 @@ public class VolunteerMaintenance {
         return row;
     }
 
+    // Write a single volunteer's data to the CSV file
     public void writeVolunteerToCSV(Volunteer volunteer) {
         File file = new File("VolunteerData.csv");
         boolean isNewFile = !file.exists(); // Check if the file does not exist (new file)
@@ -158,6 +167,7 @@ public class VolunteerMaintenance {
     }
 
     // Case 1 : registerNewVolunteer
+    // Collect and return the volunteer's details by prompting the user
     public Volunteer inputVolunteerDetails() {
         boolean isExperienced = VolunteerMaintenanceUI.inputVolunteerExperience();
         String volunteerType = isExperienced ? "Experienced" : "Non-Experienced";
@@ -171,6 +181,7 @@ public class VolunteerMaintenance {
         return new Volunteer(volunteerId, volunteerType, name, phoneNumber, email, address);
     }
 
+    // Generate a new unique volunteer ID based on the nextId value
     private String generateVolunteerId() {
         String prefix = "V";
         String numericPart = String.format("%03d", nextId);
@@ -178,6 +189,7 @@ public class VolunteerMaintenance {
         return prefix + numericPart;
     }
 
+    // Register a new volunteer and save them to the list and CSV file
     public void registerNewVolunteer() {
         Volunteer newVolunteer = inputVolunteerDetails();
         if (newVolunteer != null) {
@@ -190,10 +202,11 @@ public class VolunteerMaintenance {
     }
 
     // Case 2 : deleteVolunteerById
+    // Delete a volunteer by ID and update the CSV file
     public void deleteVolunteerById() {
         String volunteerId = VolunteerUI.inputVolunteerId(); // Input the volunteer ID
 
-        // Look for the volunteer in the in-memory list
+        // Look for the volunteer 
         Volunteer volunteerToRemove = null;
         for (int i = 0; i < VolunteerList.size(); i++) {
             Volunteer volunteer = VolunteerList.get(i);
@@ -218,7 +231,7 @@ public class VolunteerMaintenance {
         }
     }
 
-    // This method is assumed to print the list of volunteers to the console
+    // print the list of volunteers
     private void printVolunteerList() {
         for (int i = 0; i < VolunteerList.getNumberOfEntries(); i++) {
             Volunteer volunteer = VolunteerList.getEntry(i);
@@ -229,6 +242,7 @@ public class VolunteerMaintenance {
     }
 
     // case 3 : searchVolunteerById
+    // Search for a volunteer by ID and print their details if found
     public void searchVolunteerById() {
         String volunteerId = VolunteerUI.inputVolunteerId();
         Volunteer volunteer = findVolunteerByIdInFile(volunteerId);
@@ -239,6 +253,7 @@ public class VolunteerMaintenance {
         }
     }
 
+    // Find a volunteer by ID by reading from the CSV file
     private Volunteer findVolunteerByIdInFile(String volunteerId) {
         String fileName = "VolunteerData.csv";
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -272,6 +287,7 @@ public class VolunteerMaintenance {
     }
 
     // case 4 : filterVolunteersByExperience
+    // Filters volunteers based on their experience level and displays the matching volunteers
     public void filterVolunteersByExperience() {
         String filterType = VolunteerMaintenanceUI.inputFilterChoice();
         boolean found = false;
@@ -324,6 +340,7 @@ public class VolunteerMaintenance {
     }
 
     // case 6 : assignVolunteerEvent
+    // Assigns a volunteer to an event if they are not already assigned
     public void assignVolunteerEvent(String volunteerId) {
         EventMaintenance eventMaintenance = new EventMaintenance();
 
@@ -334,16 +351,73 @@ public class VolunteerMaintenance {
 
         if (volunteer != null) {
             if (eventMaintenance.isVolunteerAlreadyAssigned(volunteer, event)) {
-                System.out.println("Volunteer " + volunteer.getName() + " has already been assigned to the event '"
-                        + event.geteventName() + "'.");
+                System.out.println("Volunteer with ID " + volunteerId + " is already assigned to the event.");
+                return;
+            }
+            // Check if the volunteer is already assigned to the event in the Event.csv file
+            if (isVolunteerAssignedToEventInFile(volunteerId, event.geteventId())) {
+                System.out.println("Volunteer with ID " + volunteerId + " is already assigned to the event.");
                 return;
             }
             eventMaintenance.assignVolunteerToEventAndSave(volunteer, event);
+            // Add this line to write the volunteer to the Event.csv file
+            writeVolunteerToEventCSV(volunteer, event);
         } else {
             System.out.println("Volunteer with ID " + volunteerId + " not found.");
         }
     }
 
+    // Checks if a volunteer is already assigned to an event in the Event.csv file
+    private boolean isVolunteerAssignedToEventInFile(String volunteerId, String eventId) {
+        String fileName = "Event.csv";
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            boolean skipHeader = true; // To skip the header line
+
+            while ((line = br.readLine()) != null) {
+                if (skipHeader) {
+                    skipHeader = false;
+                    continue; // Skip the header line
+                }
+
+                String[] fields = line.split(",");
+                if (fields.length >= 4) {
+                    String csvVolunteerId = fields[2];
+                    String csvEventId = fields[0];
+                    if (csvVolunteerId.equals(volunteerId) && csvEventId.equals(eventId)) {
+                        return true; // Volunteer is already assigned to the event
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading the Event.csv file: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return false; // Volunteer is not assigned to the event
+    }
+    // Write the volunteer's details to the Event.csv file
+    private void writeVolunteerToEventCSV(Volunteer volunteer, Event event) {
+        String fileName = "Event.csv";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
+            // Check if the file is empty
+            File file = new File(fileName);
+            boolean isNewFile = !file.exists() || file.length() == 0;
+
+            // Write the header if it's a new file
+            if (isNewFile) {
+                writer.write("EventId,EventName,VolunteerId,VolunteerName");
+                writer.newLine();
+            }
+
+            writer.write(event.geteventId() + "," + event.geteventName() + "," + volunteer.getVolunteerId() + "," + volunteer.getName());
+            writer.newLine();
+        } catch (IOException e) {
+            System.out.println("Error writing to the Event.csv file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    // Finds and returns an event ID based on the event name from the "Event.csv" file
     private String getEventIdByName(String eventName) {
         String EVENT_FILE_NAME = "Event.csv"; // Declare and initialize the EVENT_FILE_NAME variable with the
                                               // appropriate value
@@ -374,15 +448,25 @@ public class VolunteerMaintenance {
         return null; // Event name not found
     }
 
+    // Prints the volunteers assigned to a specific event based on the event name
     public void printVolunteersByEventName(String eventName) {
         LinkedList<Volunteer> volunteers = (LinkedList<Volunteer>) getVolunteersByEventName(eventName);
+    
+        System.out.println("\n===========================================");
+        System.out.println("  Volunteers for Event: " + eventName);
+        System.out.println("===========================================");
+        
         if (volunteers.isEmpty()) {
             System.out.println("No volunteers found for the event: " + eventName);
         } else {
-            System.out.println("Volunteers for the event: " + eventName);
+            System.out.printf("| %-15s | %-25s |\n", "Volunteer ID", "Name");
+            System.out.println("-------------------------------------------");
+    
             for (Volunteer volunteer : volunteers) {
-                System.out.println("Volunteer ID: " + volunteer.getVolunteerId() + ", Name: " + volunteer.getName());
+                System.out.printf("| %-15s | %-25s |\n", volunteer.getVolunteerId(), volunteer.getName());
             }
+            
+            System.out.println("===========================================\n");
         }
     }
 
@@ -393,6 +477,7 @@ public class VolunteerMaintenance {
     // }
 
     // case 7 : getVolunteersByEventName
+    // Retrieves a list of volunteers assigned to a specific event by the event name
     public ListInterface<Volunteer> getVolunteersByEventName(String eventName) {
         LinkedList<Volunteer> volunteers = new LinkedList();
         String eventId = getEventIdByName(eventName);
@@ -425,6 +510,7 @@ public class VolunteerMaintenance {
     }
 
     // case 8 : generateSummaryReport
+    // Generates a summary report of the total number of volunteers, categorized by their experience level
     public void generateSummaryvolunteerReport() {
         int totalVolunteers = VolunteerList.getNumberOfEntries();
         int experiencedCount = 0;
@@ -433,7 +519,7 @@ public class VolunteerMaintenance {
         for (int i = 1; i <= VolunteerList.getNumberOfEntries(); i++) {
             Volunteer volunteer = VolunteerList.getEntry(i);
 
-            if (volunteer.isExperienced()) {
+            if (volunteer.getVolunteertype().equalsIgnoreCase("Experienced")) {
                 experiencedCount++;
             } else {
                 nonExperiencedCount++;
@@ -456,6 +542,7 @@ public class VolunteerMaintenance {
 
     }
 
+    // Opens the "VolunteerData.csv" file in the default CSV viewer on the user's computer
     public void generateSummaryReport() {
         try {
             Desktop.getDesktop().open(new File("VolunteerData.csv"));
@@ -479,10 +566,8 @@ public class VolunteerMaintenance {
                     break;
                 case 1:
                     registerNewVolunteer();
-                    // VolunteerUI.printVolunteerDetails(VolunteerList.getEntry(VolunteerList.getNumberOfEntries()));
                     break;
                 case 2:
-                    // volunteerId = VolunteerUI.inputVolunteerId(); // Prompt user for volunteerId
                     deleteVolunteerById();
                     break;
                 case 3:
