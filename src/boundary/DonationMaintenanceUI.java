@@ -34,9 +34,9 @@ public class DonationMaintenanceUI {
             System.out.println(" 5. Report");
             System.out.println(" 0. Exit");
             System.out.println("=============================");
-
+    
             int choice = -1; // Initial value outside of valid range
-
+    
             // Validation loop for choice input
             while (true) {
                 System.out.print(" Enter your choice: ");
@@ -53,9 +53,9 @@ public class DonationMaintenanceUI {
                     scanner.nextLine(); // Consume invalid input
                 }
             }
-
+    
             System.out.println(); // Add an empty line for spacing
-
+    
             switch (choice) {
                 case 1:
                     createDonation();
@@ -68,13 +68,13 @@ public class DonationMaintenanceUI {
                     break;
                 case 4:
                     deleteDonation();
-                    return;
+                    break;
                 case 5:
                     donationReport();
                     break;
                 case 0:
                     System.err.println("Exiting menu...");
-                    return;
+                    return; // Exit the method
                 default:
                     // This case should not be reachable due to validation
                     System.err.println("Invalid choice. Please try again.");
@@ -82,6 +82,7 @@ public class DonationMaintenanceUI {
             }
         }
     }
+    
 
     // -----------------------------------------------------------------------------------------------
     // Method to create a new donation with validation
