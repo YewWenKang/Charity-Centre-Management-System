@@ -1,10 +1,9 @@
 package control;
 
-import java.text.ParseException;
-
 import boundary.DonationMaintenanceUI;
 import boundary.DonorMaintenanceUI;
 import boundary.MainUI;
+import java.text.ParseException;
 import utility.MessageUI;
 
 public class Main {

@@ -18,62 +18,61 @@ public class DonorMaintenanceUI {
         donorMaintenance = new DonorMaintenance();
     }
 
-public void start() {
-    int choice = -1; // Initial value outside of valid range
+    public void start() {
+        int choice = -1; // Initial value outside of valid range
 
-    do {
-        showMenu();
+        do {
+            showMenu();
 
-        // Input validation loop
-        while (true) {
-            System.out.print("Enter your choice: ");
-            if (scanner.hasNextInt()) {
-                choice = scanner.nextInt();
-                scanner.nextLine(); // Consume newline
-                if (choice >= 1 && choice <= 8) {
-                    break; // Valid choice, exit input validation loop
+            // Input validation loop
+            while (true) {
+                System.out.print("Enter your choice: ");
+                if (scanner.hasNextInt()) {
+                    choice = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline
+                    if (choice >= 1 && choice <= 8) {
+                        break; // Valid choice, exit input validation loop
+                    } else {
+                        System.err.println("Invalid choice. Please enter a number between 1 and 8.");
+                    }
                 } else {
-                    System.err.println("Invalid choice. Please enter a number between 1 and 8.");
+                    System.err.println("Invalid input. Please enter a number.");
+                    scanner.nextLine(); // Consume invalid input
                 }
-            } else {
-                System.err.println("Invalid input. Please enter a number.");
-                scanner.nextLine(); // Consume invalid input
             }
-        }
 
-        // Handle menu choices
-        switch (choice) {
-            case 1:
-                addDonor();
-                break;
-            case 2:
-                updateDonor();
-                break;
-            case 3:
-                deleteDonor();
-                break;
-            case 4:
-                viewAllDonors();
-                break;
-            case 5:
-                searchDonors();
-                break;
-            case 6:
-                filterDonors();
-                break;
-            case 7:
-                showReportMenu();
-                break;
-            case 8:
-                System.err.println("Exiting Donor Maintenance System.");
-                break;
-            default:
-                System.err.println("Invalid choice. Please try again.");
-        }
+            // Handle menu choices
+            switch (choice) {
+                case 1:
+                    addDonor();
+                    break;
+                case 2:
+                    updateDonor();
+                    break;
+                case 3:
+                    deleteDonor();
+                    break;
+                case 4:
+                    viewAllDonors();
+                    break;
+                case 5:
+                    searchDonors();
+                    break;
+                case 6:
+                    filterDonors();
+                    break;
+                case 7:
+                    showReportMenu();
+                    break;
+                case 8:
+                    System.out.println("Exiting Donor Maintenance System.");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
 
-    } while (choice != 8); // Correct exit condition
-}
-
+        } while (choice != 8); // Correct exit condition
+    }
 
     private void showMenu() {
         System.out.println("\n====================================");
@@ -94,8 +93,8 @@ public void start() {
     // add donor
     private void addDonor() {
         String name, contactNumber, email, address, donorType, donationPreference, donorTimes, totalAmount;
-        
-       System.out.println("\n====================================");
+
+        System.out.println("\n====================================");
         System.out.println("      Donor Account Creation");
         System.out.println("====================================");
         while (true) {
@@ -409,7 +408,9 @@ public void start() {
     // view all donors
 
     private void viewAllDonors() {
-        while (true) {
+        boolean continueViewing = true; // Flag to control the loop
+
+        while (continueViewing) {
             // Display the list of all donors
             donorMaintenance.viewAllDonors();
 
@@ -422,11 +423,14 @@ public void start() {
             // Process the user's choice
             if (ValidationUI.isDigit(input)) {
                 int choice = Integer.parseInt(input);
-                handleSortingChoice(choice);
+
+                // Process the sorting choice and check if the user wants to exit
+                continueViewing = handleSortingChoice(choice);
             } else {
                 System.err.println("Invalid input. Please enter a valid number.");
             }
         }
+        System.out.println("Exiting the sorting menu...");
     }
 
     private void displaySortingOptions() {
@@ -442,7 +446,7 @@ public void start() {
         return scanner.nextLine(); // Read input as String for validation
     }
 
-    private void handleSortingChoice(int choice) {
+    private boolean handleSortingChoice(int choice) {
         switch (choice) {
             case 1:
                 sortById();
@@ -454,17 +458,12 @@ public void start() {
                 sortByAmount();
                 break;
             case 4:
-                exitToMainMenu();
-                return; // Exit the method to avoid re-prompting
+                return false; // Return false to exit the loop
             default:
                 System.err.println("Invalid choice. Please enter a number between 1 and 4.");
                 break;
         }
-    }
-
-    private void exitToMainMenu() {
-        System.out.println("Exiting to the main menu...");
-        start(); // Assumes this method returns to the main menu
+        return true; // Continue looping
     }
 
     // Sort by ID
@@ -482,19 +481,18 @@ public void start() {
                 switch (choice) {
                     case 1:
                         donorMaintenance.sortByIdDescending();
+                        donorMaintenance.viewAllDonors(); // Display sorted donors
                         break;
                     case 2:
                         donorMaintenance.sortByIdAscending();
+                        donorMaintenance.viewAllDonors(); // Display sorted donors
                         break;
                     case 3:
-                        return; // Return to the previous menu (viewAllDonors)
+                        return; // Exit to the previous menu
                     default:
                         System.err.println("Invalid choice. Please try again.");
                         continue; // Re-display the sorting menu
                 }
-                // Re-display the donors list after sorting
-                viewAllDonors();
-                return;
             } else {
                 System.err.println("Invalid input. Please enter a valid number.");
             }
@@ -516,19 +514,18 @@ public void start() {
                 switch (choice) {
                     case 1:
                         donorMaintenance.sortByNameDescending();
+                        donorMaintenance.viewAllDonors(); // Display sorted donors
                         break;
                     case 2:
                         donorMaintenance.sortByNameAscending();
+                        donorMaintenance.viewAllDonors(); // Display sorted donors
                         break;
                     case 3:
-                        return; // Return to the previous menu (viewAllDonors)
+                        return; // Exit to the previous menu
                     default:
                         System.err.println("Invalid choice. Please try again.");
                         continue; // Re-display the sorting menu
                 }
-                // Re-display the donors list after sorting
-                viewAllDonors();
-                return;
             } else {
                 System.err.println("Invalid input. Please enter a valid number.");
             }
@@ -550,19 +547,18 @@ public void start() {
                 switch (choice) {
                     case 1:
                         donorMaintenance.sortByAmountDescending();
+                        donorMaintenance.viewAllDonors(); // Display sorted donors
                         break;
                     case 2:
                         donorMaintenance.sortByAmountAscending();
+                        donorMaintenance.viewAllDonors(); // Display sorted donors
                         break;
                     case 3:
-                        return; // Return to the previous menu (viewAllDonors)
+                        return; // Exit to the previous menu
                     default:
                         System.err.println("Invalid choice. Please try again.");
                         continue; // Re-display the sorting menu
                 }
-                // Re-display the donors list after sorting
-                viewAllDonors();
-                return;
             } else {
                 System.err.println("Invalid input. Please enter a valid number.");
             }
@@ -570,7 +566,9 @@ public void start() {
     }
 
     private void searchDonors() {
-        while (true) {
+        boolean continueSearching = true; // Flag to control the loop
+
+        while (continueSearching) {
             // Display search menu
             System.out.println("\n--- Search Donors ---");
             System.out.println("1. Search by Donor ID");
@@ -610,23 +608,26 @@ public void start() {
                         foundDonor = donorMaintenance.findDonorByEmail(searchValue);
                         break;
                     case 5:
-                        exitToMainMenu();
-                        return; // Exit the method
+                        continueSearching = false; // Set flag to false to exit the loop
+                        break;
                     default:
                         System.err.println("Invalid choice. Please enter a number between 1 and 5.");
                         continue; // Re-prompt the menu
                 }
 
-                // Display the search result
-                if (foundDonor != null) {
-                    System.out.println("\n" + foundDonor);
-                } else {
-                    System.err.println("Donor not found.");
+                // Display the search result if a search was performed
+                if (choice >= 1 && choice <= 4) {
+                    if (foundDonor != null) {
+                        System.out.println("\n" + foundDonor);
+                    } else {
+                        System.err.println("Donor not found.");
+                    }
                 }
             } else {
                 System.err.println("Invalid input. Please enter a valid number.");
             }
         }
+        System.out.println("Exiting the search menu...");
     }
 
     // ------------------------------------------------------------------------------------------------
