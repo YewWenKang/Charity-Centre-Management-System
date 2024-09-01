@@ -52,7 +52,7 @@ public class DoneeMaintenanceUI {
         printDash(38);
         System.out.println();
         System.out.println("| 1. | Apply for food                |");
-        System.out.println("| 2. | Apple for daily expenses      |");
+        System.out.println("| 2. | Apply for daily expenses      |");
         System.out.println("| 3. | Apply for cash                |");
         System.out.println("| 4. | Show Available Aid            |");
         System.out.println("| 0. | Quit                          |");
