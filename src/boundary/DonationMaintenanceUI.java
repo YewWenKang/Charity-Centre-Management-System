@@ -23,7 +23,9 @@ public class DonationMaintenanceUI {
 
     // Method to display the main menu
     public void displayMenu() {
-        while (true) {
+        boolean running = true; // Flag to control the loop
+    
+        while (running) {
             System.out.println("\n=============================");
             System.out.println("  Donation Maintenance Menu");
             System.out.println("=============================");
@@ -74,7 +76,8 @@ public class DonationMaintenanceUI {
                     break;
                 case 0:
                     System.err.println("Exiting menu...");
-                    return; // Exit the method
+                    running = false; // Set flag to false to exit loop
+                    break; // Exit the switch statement
                 default:
                     // This case should not be reachable due to validation
                     System.err.println("Invalid choice. Please try again.");
@@ -373,22 +376,36 @@ public class DonationMaintenanceUI {
 
     // -----------------------------------------------------------------------------------------------
     private void donationReport() {
-        System.out.println("1. Donation Summary Report");
-        System.out.println("0. Return to menu");
-        System.out.print("Enter your choice: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
-
-        switch (choice) {
-            case 1:
-                donationMaintenance.generateDonationSummaryReport();
-                displayMenu();
-                break;
-            case 0:
-                return;
-            default:
-                System.out.println("Invalid choice. Please try again.");
-                break;
+        boolean validChoice = false;
+    
+        while (!validChoice) {
+            System.out.println("1. Donation Summary Report");
+            System.out.println("0. Return to menu");
+            System.out.print("Enter your choice: ");
+            int choice = -1; // Initial value outside of valid range
+    
+            // Validation loop for choice input
+            if (scanner.hasNextInt()) {
+                choice = scanner.nextInt();
+                scanner.nextLine(); // Consume newline
+    
+                switch (choice) {
+                    case 1:
+                        donationMaintenance.generateDonationSummaryReport();
+                        validChoice = true;
+                        break;
+                    case 0:
+                        validChoice = true; // Exit the loop and return to menu
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                        break;
+                }
+            } else {
+                System.err.println("Invalid input. Please enter a number.");
+                scanner.nextLine(); // Consume invalid input
+            }
         }
     }
+    
 }
