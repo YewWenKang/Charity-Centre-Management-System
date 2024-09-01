@@ -1,12 +1,12 @@
 Main Menu
 -----------------------
-1.Donor Management
-2.Donation Management
-3.Donee Management
-4.Volunteer Management 
-5.Exit
+1. Donor Management
+2. Donation Management
+3. Donee Management
+4. Volunteer Management 
+5. Exit
 
-choose either 1 to run the specific management subsystem
+Choose a number (1-5) to run the specific management subsystem.
 
 Donor Maintenance System User Guide
 -------------------------------------------
