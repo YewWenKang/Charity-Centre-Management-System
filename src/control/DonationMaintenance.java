@@ -663,23 +663,27 @@ public class DonationMaintenance {
     // ------------------------------------------------------------------------------------------------
     // report
     public void generateDonationSummaryReport() {
+        // Load the existing donations from CSV
+        FileDao<Donation> fileDao = new FileDao<>();
+        ListInterface<Donation> donations = fileDao.loadDataFromCSV("Donation.csv", this::mapRowToDonation);
+    
         double totalAmountDonated = 0;
-        int totalDonations = donationLinkedList.size();
+        int totalDonations = donations.size();
         HashMapInterface<String, Integer> donorDonationCount = new HashMapImplementation<>();
         HashMapInterface<String, Double> donorDonationAmount = new HashMapImplementation<>();
     
         // Calculate total amounts and donations for each donor
-        for (int i = 0; i < donationLinkedList.size(); i++) {
-            Donation donation = donationLinkedList.get(i);
+        for (int i = 0; i < donations.size(); i++) {
+            Donation donation = donations.get(i);
             double amount = donation.getAmount();
             totalAmountDonated += amount;
     
             String donorId = donation.getDonorId();
-            
+    
             // Ensure getOrDefault and put methods work properly in your custom map implementation
             int currentCount = donorDonationCount.containsKey(donorId) ? donorDonationCount.get(donorId) : 0;
             donorDonationCount.put(donorId, currentCount + 1);
-            
+    
             double currentAmount = donorDonationAmount.containsKey(donorId) ? donorDonationAmount.get(donorId) : 0.0;
             donorDonationAmount.put(donorId, currentAmount + amount);
         }
