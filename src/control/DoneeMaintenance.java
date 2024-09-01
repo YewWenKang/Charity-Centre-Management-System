@@ -275,6 +275,7 @@ public class DoneeMaintenance {
                         case "5":
                             String updatedDoneeType = validateDoneeType();
                             if (updatedDoneeType.equalsIgnoreCase("Organization")) {
+                                result.setDoneeType("Organization");
                                 String updateOrganizationName = validateOrganizationName(updatedDoneeType);
                                 result.setOrganizationName(updateOrganizationName);
                                 System.out.println("Donee type updated to Organization.");
