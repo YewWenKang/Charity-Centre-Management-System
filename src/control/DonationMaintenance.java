@@ -1,3 +1,5 @@
+//author: Choo Mun Chun
+
 package control;
 
 import ADT.DictionaryInterface;

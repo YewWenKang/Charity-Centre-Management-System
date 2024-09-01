@@ -1,3 +1,5 @@
+//author: Choo Mun Chun
+
 package control;
 
 import ADT.DictionaryInterface;
@@ -83,33 +85,32 @@ public class DonorMaintenance {
     }
 
     // Method to read existing donor IDs from the CSV file
-private DictionaryInterface<Integer, Void> getExistingDonorIds() {
-    DictionaryInterface<Integer, Void> existingIds = new HashedDictionary<>();
-    Pattern pattern = Pattern.compile("DA(\\d{3})");
+    private DictionaryInterface<Integer, Void> getExistingDonorIds() {
+        DictionaryInterface<Integer, Void> existingIds = new HashedDictionary<>();
+        Pattern pattern = Pattern.compile("DA(\\d{3})");
 
-    try (BufferedReader br = new BufferedReader(new FileReader(CSV_FILE_NAME))) {
-        String line;
-        boolean firstLine = true;
-        while ((line = br.readLine()) != null) {
-            if (firstLine) {
-                firstLine = false; // Skip the header line
-                continue;
+        try (BufferedReader br = new BufferedReader(new FileReader(CSV_FILE_NAME))) {
+            String line;
+            boolean firstLine = true;
+            while ((line = br.readLine()) != null) {
+                if (firstLine) {
+                    firstLine = false; // Skip the header line
+                    continue;
+                }
+                Matcher matcher = pattern.matcher(line);
+                if (matcher.find()) {
+                    int id = Integer.parseInt(matcher.group(1));
+                    existingIds.add(id, null); // Add ID to dictionary with null value
+                }
             }
-            Matcher matcher = pattern.matcher(line);
-            if (matcher.find()) {
-                int id = Integer.parseInt(matcher.group(1));
-                existingIds.add(id, null); // Add ID to dictionary with null value
-            }
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found: " + CSV_FILE_NAME);
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    } catch (FileNotFoundException e) {
-        System.err.println("File not found: " + CSV_FILE_NAME);
-        e.printStackTrace();
-    } catch (IOException e) {
-        e.printStackTrace();
+        return existingIds;
     }
-    return existingIds;
-}
-
 
     public boolean addDonor(String donorId, String name, String contactNumber, String email, String address,
             String donorType, String donationPreference, String donorTimes, String totalAmount) {
@@ -137,26 +138,30 @@ private DictionaryInterface<Integer, Void> getExistingDonorIds() {
         return true;
     }
 
-    //-------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------
     // Method to update donor details
     public boolean updateDonor(String donorId, String name, String contactNumber, String email,
             String address, String donorType, String donationPreference) {
-        Donor donor = findDonorById(donorId);
+        // Find the donor using the ADT method
+        Donor donor = findDonorById(donorId); // Assume this uses ADT internally
         if (donor == null) {
             System.out.println("\nError: Donor not found.");
             return false;
         }
 
-        // Check if the contact number already exists in another donor's record
-        for (Donor d : donorList) {
+        // Check if the contact number already exists in another donor's record using
+        // ADT methods
+        for (int i = 0; i < donorList.size(); i++) {
+            Donor d = donorList.get(i);
             if (!d.getDonorId().equals(donorId) && d.getContactNumber().equals(contactNumber)) {
                 System.out.println("\nError: Contact number already exists.");
                 return false;
             }
         }
 
-        // Check if the email already exists in another donor's record
-        for (Donor d : donorList) {
+        // Check if the email already exists in another donor's record using ADT methods
+        for (int i = 0; i < donorList.size(); i++) {
+            Donor d = donorList.get(i);
             if (!d.getDonorId().equals(donorId) && d.getEmail().equals(email)) {
                 System.out.println("\nError: Email already exists.");
                 return false;
@@ -171,7 +176,7 @@ private DictionaryInterface<Integer, Void> getExistingDonorIds() {
         donor.setDonorType(donorType);
         donor.setDonationPreference(donationPreference);
 
-        // Save changes
+        // Save changes using ADT methods
         if (saveDonorsToCSV()) {
             System.out.println("\nDonor updated successfully!");
             return true;
@@ -181,7 +186,7 @@ private DictionaryInterface<Integer, Void> getExistingDonorIds() {
         }
     }
 
-    //-------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------
     // Method to delete a donor
 
     public boolean deleteDonor(String donorId) {
@@ -201,7 +206,7 @@ private DictionaryInterface<Integer, Void> getExistingDonorIds() {
         return donorList;
     }
 
-    //-------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------
     // Method to display all donors
 
     public void viewAllDonors() {
@@ -232,8 +237,7 @@ private DictionaryInterface<Integer, Void> getExistingDonorIds() {
         }
     }
 
-    
-    //merge sort
+    // merge sort
     private ListInterface<Donor> mergeSort(ListInterface<Donor> list, Comparator<Donor> comparator) {
         if (list.size() <= 1) {
             return list;
@@ -317,7 +321,7 @@ private DictionaryInterface<Integer, Void> getExistingDonorIds() {
         }
     }
 
-    //-------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------
     // Method to search for a donor by ID, name, email, or contact number
 
     public Donor findDonorById(String donorId) {
@@ -348,7 +352,7 @@ private DictionaryInterface<Integer, Void> getExistingDonorIds() {
                 .orElse(null);
     }
 
-    //-------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------
 
     // filter
     // Method to display the filtered donors
@@ -365,8 +369,6 @@ private DictionaryInterface<Integer, Void> getExistingDonorIds() {
             System.out.println("-------------------------------------------------------------"
                     + "-----------------------------------------------------------------------------");
 
-        
-            
             for (TreeMapInterface.CustomEntry<String, Donor> entry : filteredDonors.entries()) {
                 Donor donor = entry.getValue();
                 System.out.printf("%-10s %-20s %-15s %-25s %-20s %-20s %-15s %-15s%n",
@@ -381,7 +383,6 @@ private DictionaryInterface<Integer, Void> getExistingDonorIds() {
             }
         }
     }
-    
 
     public TreeMapInterface<String, Donor> filterByDonorType(String donorType) {
         TreeMapInterface<String, Donor> result = new TreeMapImplementation<>();
@@ -430,7 +431,7 @@ private DictionaryInterface<Integer, Void> getExistingDonorIds() {
         return result;
     }
 
-    //-------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------
 
     public boolean saveDonorsToCSV() {
         try {
@@ -529,26 +530,26 @@ private DictionaryInterface<Integer, Void> getExistingDonorIds() {
                 }))
                 .orElse(null);
 
-                System.out.println("\n" + "-".repeat(50));
-                System.out.println("              Donor Summary Report");
-                System.out.println("-".repeat(50) + "\n");
-                
-                System.out.printf("%-30s : %d%n", "Total Number of Donors", totalDonors);
-                System.out.printf("%-30s : %d%n", "Number of Unique Donor Types", totalDonorTypes);
-                System.out.printf("%-30s : RM %.2f%n", "Total Amount Donated", totalAmountDonated);
-                System.out.printf("%-30s : %d%n", "Highest Number of Donations", highestDonationTimes);
-                
-                System.out.println();
-                
-                if (topDonor != null) {
-                    System.out.println("Top Donor:");
-                    System.out.printf("  %-20s : %s%n", "Name", topDonor.getName());
-                    System.out.printf("  %-20s : RM %.2f%n", "Total Amount", Double.parseDouble(topDonor.getTotalAmount()));
-                } else {
-                    System.out.println("No donors found.");
-                }
-                
-                System.out.println("\n" + "-".repeat(50));
+        System.out.println("\n" + "-".repeat(50));
+        System.out.println("              Donor Summary Report");
+        System.out.println("-".repeat(50) + "\n");
+
+        System.out.printf("%-30s : %d%n", "Total Number of Donors", totalDonors);
+        System.out.printf("%-30s : %d%n", "Number of Unique Donor Types", totalDonorTypes);
+        System.out.printf("%-30s : RM %.2f%n", "Total Amount Donated", totalAmountDonated);
+        System.out.printf("%-30s : %d%n", "Highest Number of Donations", highestDonationTimes);
+
+        System.out.println();
+
+        if (topDonor != null) {
+            System.out.println("Top Donor:");
+            System.out.printf("  %-20s : %s%n", "Name", topDonor.getName());
+            System.out.printf("  %-20s : RM %.2f%n", "Total Amount", Double.parseDouble(topDonor.getTotalAmount()));
+        } else {
+            System.out.println("No donors found.");
+        }
+
+        System.out.println("\n" + "-".repeat(50));
     }
 
     public static void main(String[] args) {
