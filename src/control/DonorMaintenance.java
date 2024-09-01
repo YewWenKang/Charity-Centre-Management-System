@@ -241,28 +241,28 @@ public class DonorMaintenance {
         if (list.size() <= 1) {
             return list;
         }
-
+    
         int middle = list.size() / 2;
         ListInterface<Donor> left = new LinkedList<>();
         ListInterface<Donor> right = new LinkedList<>();
-
+    
         for (int i = 0; i < middle; i++) {
             left.add(list.get(i));
         }
         for (int i = middle; i < list.size(); i++) {
             right.add(list.get(i));
         }
-
+    
         left = mergeSort(left, comparator);
         right = mergeSort(right, comparator);
-
+    
         return merge(left, right, comparator);
     }
-
+    
     private ListInterface<Donor> merge(ListInterface<Donor> left, ListInterface<Donor> right,
             Comparator<Donor> comparator) {
         ListInterface<Donor> result = new LinkedList<>();
-
+    
         while (!left.isEmpty() && !right.isEmpty()) {
             if (comparator.compare(left.get(0), right.get(0)) <= 0) {
                 result.add(left.remove(0));
@@ -270,55 +270,55 @@ public class DonorMaintenance {
                 result.add(right.remove(0));
             }
         }
-
+    
         while (!left.isEmpty()) {
             result.add(left.remove(0));
         }
-
+    
         while (!right.isEmpty()) {
             result.add(right.remove(0));
         }
-
+    
         return result;
     }
-
+    
     public void sortByIdAscending() {
         ListInterface<Donor> sortedList = mergeSort(getAllDonors(), Comparator.comparing(Donor::getDonorId));
         updateDonorList(sortedList);
     }
-
+    
     public void sortByIdDescending() {
         ListInterface<Donor> sortedList = mergeSort(getAllDonors(), Comparator.comparing(Donor::getDonorId).reversed());
         updateDonorList(sortedList);
     }
-
+    
     public void sortByNameAscending() {
         ListInterface<Donor> sortedList = mergeSort(getAllDonors(), Comparator.comparing(Donor::getName));
         updateDonorList(sortedList);
     }
-
+    
     public void sortByNameDescending() {
         ListInterface<Donor> sortedList = mergeSort(getAllDonors(), Comparator.comparing(Donor::getName).reversed());
         updateDonorList(sortedList);
     }
-
+    
     public void sortByAmountAscending() {
-        ListInterface<Donor> sortedList = mergeSort(getAllDonors(), Comparator.comparing(Donor::getTotalAmount));
+        ListInterface<Donor> sortedList = mergeSort(getAllDonors(), Comparator.comparing(Donor::getTotalAmountAsDouble));
         updateDonorList(sortedList);
     }
-
+    
     public void sortByAmountDescending() {
-        ListInterface<Donor> sortedList = mergeSort(getAllDonors(),
-                Comparator.comparing(Donor::getTotalAmount).reversed());
+        ListInterface<Donor> sortedList = mergeSort(getAllDonors(), Comparator.comparing(Donor::getTotalAmountAsDouble).reversed());
         updateDonorList(sortedList);
     }
-
+    
     private void updateDonorList(ListInterface<Donor> sortedList) {
         donorList.clear();
         for (int i = 0; i < sortedList.size(); i++) {
             donorList.add(sortedList.get(i));
         }
     }
+    
 
     // -------------------------------------------------------------------------------------------------
     // Method to search for a donor by ID, name, email, or contact number

@@ -99,6 +99,14 @@ public class Donor {
         this.totalAmount = totalAmount;
     }
 
+    public double getTotalAmountAsDouble() {
+        try {
+            return Double.parseDouble(getTotalAmount()); // Convert totalAmount to double
+        } catch (NumberFormatException e) {
+            return 0; // Handle conversion failure
+        }
+    }
+
     // Additional methods for managing the donor entity can be added here
 
     @Override

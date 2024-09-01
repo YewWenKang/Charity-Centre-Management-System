@@ -29,7 +29,7 @@ import java.util.function.Function;
 public class DonationMaintenance {
     private final DictionaryInterface<String, ListInterface<Donation>> donationHashMap;
     private final TreeMapInterface<Date, ListInterface<Donation>> donationTreeMap;
-    private final ListInterface<Donation> donationLinkedList;
+    public ListInterface<Donation> donationLinkedList;
     private static final String DONATION_CSV_PATH = "Donation.csv";
     private int donationCounter;
 
@@ -244,6 +244,9 @@ public class DonationMaintenance {
 
     // Method to retrieve all donations
     public ListInterface<Donation> getAllDonations() {
+        // Load the existing donations from CSV
+        FileDao<Donation> fileDao = new FileDao<>();
+        donationLinkedList = fileDao.loadDataFromCSV("Donation.csv", this::mapRowToDonation);
         return donationLinkedList;
     }
 
@@ -424,7 +427,7 @@ public class DonationMaintenance {
         System.out.println(
                 "------------------------------------------------------------------------------------------------" +
                         "-------------------------------");
-
+    
         for (Donation donation : donations) {
             System.out.printf("%-12s %-10s %-10.2f %-20s %-15s %-15s %-10s %-30s%n",
                     donation.getDonationId(),
@@ -437,6 +440,9 @@ public class DonationMaintenance {
                     donation.getNotes());
         }
     }
+
+
+    // ------------------------------------------------------------------------------------------------
 
     // Method to find donations by Date Range
     public ListInterface<Donation> getDonationsByDateRange(Date startDate, Date endDate) {
@@ -461,10 +467,10 @@ public class DonationMaintenance {
     public void deleteDonation(String donationId) {
         // Load the existing donations from CSV
         FileDao<Donation> fileDao = new FileDao<>();
-        ListInterface<Donation> donations = fileDao.loadDataFromCSV("Donation.csv", this::mapRowToDonation);
+        donationLinkedList = fileDao.loadDataFromCSV("Donation.csv", this::mapRowToDonation);
 
         // Find the donation with the given donationId
-        Donation donationToDelete = donations.stream()
+        Donation donationToDelete = donationLinkedList.stream()
                 .filter(d -> d.getDonationId().equals(donationId))
                 .findFirst()
                 .orElse(null);
@@ -476,7 +482,7 @@ public class DonationMaintenance {
             updateDeletedDetails(donationToDelete.getDonorId(), donationToDelete.getAmount());
 
             // Remove the donation from the list
-            donations.remove(donationToDelete);
+            donationLinkedList.remove(donationToDelete);
 
             // Reassign donation IDs
             reassignDonationIds();
@@ -492,7 +498,7 @@ public class DonationMaintenance {
             headers.add("Donation Type");
             headers.add("Notes");
 
-            fileDao.writeDataToCSV("Donation.csv", headers, donations, this::mapDonationToRow);
+            fileDao.writeDataToCSV("Donation.csv", headers, donationLinkedList, this::mapDonationToRow);
             System.out.println("Donation deleted successfully.");
         } else {
             System.out.println("Donation with ID " + donationId + " not found.");
@@ -666,30 +672,31 @@ public class DonationMaintenance {
         // Load the existing donations from CSV
         FileDao<Donation> fileDao = new FileDao<>();
         ListInterface<Donation> donations = fileDao.loadDataFromCSV("Donation.csv", this::mapRowToDonation);
-    
+
         double totalAmountDonated = 0;
         int totalDonations = donations.size();
         HashMapInterface<String, Integer> donorDonationCount = new HashMapImplementation<>();
         HashMapInterface<String, Double> donorDonationAmount = new HashMapImplementation<>();
-    
+
         // Calculate total amounts and donations for each donor
         for (int i = 0; i < donations.size(); i++) {
             Donation donation = donations.get(i);
             double amount = donation.getAmount();
             totalAmountDonated += amount;
-    
+
             String donorId = donation.getDonorId();
-    
-            // Ensure getOrDefault and put methods work properly in your custom map implementation
+
+            // Ensure getOrDefault and put methods work properly in your custom map
+            // implementation
             int currentCount = donorDonationCount.containsKey(donorId) ? donorDonationCount.get(donorId) : 0;
             donorDonationCount.put(donorId, currentCount + 1);
-    
+
             double currentAmount = donorDonationAmount.containsKey(donorId) ? donorDonationAmount.get(donorId) : 0.0;
             donorDonationAmount.put(donorId, currentAmount + amount);
         }
-    
+
         double averageDonationAmount = (totalDonations > 0) ? totalAmountDonated / totalDonations : 0;
-    
+
         // Displaying the summary report
         System.out.println("\n==============================");
         System.out.println("  Donation Summary Report");
@@ -700,19 +707,18 @@ public class DonationMaintenance {
         System.out.println("==============================");
         System.out.println(" Donations by Donor:");
         System.out.println("==============================");
-    
+
         // Correct iteration over the custom HashMapInterface
         for (HashMapInterface.Entry<String, Integer> entry : donorDonationCount.entrySet()) {
             String donorId = entry.getKey();
             int totalDonorDonations = entry.getValue();
             double totalDonorAmount = donorDonationAmount.get(donorId);
-    
+
             System.out.printf(" Donor ID: %s | Total Donations: %d | Total Amount: RM %.2f%n",
                     donorId, totalDonorDonations, totalDonorAmount);
         }
         System.out.println("==============================");
     }
-    
 
     // ------------------------------------------------------------------------------------------------
     // Method to display donations
