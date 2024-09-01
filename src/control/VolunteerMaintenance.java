@@ -616,9 +616,4 @@ public class VolunteerMaintenance {
             }
         } while (choice != 0);
     }
-
-    public static void main(String[] args) {
-        VolunteerMaintenance volunteerMaintenance = new VolunteerMaintenance();
-        volunteerMaintenance.runVolunteerMaintenance();
-    }
 }

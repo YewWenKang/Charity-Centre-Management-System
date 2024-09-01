@@ -9,7 +9,6 @@ import ADT.ListInterface;
 import ADT.TreeMapImplementation;
 import ADT.TreeMapInterface;
 import DAO.FileDao;
-import boundary.DonorMaintenanceUI;
 import entity.Donor;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -550,10 +549,5 @@ public class DonorMaintenance {
         }
 
         System.out.println("\n" + "-".repeat(50));
-    }
-
-    public static void main(String[] args) {
-        DonorMaintenanceUI ui = new DonorMaintenanceUI();
-        ui.start();
     }
 }

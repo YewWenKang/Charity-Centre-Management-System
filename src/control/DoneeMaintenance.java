@@ -1,17 +1,17 @@
 //Author : Yew Wen Kang
 package control;
 
-import ADT.LinkedStack;
+import ADT.HashMapImplementation;
+import ADT.HashMapInterface;
 import ADT.LinkedList;
+import ADT.LinkedStack;
 import ADT.ListInterface;
-import boundary.DoneeMaintenanceUI;
-import entity.Donee;
-import utility.MessageUI;
-import DAO.DoneeDAO;
-import utility.ValidationUI;
 import ADT.StackInterface;
+import DAO.DoneeDAO;
+import boundary.DoneeMaintenanceUI;
 import entity.Distribution;
 import entity.Donation;
+import entity.Donee;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,9 +23,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
-import ADT.HashMapImplementation;
-import ADT.HashMapInterface;
-import javax.print.PrintException;
+import utility.MessageUI;
+import utility.ValidationUI;
 
 public class DoneeMaintenance {
 
@@ -1156,11 +1155,6 @@ public class DoneeMaintenance {
             }
         }
 
-    }
-
-    public static void main(String[] args) throws ParseException {
-        DoneeMaintenance doneeMaintenance = new DoneeMaintenance();
-        doneeMaintenance.runDoneeMaintenance();
     }
 
 }

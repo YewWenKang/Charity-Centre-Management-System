@@ -390,10 +390,4 @@ public class DonationMaintenanceUI {
                 break;
         }
     }
-
-    public static void main(String[] args) {
-        DonationMaintenance donationMaintenance = new DonationMaintenance();
-        DonationMaintenanceUI ui = new DonationMaintenanceUI(donationMaintenance);
-        ui.displayMenu();
-    }
 }
